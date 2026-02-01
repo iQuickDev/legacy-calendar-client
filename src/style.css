@@ -1,0 +1,15 @@
+@import "primeicons/primeicons.css";
+@import "tailwindcss";
+@import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap';
+
+:root {
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  background-color: #000000;
+}
+
+.p-menubar {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+}

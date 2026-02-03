@@ -1,11 +1,13 @@
+// Aligned with API Event interface
 export interface CalendarEvent {
-    id: string;
+    id: number;
     title: string;
-    description: string;
-    location: string;
-    startDate: Date;
-    endDate?: Date;
-    participants: string[]; // List of names or IDs
+    description?: string;
+    location?: string;
+    startTime: string; // ISO string
+    endTime: string;   // ISO string
+    hostId?: string;
+    participants?: string[]; // List of participant IDs
 }
 
 export interface CalendarDay {
@@ -14,3 +16,4 @@ export interface CalendarDay {
     isToday: boolean;
     events: CalendarEvent[];
 }
+

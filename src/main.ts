@@ -3,6 +3,7 @@ import './style.css'
 import App from './App.vue'
 import { router } from './router/router'
 import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
 import OledPreset from './theme/oled';
 import { createPinia } from 'pinia'
 
@@ -16,4 +17,7 @@ createApp(App)
                 darkModeSelector: '.dark',
             }
         }
-    }).mount('#app')
+    })
+    .use(ToastService)
+    .mount('#app')
+

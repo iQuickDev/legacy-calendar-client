@@ -1,46 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Badge from 'primevue/badge';
-
+import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import Menubar from 'primevue/menubar';
+import { useSessionStore } from '../stores/session';
+import { router } from '../router/router';
 
+const sessionStore = useSessionStore();
+
+const isAuthenticated = computed(() => sessionStore.isAuthenticated);
+const currentUser = computed(() => sessionStore.currentUser);
+
+const handleLogout = async () => {
+    await sessionStore.logout();
+    router.push({ name: 'login' });
+};
 
 const items = ref([
     {
-        label: 'Home',
-        icon: 'pi pi-home'
+        label: 'Calendar',
+        icon: 'pi pi-calendar',
+        command: () => {
+            router.push({ name: 'calendar' });
+        }
     },
     {
-        label: 'Projects',
-        icon: 'pi pi-search',
-        badge: 3,
-        items: [
-            {
-                label: 'Core',
-                icon: 'pi pi-bolt',
-                shortcut: '⌘+S'
-            },
-            {
-                label: 'Blocks',
-                icon: 'pi pi-server',
-                shortcut: '⌘+B'
-            },
-            {
-                separator: true
-            },
-            {
-                label: 'UI Kit',
-                icon: 'pi pi-pencil',
-                shortcut: '⌘+U'
-            }
-        ]
+        label: 'Admin',
+        icon: 'pi pi-lock',
+        command: () => {
+            router.push({ name: 'admin' });
+        }
     }
 ]);
 </script>
 
 <template>
-    <Menubar :model="items">
+    <Menubar :model="isAuthenticated ? items : []">
         <template #start>
             <svg width="35" height="40" viewBox="0 0 35 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-8">
                 <path
@@ -64,13 +60,15 @@ const items = ref([
             </a>
         </template>
         <template #end>
-            <div class="flex items-center gap-2">
-                <Avatar image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png" shape="circle" />
+            <div v-if="isAuthenticated" class="flex items-center gap-3">
+                <span class="text-sm text-zinc-300">{{ currentUser?.username }}</span>
+                <Avatar :label="currentUser?.username?.charAt(0)?.toUpperCase() || 'U'" shape="circle"
+                    class="bg-primary text-primary-contrast" />
+                <Button icon="pi pi-sign-out" severity="secondary" text rounded aria-label="Logout"
+                    @click="handleLogout" v-tooltip.bottom="'Logout'" />
             </div>
         </template>
     </Menubar>
 </template>
 
-<style scoped>  
-
-</style>
+<style scoped></style>

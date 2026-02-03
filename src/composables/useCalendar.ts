@@ -10,25 +10,28 @@ import {
     isSameMonth,
     isSameDay,
     isToday,
-    addHours
+    parseISO
 } from 'date-fns';
 import type { CalendarDay, CalendarEvent } from '../types/Calendar';
+import { useEventsStore } from '../stores/events';
+import type { CreateEventDto } from '../services/API';
 
 export function useCalendar() {
     const currentDate = ref(new Date());
+    const eventsStore = useEventsStore();
 
-    // Mock events state
-    const events = ref<CalendarEvent[]>([
-        {
-            id: '1',
-            title: 'Team Meeting',
-            description: 'Weekly sync',
-            location: 'Conference Room A',
-            startDate: new Date(),
-            endDate: addHours(new Date(), 1),
-            participants: ['Alice', 'Bob']
-        }
-    ]);
+    // Get events from store
+    const events = computed<CalendarEvent[]>(() =>
+        eventsStore.events.map(event => ({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            location: event.location,
+            startTime: event.startTime,
+            endTime: event.endTime,
+            hostId: event.hostId,
+        }))
+    );
 
     const days = computed<CalendarDay[]>(() => {
         const monthStart = startOfMonth(currentDate.value);
@@ -41,7 +44,10 @@ export function useCalendar() {
         const dates = eachDayOfInterval({ start: startDate, end: endDate });
 
         return dates.map(date => {
-            const dayEvents = events.value.filter(e => isSameDay(e.startDate, date));
+            const dayEvents = events.value.filter(e => {
+                const eventDate = parseISO(e.startTime);
+                return isSameDay(eventDate, date);
+            });
 
             return {
                 date,
@@ -60,29 +66,34 @@ export function useCalendar() {
         currentDate.value = subMonths(currentDate.value, 1);
     };
 
-    const addEvent = (event: CalendarEvent) => {
-        events.value.push(event);
+    const fetchEvents = async () => {
+        await eventsStore.fetchEvents();
     };
 
-    const updateEvent = (id: string, updates: Partial<Omit<CalendarEvent, 'id'>>) => {
-        const index = events.value.findIndex(e => e.id === id);
-        if (index !== -1) {
-            events.value[index] = { ...events.value[index], ...updates } as CalendarEvent;
-        }
+    const addEvent = async (dto: CreateEventDto) => {
+        return await eventsStore.createEvent(dto);
     };
 
-    const deleteEvent = (id: string) => {
-        events.value = events.value.filter(e => e.id !== id);
+    const deleteEvent = async (id: number) => {
+        return await eventsStore.deleteEvent(id);
+    };
+
+    const joinEvent = async (id: number) => {
+        return await eventsStore.joinEvent(id);
     };
 
     return {
         currentDate,
         days,
         events,
+        loading: computed(() => eventsStore.loading),
+        error: computed(() => eventsStore.error),
         nextMonth,
         prevMonth,
+        fetchEvents,
         addEvent,
-        updateEvent,
-        deleteEvent
+        deleteEvent,
+        joinEvent,
     };
 }
+

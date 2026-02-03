@@ -26,8 +26,8 @@ const emit = defineEmits<{
                     <Avatar icon="pi pi-user" shape="circle" size="small"
                         class="!w-6 !h-6 !text-xs bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm" />
 
-                    <Badge v-if="event.participants.length > 0" :value="event.participants.length" severity="contrast"
-                        class="!min-w-[1rem] !h-4 !text-[10px] !leading-3" />
+                    <Badge v-if="event.participants && event.participants.length > 0" :value="event.participants.length"
+                        severity="contrast" class="!min-w-[1rem] !h-4 !text-[10px] !leading-3" />
                 </div>
             </template>
         </Chip>

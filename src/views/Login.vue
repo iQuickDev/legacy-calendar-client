@@ -3,15 +3,48 @@ import { ref } from 'vue';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import Button from 'primevue/button';
+import { useToast } from 'primevue/usetoast';
 import { router } from '../router/router'
+import { useSessionStore } from '../stores/session';
+
+const toast = useToast();
+const sessionStore = useSessionStore();
 
 const username = ref('');
 const password = ref('');
 
-const handleLogin = () => {
-    // Logic to be implemented later
-    console.log('Login attempt', { username: username.value, password: password.value });
-    router.push('/calendar')
+const handleLogin = async () => {
+    if (!username.value || !password.value) {
+        toast.add({
+            severity: 'warn',
+            summary: 'Validation Error',
+            detail: 'Please enter both username and password',
+            life: 3000
+        });
+        return;
+    }
+
+    const success = await sessionStore.login({
+        username: username.value,
+        password: password.value
+    });
+
+    if (success) {
+        toast.add({
+            severity: 'success',
+            summary: 'Welcome!',
+            detail: `Logged in as ${sessionStore.currentUser?.username}`,
+            life: 2000
+        });
+        router.push('/calendar');
+    } else {
+        toast.add({
+            severity: 'error',
+            summary: 'Login Failed',
+            detail: sessionStore.error || 'Please check your credentials',
+            life: 4000
+        });
+    }
 };
 </script>
 
@@ -28,16 +61,18 @@ const handleLogin = () => {
                     <div class="space-y-2">
                         <label for="username" class="text-sm font-medium text-zinc-300">Username</label>
                         <InputText id="username" v-model="username" class="w-full" placeholder="Enter your username"
-                            fluid />
+                            :disabled="sessionStore.loading" fluid />
                     </div>
 
                     <div class="space-y-2">
                         <label for="password" class="text-sm font-medium text-zinc-300">Password</label>
                         <Password id="password" v-model="password" :feedback="false" toggleMask class="w-full"
-                            inputClass="w-full" placeholder="Enter your password" fluid />
+                            inputClass="w-full" placeholder="Enter your password" :disabled="sessionStore.loading"
+                            fluid />
                     </div>
 
-                    <Button type="submit" label="Login" class="w-full !mt-6" />
+                    <Button type="submit" :label="sessionStore.loading ? 'Signing in...' : 'Login'" class="w-full !mt-6"
+                        :loading="sessionStore.loading" :disabled="sessionStore.loading" />
                 </form>
 
                 <div class="w-full flex justify-center text-sm text-zinc-400 mt-6">

@@ -7,7 +7,7 @@ import DatePicker from 'primevue/datepicker';
 import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
-import type { CalendarEvent } from '../../types/Calendar';
+import type { CreateEventDto } from '../../services/API';
 
 const props = defineProps<{
     visible: boolean;
@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
-    (e: 'save', event: Omit<CalendarEvent, 'id'>): void;
+    (e: 'save', event: CreateEventDto): void;
 }>();
 
 const title = ref('');
@@ -83,18 +83,18 @@ const onSave = () => {
 
     emit('save', {
         title: title.value,
-        description: description.value,
-        location: location.value,
-        startDate: start,
-        endDate: end,
-        participants: selectedParticipants.value
+        description: description.value || undefined,
+        location: location.value || undefined,
+        startTime: start.toISOString(),
+        endTime: end ? end.toISOString() : start.toISOString(),
     });
 };
 </script>
 
 <template>
     <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Add New Event"
-        :style="{ width: '500px' }" :breakpoints="{ '640px': '95vw' }" class="p-fluid" dismissableMask :draggable="false">
+        :style="{ width: '500px' }" :breakpoints="{ '640px': '95vw' }" class="p-fluid" dismissableMask
+        :draggable="false">
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
                 <label for="title" class="font-semibold">Title</label>

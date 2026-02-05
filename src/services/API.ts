@@ -98,7 +98,7 @@ class API {
         return this.client.get('/users');
     }
 
-    async findOneUser(id: string): Promise<AxiosResponse<User>> {
+    async findOneUser(id: number): Promise<AxiosResponse<User>> {
         return this.client.get(`/users/${id}`);
     }
 
@@ -106,11 +106,11 @@ class API {
         return this.client.post('/users', dto);
     }
 
-    async updateUser(id: string, dto: UpdateUserDto): Promise<AxiosResponse<void>> {
+    async updateUser(id: number, dto: UpdateUserDto): Promise<AxiosResponse<void>> {
         return this.client.patch(`/users/${id}`, dto);
     }
 
-    async removeUser(id: string): Promise<AxiosResponse<void>> {
+    async removeUser(id: number): Promise<AxiosResponse<void>> {
         return this.client.delete(`/users/${id}`);
     }
 

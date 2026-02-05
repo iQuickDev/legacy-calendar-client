@@ -23,7 +23,7 @@ const userForm = ref<CreateUserDto>({
     username: '',
     password: ''
 });
-const editingUserId = ref<string | null>(null);
+const editingUserId = ref<number | null>(null);
 
 const isVerified = ref(false);
 
@@ -78,7 +78,7 @@ const editUser = (user: User) => {
     showUserDialog.value = true;
 };
 
-const deleteUser = async (id: string) => {
+const deleteUser = async (id: number) => {
     try {
         await api.removeUser(id);
         toast.add({

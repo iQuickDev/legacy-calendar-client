@@ -148,11 +148,6 @@ const onDelete = () => {
     emit('delete', props.event.id);
 };
 
-const onClose = () => {
-    emit('update:visible', false);
-};
-
-
 </script>
 
 <template>

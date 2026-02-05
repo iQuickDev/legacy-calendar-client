@@ -30,6 +30,9 @@ export function useCalendar() {
             startTime: event.startTime,
             endTime: event.endTime,
             hostId: event.hostId,
+            host: event.host,
+            participants: event.participants,
+            isOpen: event.isOpen,
         }))
     );
 

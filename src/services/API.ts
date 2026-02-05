@@ -24,10 +24,12 @@ export interface CreateEventDto {
     location?: string;
     startTime: string;
     endTime: string;
+    participants?: number[];
+    isOpen: boolean;
 }
 
 export interface User {
-    id: string;
+    id: number;
     username: string;
     [key: string]: any;
 }
@@ -39,7 +41,10 @@ export interface Event {
     location?: string;
     startTime: string;
     endTime: string;
-    hostId?: string;
+    hostId?: number;
+    host?: { id: number; username: string; image?: string };
+    participants?: { id: number; username: string; status: string }[];
+    isOpen: boolean;
     [key: string]: any;
 }
 
@@ -129,6 +134,12 @@ class API {
 
     async joinEvent(id: number): Promise<AxiosResponse<void>> {
         return this.client.post(`/events/${id}/join`);
+    }
+
+    // --- Notifications ---
+
+    async subscribeNotifications(token: string): Promise<AxiosResponse<void>> {
+        return this.client.post('/notifications/subscribe', { token });
     }
 }
 

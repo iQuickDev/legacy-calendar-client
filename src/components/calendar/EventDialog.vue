@@ -7,7 +7,10 @@ import DatePicker from 'primevue/datepicker';
 import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
-import type { CreateEventDto } from '../../services/API';
+import ToggleSwitch from 'primevue/toggleswitch';
+import type { CreateEventDto, User } from '../../services/API';
+import { useAPIStore } from '../../stores/api';
+import { useSessionStore } from '../../stores/session';
 
 const props = defineProps<{
     visible: boolean;
@@ -22,6 +25,7 @@ const emit = defineEmits<{
 const title = ref('');
 const description = ref('');
 const location = ref('');
+const isOpen = ref(true);
 
 // Split State for Start
 const startDateOnly = ref<Date | null>(null);
@@ -31,17 +35,20 @@ const startTimeOnly = ref<Date | null>(null);
 const endDateOnly = ref<Date | null>(null);
 const endTimeOnly = ref<Date | null>(null);
 
-const selectedParticipants = ref<string[]>([]);
+const selectedParticipants = ref<number[]>([]);
+const allParticipants = ref<User[]>([]);
 
-// Mock participants
-// Mock participants with images
-const allParticipants = ref([
-    { name: 'Alice', code: 'Alice', image: 'https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png' },
-    { name: 'Bob', code: 'Bob', image: 'https://primefaces.org/cdn/primevue/images/avatar/asiyajavayant.png' },
-    { name: 'Charlie', code: 'Charlie', image: 'https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png' },
-    { name: 'Dave', code: 'Dave', image: 'https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png' },
-    { name: 'Eve', code: 'Eve', image: 'https://primefaces.org/cdn/primevue/images/avatar/xuxuefeng.png' }
-]);
+const fetchUsers = async () => {
+    try {
+        const { client } = useAPIStore();
+        const sessionStore = useSessionStore();
+        const response = await client.findAllUsers();
+        // Filter out current user (the host)
+        allParticipants.value = response.data.filter(user => user.id !== sessionStore.currentUser?.id);
+    } catch (error) {
+        console.error('Failed to fetch users:', error);
+    }
+};
 
 watch(() => props.visible, (newVal) => {
     if (newVal) {
@@ -50,6 +57,7 @@ watch(() => props.visible, (newVal) => {
         description.value = '';
         location.value = '';
         selectedParticipants.value = [];
+        isOpen.value = true;
 
         // Set initial start date/time
         startDateOnly.value = new Date(props.initialDate);
@@ -61,6 +69,8 @@ watch(() => props.visible, (newVal) => {
 
         endDateOnly.value = new Date(end);
         endTimeOnly.value = new Date(end);
+
+        fetchUsers();
     }
 });
 
@@ -87,6 +97,8 @@ const onSave = () => {
         location: location.value || undefined,
         startTime: start.toISOString(),
         endTime: end ? end.toISOString() : start.toISOString(),
+        participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
+        isOpen: isOpen.value,
     });
 };
 </script>
@@ -132,27 +144,36 @@ const onSave = () => {
             <div class="flex flex-col gap-2">
                 <label for="participants" class="font-semibold">Participants</label>
                 <MultiSelect id="participants" v-model="selectedParticipants" :options="allParticipants"
-                    optionLabel="name" optionValue="code" placeholder="Select Participants" display="chip" filter
+                    optionLabel="username" optionValue="id" placeholder="Select Participants" display="chip" filter
                     class="w-full">
                     <template #option="slotProps">
                         <div class="flex items-center gap-2">
                             <Avatar :image="slotProps.option.image" shape="circle" size="small"
                                 v-if="slotProps.option.image" />
-                            <Avatar :label="slotProps.option.name.charAt(0)" shape="circle" size="small" v-else />
-                            <span>{{ slotProps.option.name }}</span>
+                            <Avatar :label="slotProps.option.username.charAt(0)" shape="circle" size="small" v-else />
+                            <span>{{ slotProps.option.username }}</span>
                         </div>
                     </template>
                     <template #chip="slotProps">
                         <div class="flex items-center gap-1 px-1">
-                            <Avatar :image="allParticipants.find(p => p.code === slotProps.value)?.image" shape="circle"
+                            <Avatar :image="allParticipants.find(p => p.id === slotProps.value)?.image" shape="circle"
                                 class="!w-4 !h-4 !text-[10px]"
-                                v-if="allParticipants.find(p => p.code === slotProps.value)?.image" />
-                            <Avatar :label="slotProps.value.charAt(0)" shape="circle" class="!w-4 !h-4 !text-[10px]"
-                                v-else />
-                            <span>{{allParticipants.find(p => p.code === slotProps.value)?.name}}</span>
+                                v-if="allParticipants.find(p => p.id === slotProps.value)?.image" />
+                            <Avatar :label="allParticipants.find(p => p.id === slotProps.value)?.username.charAt(0)"
+                                shape="circle" class="!w-4 !h-4 !text-[10px]" v-else />
+                            <span>{{allParticipants.find(p => p.id === slotProps.value)?.username}}</span>
                         </div>
                     </template>
                 </MultiSelect>
+            </div>
+
+            <div
+                class="flex items-center justify-between gap-2 p-3 bg-surface-50 dark:bg-surface-900/50 rounded-lg border border-surface-200 dark:border-surface-800">
+                <div class="flex flex-col gap-1">
+                    <label for="isOpen" class="font-semibold cursor-pointer">Open Event</label>
+                    <small class="text-surface-500">Anyone can see and join this event</small>
+                </div>
+                <ToggleSwitch id="isOpen" v-model="isOpen" />
             </div>
         </div>
 

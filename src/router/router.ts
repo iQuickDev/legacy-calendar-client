@@ -7,7 +7,7 @@ import AdminView from '../views/AdminView.vue'
 const routes = [
   { path: '/', name: 'login', component: Login, meta: { requiresGuest: true } },
   { path: '/calendar', name: 'calendar', component: Calendar, meta: { requiresAuth: true } },
-  { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'admin', component: AdminView },
 ]
 
 export const router = createRouter({
@@ -26,11 +26,12 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  // Redirect to calendar if route requires guest and user is authenticated
+  // Redirect to calendar if user is already authenticated and tries to access login
   if (to.meta.requiresGuest && isAuthenticated) {
     next({ name: 'calendar' })
     return
   }
+
 
   next()
 })

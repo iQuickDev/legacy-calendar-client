@@ -123,7 +123,8 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent" />
 
         <!-- Event View Dialog -->
-        <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent" />
+        <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent"
+            @joined="showViewDialog = false" />
     </div>
 </template>
 

@@ -1,4 +1,3 @@
-// Aligned with API Event interface
 export interface CalendarEvent {
     id: number;
     title: string;
@@ -6,8 +5,10 @@ export interface CalendarEvent {
     location?: string;
     startTime: string; // ISO string
     endTime: string;   // ISO string
-    hostId?: string;
-    participants?: string[]; // List of participant IDs
+    hostId?: number;
+    host?: { id: number; username: string; image?: string };
+    participants?: { id: number; username: string; status: string; image?: string }[];
+    isOpen: boolean;
 }
 
 export interface CalendarDay {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useSessionStore } from '../stores/session';
 import api, { type User, type CreateUserDto, type UpdateUserDto } from '../services/API';
 import { useToast } from 'primevue/usetoast';
@@ -9,7 +9,6 @@ import Password from 'primevue/password';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
-import Toast from 'primevue/toast';
 import Card from 'primevue/card';
 
 const sessionStore = useSessionStore();
@@ -26,33 +25,41 @@ const userForm = ref<CreateUserDto>({
 });
 const editingUserId = ref<string | null>(null);
 
-const isAuthenticated = computed(() => !!sessionStore.bypassToken);
+const isVerified = ref(false);
 
 const fetchUsers = async () => {
-    if (!isAuthenticated.value) return;
+    if (!sessionStore.bypassToken) return false;
     loading.value = true;
     try {
         const response = await api.findAllUsers();
         users.value = response.data;
+        isVerified.value = true;
+        return true;
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.response?.data?.message || 'Failed to fetch users',
+            summary: 'Invalid Password',
+            detail: error.response?.data?.message || 'The provided bypass password is incorrect.',
             life: 3000
         });
-        if (error.response?.status === 401 || error.response?.status === 403) {
-            sessionStore.clearBypassToken();
-        }
+        sessionStore.clearBypassToken();
+        isVerified.value = false;
+        return false;
     } finally {
         loading.value = false;
     }
 };
 
 const handleBypassSubmit = async () => {
-    if (!bypassInput.value) return;
+    if (!bypassInput.value || loading.value) return;
+
+    // Set the token temporarily to attempt fetch
     sessionStore.setBypassToken(bypassInput.value);
-    await fetchUsers();
+    const success = await fetchUsers();
+
+    if (success) {
+        bypassInput.value = ''; // Clear input on success
+    }
 };
 
 const openAddUser = () => {
@@ -72,8 +79,6 @@ const editUser = (user: User) => {
 };
 
 const deleteUser = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
-
     try {
         await api.removeUser(id);
         toast.add({
@@ -129,74 +134,85 @@ const saveUser = async () => {
 };
 
 onMounted(() => {
-    if (isAuthenticated.value) {
+    if (sessionStore.bypassToken) {
         fetchUsers();
     }
 });
 </script>
 
 <template>
-    <div class="admin-container p-4 md:p-6 flex flex-col gap-6">
-        <Toast />
+    <div class="admin-container p-4 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
+        <!-- Toast removed to avoid duplication -->
 
-        <div v-if="!isAuthenticated" class="flex flex-col items-center justify-center min-h-[60vh]">
-            <Card class="w-full max-w-sm !bg-black !border !border-surface-800">
+        <div v-if="!isVerified" class="flex flex-col items-center justify-center min-h-[70vh]">
+            <Card class="w-full max-w-sm !bg-black !border !border-surface-800 !shadow-2xl">
                 <template #title>
-                    <div class="flex flex-col items-center gap-6 mb-4">
-                        <div class="w-32 h-32 rounded-lg flex items-center justify-center">
-                            <i class="pi pi-lock text-primary" style="font-size: 3rem"></i>
+                    <div class="flex flex-col items-center gap-6 mb-4 pt-4">
+                        <div
+                            class="w-20 h-20 rounded-2xl bg-surface-900 border border-surface-800 flex items-center justify-center shadow-inner">
+                            <i class="pi pi-shield text-primary" style="font-size: 2.5rem"></i>
                         </div>
-                        <h2 class="text-3xl font-bold text-center font-mono tracking-tighter">
-                            Administration Dashboard
+                        <h2 class="text-2xl font-bold text-center tracking-tight">
+                            Admin Dashboard
                         </h2>
                     </div>
                 </template>
                 <template #content>
-                    <div class="flex flex-col gap-4">
-                        <p class="text-center">Please enter the bypass password to manage users</p>
+                    <div class="flex flex-col gap-6">
+                        <p class="text-center text-sm">
+                            Here you can manage users
+                        </p>
                         <div class="flex flex-col gap-3">
-                            <Password v-signature="bypassInput" v-model="bypassInput" placeholder="Password"
-                                :feedback="false" toggleMask fluid @keyup.enter="handleBypassSubmit"
-                                inputClass="!bg-black !border-surface-800" />
-                            <Button label="Login" @click="handleBypassSubmit" :loading="loading" />
+                            <Password v-model="bypassInput" placeholder="Enter key..." :feedback="false" toggleMask
+                                fluid @keyup.enter="handleBypassSubmit"
+                                inputClass="!bg-surface-950 !border-surface-800 !py-3" />
+                            <Button label="Authorize Access" @click="handleBypassSubmit" :loading="loading"
+                                class="!py-3 font-bold" />
                         </div>
                     </div>
                 </template>
             </Card>
         </div>
 
-        <div v-else class="flex flex-col gap-6">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div v-else class="flex flex-col gap-8 animate-in fade-in duration-500">
+            <div
+                class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-surface-800">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold">User Management</h1>
-                    <p>Manage application users and their access.</p>
+                    <h1 class="text-3xl font-black tracking-tight text-surface-0 mb-1">User Management</h1>
+                    <p class="text-surface-400">Manage system users, access levels, and credentials.</p>
                 </div>
-                <div class="flex gap-2">
-                    <Button label="Clear Session" icon="pi pi-lock" severity="secondary" outlined
-                        @click="sessionStore.clearBypassToken()"
-                        class="!border-surface-800 !text-surface-400 hover:!text-surface-0" />
-                    <Button label="Add User" icon="pi pi-plus" @click="openAddUser" />
+                <div class="flex items-center gap-3">
+                    <Button label="Clear Session" icon="pi pi-power-off" severity="secondary" text
+                        @click="isVerified = false; sessionStore.clearBypassToken()"
+                        class="!text-surface-400 hover:!text-danger-400 transition-colors" />
+                    <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
                 </div>
             </div>
 
-            <div class="rounded-lg w-max overflow-hidden">
-                <DataTable :value="users" :loading="loading" class="p-datatable-sm no-stripes"
-                    responsiveLayout="scroll">
-                    <Column field="id" header="ID" class="text-surface-500"></Column>
-                    <Column field="username" header="Username" class="text-surface-0 font-medium"></Column>
-                    <Column header="Actions">
+            <div class="rounded-xl border border-surface-800 bg-surface-950/50 overflow-hidden shadow-sm">
+                <DataTable :value="users" :loading="loading" class="p-datatable-lg border-none"
+                    responsiveLayout="scroll" :pt="{
+                        header: { class: '!bg-transparent !border-b !border-surface-800' },
+                        bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
+                    }">
+                    <Column field="id" header="ID" class="text-surface-500 w-24 text-sm font-mono"></Column>
+                    <Column field="username" header="Username" class="text-surface-0 font-semibold"></Column>
+                    <Column header="Actions" class="w-32">
                         <template #body="slotProps">
-                            <div>
+                            <div class="flex items-center justify-end gap-1">
                                 <Button icon="pi pi-pencil" text rounded severity="secondary"
-                                    @click="editUser(slotProps.data)" class="!text-surface-400 hover:!text-surface-0" />
+                                    @click="editUser(slotProps.data)" v-tooltip.top="'Edit User'"
+                                    class="!w-10 !h-10 !text-surface-400 hover:!text-primary-400" />
                                 <Button icon="pi pi-trash" text rounded severity="danger"
-                                    @click="deleteUser(slotProps.data.id)" />
+                                    @click="deleteUser(slotProps.data.id)" v-tooltip.top="'Delete User'"
+                                    class="!w-10 !h-10 !text-surface-500 hover:!text-danger-500" />
                             </div>
                         </template>
                     </Column>
                     <template #empty>
-                        <div class="text-center p-8 text-surface-500 bg-black">
-                            No users found in the system.
+                        <div class="flex flex-col items-center justify-center p-12 text-surface-500">
+                            <i class="pi pi-users mb-4" style="font-size: 2rem"></i>
+                            <p>No users found in the system registry.</p>
                         </div>
                     </template>
                 </DataTable>

@@ -6,6 +6,10 @@ import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import OledPreset from './theme/oled';
 import { createPinia } from 'pinia'
+import './services/firebase'
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({ immediate: true })
 
 createApp(App)
     .use(router)

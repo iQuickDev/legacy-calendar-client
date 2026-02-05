@@ -13,3 +13,50 @@
   border-left: none !important;
   border-right: none !important;
 }
+
+/* Premium Toast Styling */
+.p-toast {
+  opacity: 0.95;
+}
+
+.p-toast-message {
+  background: #0a0a0a !important;
+  border: 1px solid #262626 !important;
+  border-left: 4px solid var(--p-primary-color) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px);
+}
+
+.p-toast-message-content {
+  padding: 1rem !important;
+}
+
+.p-toast-summary {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+.p-toast-detail {
+  color: #a3a3a3 !important;
+  font-size: 0.875rem !important;
+}
+
+.p-toast-icon-wrapper {
+  color: var(--p-primary-color) !important;
+}
+
+.p-toast-message-icon {
+  font-size: 1.25rem !important;
+}
+
+/* Status Specific Borders */
+.p-toast-message-success { border-left-color: #10b981 !important; }
+.p-toast-message-info { border-left-color: #3b82f6 !important; }
+.p-toast-message-warn { border-left-color: #f59e0b !important; }
+.p-toast-message-error { border-left-color: #ef4444 !important; }
+
+/* Animation tweaks */
+.p-toast-message-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}

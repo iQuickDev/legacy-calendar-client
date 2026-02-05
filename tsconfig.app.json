@@ -5,10 +5,12 @@
     "target": "ESNext",
     "lib": [
       "ESNext",
-      "DOM"
+      "DOM",
+      "WebWorker"
     ],
     "types": [
-      "vite/client"
+      "vite/client",
+      "vite-plugin-pwa/client"
     ],
     /* Linting */
     "strict": true,

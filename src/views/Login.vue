@@ -7,6 +7,8 @@ import { useToast } from 'primevue/usetoast';
 import { router } from '../router/router'
 import { useSessionStore } from '../stores/session';
 
+import { requestNotificationPermission } from '../services/firebase';
+
 const toast = useToast();
 const sessionStore = useSessionStore();
 
@@ -36,7 +38,10 @@ const handleLogin = async () => {
             detail: `Logged in as ${sessionStore.currentUser?.username}`,
             life: 2000
         });
+
         router.push('/calendar');
+
+        await requestNotificationPermission();
     } else {
         toast.add({
             severity: 'error',

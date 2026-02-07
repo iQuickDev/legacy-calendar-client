@@ -6,8 +6,8 @@ export interface CalendarEvent {
     startTime: string; // ISO string
     endTime: string;   // ISO string
     hostId?: number;
-    host?: { id: number; username: string; image?: string };
-    participants?: { id: number; username: string; status: string; image?: string }[];
+    host?: { id: number; username: string; profilePicture?: string };
+    participants?: { id: number; username: string; status: string; profilePicture?: string }[];
     isOpen: boolean;
 }
 

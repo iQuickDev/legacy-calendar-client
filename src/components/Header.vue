@@ -6,6 +6,7 @@ import Avatar from 'primevue/avatar';
 import Menubar from 'primevue/menubar';
 import { useSessionStore } from '../stores/session';
 import { router } from '../router/router';
+import { baseURL } from '../services/API';
 
 const sessionStore = useSessionStore();
 
@@ -23,13 +24,6 @@ const items = ref([
         icon: 'pi pi-calendar',
         command: () => {
             router.push({ name: 'calendar' });
-        }
-    },
-    {
-        label: 'Admin',
-        icon: 'pi pi-lock',
-        command: () => {
-            router.push({ name: 'admin' });
         }
     }
 ]);
@@ -60,10 +54,14 @@ const items = ref([
             </a>
         </template>
         <template #end>
-            <div v-if="isAuthenticated" class="flex items-center gap-3">
-                <span class="text-sm text-zinc-300">{{ currentUser?.username }}</span>
-                <Avatar :label="currentUser?.username?.charAt(0)?.toUpperCase() || 'U'" shape="circle"
-                    class="bg-primary text-primary-contrast" />
+            <div v-if="isAuthenticated" class="flex items-center">
+                <router-link :to="{ name: 'profile' }" class="no-underline flex items-center gap-2 bg-zinc-900 px-2 py-1 rounded-xl hover:bg-zinc-800 transition-all">
+                    <Avatar :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
+                        :label="!currentUser?.profilePicture ? (currentUser?.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
+                        shape="circle"
+                        class="bg-primary text-primary-contrast cursor-pointer hover:brightness-110 transition-all" />
+                    <span>{{ currentUser?.username }}</span>
+                </router-link>
                 <Button icon="pi pi-sign-out" severity="secondary" text rounded aria-label="Logout"
                     @click="handleLogout" v-tooltip.bottom="'Logout'" />
             </div>

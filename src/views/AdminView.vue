@@ -142,10 +142,8 @@ onMounted(() => {
 
 <template>
     <div class="admin-container p-4 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
-        <!-- Toast removed to avoid duplication -->
-
         <div v-if="!isVerified" class="flex flex-col items-center justify-center min-h-[70vh]">
-            <Card class="w-full max-w-sm !bg-black !border !border-surface-800 !shadow-2xl">
+            <Card class="w-full max-w-sm border border-gray-500">
                 <template #title>
                     <div class="flex flex-col items-center gap-6 mb-4 pt-4">
                         <div
@@ -163,10 +161,10 @@ onMounted(() => {
                             Here you can manage users
                         </p>
                         <div class="flex flex-col gap-3">
-                            <Password v-model="bypassInput" placeholder="Enter key..." :feedback="false" toggleMask
-                                fluid @keyup.enter="handleBypassSubmit"
-                                inputClass="!bg-surface-950 !border-surface-800 !py-3" />
-                            <Button label="Authorize Access" @click="handleBypassSubmit" :loading="loading"
+                            <Password v-model="bypassInput" placeholder="Password" :feedback="false" toggleMask fluid
+                                @keyup.enter="handleBypassSubmit"
+                                inputClass="!bg-surface-950 !border-surface-800 !py-3 w-full" />
+                            <Button label="Login" @click="handleBypassSubmit" :loading="loading"
                                 class="!py-3 font-bold" />
                         </div>
                     </div>
@@ -175,27 +173,26 @@ onMounted(() => {
         </div>
 
         <div v-else class="flex flex-col gap-8 animate-in fade-in duration-500">
-            <div
-                class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-surface-800">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-surface-0 mb-1">User Management</h1>
                     <p class="text-surface-400">Manage system users, access levels, and credentials.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <Button label="Clear Session" icon="pi pi-power-off" severity="secondary" text
+                    <Button label="Logout" icon="pi pi-power-off" severity="danger"
                         @click="isVerified = false; sessionStore.clearBypassToken()"
                         class="!text-surface-400 hover:!text-danger-400 transition-colors" />
                     <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
                 </div>
             </div>
 
-            <div class="rounded-xl border border-surface-800 bg-surface-950/50 overflow-hidden shadow-sm">
+            <div class="rounded-lg border border-gray-400 bg-surface-950/50 overflow-hidden shadow-sm">
                 <DataTable :value="users" :loading="loading" class="p-datatable-lg border-none"
                     responsiveLayout="scroll" :pt="{
-                        header: { class: '!bg-transparent !border-b !border-surface-800' },
+                        header: { class: '!bg-transparent !border-b !border-gray-600' },
                         bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
                     }">
-                    <Column field="id" header="ID" class="text-surface-500 w-24 text-sm font-mono"></Column>
+                    <Column field="id" header="ID" class="text-surface-500 w-24 font-mono"></Column>
                     <Column field="username" header="Username" class="text-surface-0 font-semibold"></Column>
                     <Column header="Actions" class="w-32">
                         <template #body="slotProps">
@@ -225,14 +222,15 @@ onMounted(() => {
                 <div class="flex flex-col gap-2">
                     <label for="username" class="font-medium text-surface-300">Username</label>
                     <InputText id="username" v-model="userForm.username" required autofocus placeholder="Enter username"
-                        class="!bg-black !border-surface-800" />
+                        class="!bg-black !border-surface-800" @keyup.enter="saveUser" />
                 </div>
                 <div class="flex flex-col gap-2">
                     <label for="password" class="font-medium text-surface-300">
-                        {{ isEditing ? 'New Password (Optional)' : 'Password' }}
+                        {{ isEditing ? 'New Password' : 'Password' }}
                     </label>
                     <Password id="password" v-model="userForm.password" :feedback="!isEditing" toggleMask
-                        placeholder="Enter password" inputClass="!bg-black !border-surface-800" />
+                        placeholder="Enter password" inputClass="!bg-black !border-surface-800 w-full" fluid
+                        @keyup.enter="saveUser" />
                 </div>
             </div>
             <template #footer>
@@ -245,4 +243,8 @@ onMounted(() => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.p-password-input) {
+    width: 100%;
+}
+</style>

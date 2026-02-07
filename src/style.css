@@ -1,6 +1,6 @@
 @import "primeicons/primeicons.css";
-@import "tailwindcss";
 @import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap';
+@import "tailwindcss";
 
 :root {
   font-family: 'Inter', sans-serif;
@@ -50,10 +50,21 @@
 }
 
 /* Status Specific Borders */
-.p-toast-message-success { border-left-color: #10b981 !important; }
-.p-toast-message-info { border-left-color: #3b82f6 !important; }
-.p-toast-message-warn { border-left-color: #f59e0b !important; }
-.p-toast-message-error { border-left-color: #ef4444 !important; }
+.p-toast-message-success {
+  border-left-color: #10b981 !important;
+}
+
+.p-toast-message-info {
+  border-left-color: #3b82f6 !important;
+}
+
+.p-toast-message-warn {
+  border-left-color: #f59e0b !important;
+}
+
+.p-toast-message-error {
+  border-left-color: #ef4444 !important;
+}
 
 /* Animation tweaks */
 .p-toast-message-enter-from {

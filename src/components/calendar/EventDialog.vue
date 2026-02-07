@@ -11,6 +11,7 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import type { CreateEventDto, User } from '../../services/API';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
+import { baseURL } from '../../services/API';
 
 const props = defineProps<{
     visible: boolean;
@@ -148,27 +149,26 @@ const onSave = () => {
                     class="w-full">
                     <template #option="slotProps">
                         <div class="flex items-center gap-2">
-                            <Avatar :image="slotProps.option.image" shape="circle" size="small"
-                                v-if="slotProps.option.image" />
-                            <Avatar :label="slotProps.option.username.charAt(0)" shape="circle" size="small" v-else />
+                            <Avatar
+                                :image="slotProps.option.profilePicture ? `${baseURL}${slotProps.option.profilePicture}` : undefined"
+                                :label="!slotProps.option.profilePicture ? slotProps.option.username.charAt(0) : undefined"
+                                shape="circle" size="small" />
                             <span>{{ slotProps.option.username }}</span>
                         </div>
                     </template>
                     <template #chip="slotProps">
                         <div class="flex items-center gap-1 px-1">
-                            <Avatar :image="allParticipants.find(p => p.id === slotProps.value)?.image" shape="circle"
-                                class="!w-4 !h-4 !text-[10px]"
-                                v-if="allParticipants.find(p => p.id === slotProps.value)?.image" />
-                            <Avatar :label="allParticipants.find(p => p.id === slotProps.value)?.username.charAt(0)"
-                                shape="circle" class="!w-4 !h-4 !text-[10px]" v-else />
+                            <Avatar
+                                :image="allParticipants.find(p => p.id === slotProps.value)?.profilePicture ? `${baseURL}${allParticipants.find(p => p.id === slotProps.value)?.profilePicture}` : undefined"
+                                :label="!allParticipants.find(p => p.id === slotProps.value)?.profilePicture ? allParticipants.find(p => p.id === slotProps.value)?.username.charAt(0) : undefined"
+                                shape="circle" class="!w-4 !h-4 !text-[10px]" />
                             <span>{{allParticipants.find(p => p.id === slotProps.value)?.username}}</span>
                         </div>
                     </template>
                 </MultiSelect>
             </div>
 
-            <div
-                class="flex items-center justify-between gap-2 p-3 bg-surface-50 dark:bg-surface-900/50 rounded-lg border border-surface-200 dark:border-surface-800">
+            <div class="flex items-center justify-between p-3">
                 <div class="flex flex-col gap-1">
                     <label for="isOpen" class="font-semibold cursor-pointer">Open Event</label>
                     <small class="text-surface-500">Anyone can see and join this event</small>

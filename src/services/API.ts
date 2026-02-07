@@ -31,6 +31,7 @@ export interface CreateEventDto {
 export interface User {
     id: number;
     username: string;
+    profilePicture?: string;
     [key: string]: any;
 }
 
@@ -42,8 +43,8 @@ export interface Event {
     startTime: string;
     endTime: string;
     hostId?: number;
-    host?: { id: number; username: string; image?: string };
-    participants?: { id: number; username: string; status: string }[];
+    host?: { id: number; username: string; profilePicture?: string };
+    participants?: { id: number; username: string; status: string; profilePicture?: string }[];
     isOpen: boolean;
     [key: string]: any;
 }
@@ -140,6 +141,22 @@ class API {
 
     async subscribeNotifications(token: string): Promise<AxiosResponse<void>> {
         return this.client.post('/notifications/subscribe', { token });
+    }
+
+    // --- Profile Picture ---
+
+    async uploadProfilePicture(file: File): Promise<AxiosResponse<User>> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.client.post('/users/profile-picture', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    }
+
+    async removeProfilePicture(): Promise<AxiosResponse<void>> {
+        return this.client.delete('/users/profile-picture');
     }
 }
 

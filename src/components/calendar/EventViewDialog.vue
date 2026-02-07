@@ -13,6 +13,7 @@ import type { User } from '../../services/API';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
 import { useEventsStore } from '../../stores/events';
+import { baseURL } from '../../services/API';
 
 const props = defineProps<{
     visible: boolean;
@@ -53,7 +54,7 @@ const resolvedInvitees = computed(() => {
         return {
             ...p,
             username: p.username || user?.username || `User ${p.id}`,
-            image: p.image || user?.image
+            profilePicture: p.profilePicture || user?.profilePicture
         };
     });
 });
@@ -166,8 +167,9 @@ const onDelete = () => {
 
                 <!-- Host (Moved to Top) -->
                 <div v-if="eventHost" class="flex items-center gap-2">
-                    <Avatar :image="eventHost.image" shape="circle" size="small" v-if="eventHost.image" />
-                    <Avatar :label="eventHost.username.charAt(0)" shape="circle" size="small" v-else />
+                    <Avatar :image="eventHost.profilePicture ? `${baseURL}${eventHost.profilePicture}` : undefined"
+                        :label="!eventHost.profilePicture ? eventHost.username.charAt(0) : undefined" shape="circle"
+                        size="small" />
                     <span class="text-surface-600 dark:text-surface-400">Hosted by <span
                             class="text-surface-900 dark:text-surface-0 font-semibold">{{ eventHost.username
                             }}</span></span>
@@ -231,19 +233,17 @@ const onDelete = () => {
                     <span class="font-semibold">Invitees</span>
                 </div>
 
-                <DataTable :value="resolvedInvitees"
-                    class="p-datatable-sm border border-surface-200 dark:border-surface-800 rounded-lg overflow-hidden"
-                    :rows="5" :paginator="resolvedInvitees.length > 5">
+                <DataTable :value="resolvedInvitees">
                     <template #empty>
                         <div class="p-4 text-center text-surface-500">No invitees found</div>
                     </template>
                     <Column field="username" header="Name">
                         <template #body="slotProps">
                             <div class="flex items-center gap-2">
-                                <Avatar :image="slotProps.data.image" shape="circle" size="small"
-                                    v-if="slotProps.data.image" class="!w-6 !h-6" />
-                                <Avatar :label="slotProps.data.username.charAt(0)" shape="circle" size="small" v-else
-                                    class="!w-6 !h-6" />
+                                <Avatar
+                                    :image="slotProps.data.profilePicture ? `${baseURL}${slotProps.data.profilePicture}` : undefined"
+                                    :label="!slotProps.data.profilePicture ? slotProps.data.username.charAt(0) : undefined"
+                                    shape="circle" size="small" class="!w-6 !h-6" />
                                 <span>{{ slotProps.data.username }}</span>
                             </div>
                         </template>

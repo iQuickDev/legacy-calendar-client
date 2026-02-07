@@ -91,6 +91,54 @@ export const useSessionStore = defineStore('session', {
         },
         clearError() {
             this.error = null
+        },
+        async updateProfile(updates: any) {
+            if (this.session.user) {
+                this.session.user = { ...this.session.user, ...updates };
+                // In a real app, this would make an API call
+            }
+        },
+        async changePassword(_current: string, _newPass: string) {
+            // Mock API call
+            return new Promise<void>((resolve) => {
+                setTimeout(() => {
+                    resolve();
+                }, 1000);
+            });
+        },
+        async uploadProfilePicture(file: File) {
+            try {
+                const { client } = useAPIStore();
+                const response = await client.uploadProfilePicture(file);
+                // Update local session with a new object to ensure reactivity
+                if (this.session.user) {
+                    this.session.user = {
+                        ...this.session.user,
+                        profilePicture: `${response.data.profilePicture}?t=${Date.now()}`
+                    };
+                }
+                return true;
+            } catch (error) {
+                console.error('Failed to upload profile picture:', error);
+                throw error;
+            }
+        },
+        async removeProfilePicture() {
+            try {
+                const { client } = useAPIStore();
+                await client.removeProfilePicture();
+                // Update local session explicitly for reactivity
+                if (this.session.user) {
+                    this.session.user = {
+                        ...this.session.user,
+                        profilePicture: undefined
+                    };
+                }
+                return true;
+            } catch (error) {
+                console.error('Failed to remove profile picture:', error);
+                throw error;
+            }
         }
     }
 })

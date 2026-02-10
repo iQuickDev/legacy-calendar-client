@@ -9,9 +9,8 @@
 }
 
 .p-menubar {
-  border-radius: 0 !important;
-  border-left: none !important;
-  border-right: none !important;
+  border: none !important;
+  background: #000000 !important;
 }
 
 /* Premium Toast Styling */
@@ -70,4 +69,19 @@
 .p-toast-message-enter-from {
   transform: translateX(100%);
   opacity: 0;
+}
+
+/* Mobile Responsiveness for Toast */
+@media screen and (max-width: 640px) {
+  .p-toast {
+    width: calc(100% - 2rem) !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    top: 1rem !important;
+  }
+
+  .p-toast-message-enter-from {
+    transform: translateY(-100%) !important;
+    opacity: 0 !important;
+  }
 }

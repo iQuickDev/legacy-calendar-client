@@ -75,17 +75,20 @@ const currentUser = computed(() => sessionStore.currentUser);
 
 const isHost = computed(() => {
     if (!currentUser.value || !props.event) return false;
-    return props.event.host?.id === currentUser.value.userId;
+    return props.event.host?.id === currentUser.value.id;
 });
 
 const userParticipantStatus = computed(() => {
     if (!currentUser.value || !props.event?.participants) return null;
-    const p = props.event.participants.find(p => p.id === currentUser.value?.userId);
+    const p = props.event.participants.find(p => p.id === currentUser.value?.id);
     return p ? p.status : null;
 });
 
 const canAccept = computed(() => {
-    if (!props.event || !currentUser.value || isHost.value) return false;
+    if (!props.event || !currentUser.value) return false;
+
+    // Show for host as "Already Accepted"
+    if (isHost.value) return true;
 
     // Condition 1: User is already accepted (will show disabled button)
     if (userParticipantStatus.value === 'ACCEPTED') return true;
@@ -259,15 +262,16 @@ const onDelete = () => {
         </div>
 
         <template #footer>
-            <div class="flex justify-end w-full gap-2">
+            <div class="flex justify-end w-full gap-2 pt-2">
                 <!-- Left side: Delete button -->
                 <div v-if="isHost" class="mr-auto">
                     <Button label="Delete" icon="pi pi-trash" severity="danger" text @click="onDelete" />
                 </div>
 
-                <Button v-if="canAccept" :label="userParticipantStatus === 'ACCEPTED' ? 'Accepted' : 'Accept'"
-                    icon="pi pi-check" severity="success" :loading="joining"
-                    :disabled="userParticipantStatus === 'ACCEPTED'" @click="onAccept" />
+                <Button v-if="canAccept"
+                    :label="(isHost || userParticipantStatus === 'ACCEPTED') ? 'Accepted' : 'Accept'" icon="pi pi-check"
+                    severity="success" :loading="joining" :disabled="isHost || userParticipantStatus === 'ACCEPTED'"
+                    @click="onAccept" />
             </div>
         </template>
     </Dialog>

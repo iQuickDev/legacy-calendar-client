@@ -36,23 +36,25 @@ const dayName = computed(() => {
                 {{ dayName }}
             </span>
 
-            <span class="day-number text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-all duration-300" :class="{
-                'today-badge': day.isToday,
-                'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
-                'text-surface-700': !day.isCurrentMonth
-            }">
+            <span
+                class="day-number text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-all duration-300"
+                :class="{
+                    'today-badge': day.isToday,
+                    'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
+                    'text-surface-700': !day.isCurrentMonth
+                }">
                 {{ day.date.getDate() }}
             </span>
         </div>
 
         <!-- Events List -->
-        <div class="flex flex-col gap-1 z-10 flex-1 w-full">
+        <div class="flex flex-col gap-1 z-10 flex-1 w-full overflow-y-auto min-h-0 custom-scrollbar pr-1">
             <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
         </div>
 
         <!-- Hover overlay -->
         <div class="hover-overlay"></div>
-        
+
         <!-- Today green glow -->
         <div v-if="day.isToday" class="today-glow"></div>
     </div>
@@ -110,10 +112,10 @@ const dayName = computed(() => {
 .hover-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.02) 0%, 
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0.02) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.02) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0.02) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -146,5 +148,28 @@ const dayName = computed(() => {
 .cell-active:hover::before {
     border-color: rgba(255, 255, 255, 0.08);
 }
-</style>
 
+/* Custom Scrollbar for events list */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+</style>

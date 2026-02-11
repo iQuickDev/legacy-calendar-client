@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
 import { format } from 'date-fns';
 import { useCalendar } from '../composables/useCalendar';
 import { useToast } from 'primevue/usetoast';
@@ -11,10 +10,8 @@ import EventDialog from '../components/calendar/EventDialog.vue';
 import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import type { CalendarEvent } from '../types/Calendar';
 import type { CreateEventDto } from '../services/API';
-import API from '../services/API';
 
 const toast = useToast();
-const route = useRoute();
 const { currentDate, days, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } = useCalendar();
 
 const showDialog = ref(false);
@@ -23,39 +20,7 @@ const selectedDate = ref(new Date());
 // Fetch events on mount
 onMounted(async () => {
     await fetchEvents();
-    checkQueryForEvent();
 });
-
-// Watch query params
-watch(() => route.query.eventId, () => {
-    checkQueryForEvent();
-});
-
-const checkQueryForEvent = async () => {
-    const eventId = route.query.eventId;
-    if (eventId) {
-        try {
-            const response = await API.findOneEvent(Number(eventId));
-             // Convert API Event to CalendarEvent (if they differ, but they seem compatible enough or I can cast)
-             // CalendarEvent type vs API Event type. 
-             // CalendarEvent usually extends EventInput from FullCalendar or similar? 
-             // Let's check types. Assuming structure is close.
-             // Actually, API returns `Event`. `selectedEvent` is `CalendarEvent | null`.
-             // `CalendarEvent` probably has `start` and `end` as Date objects?
-            const apiEvent = response.data;
-            selectedEvent.value = {
-                ...apiEvent,
-                // Ensure dates are strings or Dates as component expects?
-                // EventViewDialog uses props.event.startTime (string) in computed.
-                // It seems compatible.
-            } as any; 
-            showViewDialog.value = true;
-        } catch (e) {
-            console.error('Failed to load event from query param', e);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not load event details' });
-        }
-    }
-};
 
 const openAddEvent = (date: Date) => {
     selectedDate.value = date;

@@ -8,8 +8,7 @@ import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import EventDialog from '../components/calendar/EventDialog.vue';
 import EventViewDialog from '../components/calendar/EventViewDialog.vue';
-import type { CalendarEvent } from '../types/Calendar';
-import type { CreateEventDto } from '../services/API';
+import type { Event, CreateEventDto } from '../types/Event';
 
 const toast = useToast();
 const { currentDate, days, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } = useCalendar();
@@ -56,9 +55,9 @@ const handleSaveEvent = async (eventData: CreateEventDto) => {
 
 // Event view dialog state
 const showViewDialog = ref(false);
-const selectedEvent = ref<CalendarEvent | null>(null);
+const selectedEvent = ref<Event | null>(null);
 
-const openViewEvent = (event: CalendarEvent) => {
+const openViewEvent = (event: Event) => {
     selectedEvent.value = event;
     showViewDialog.value = true;
 };
@@ -127,7 +126,8 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         </div>
 
         <!-- Event Dialog -->
-        <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent" :loading="isSaving" />
+        <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent"
+            :loading="isSaving" />
 
         <!-- Event View Dialog -->
         <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent"

@@ -12,17 +12,18 @@ import {
     isToday,
     parseISO
 } from 'date-fns';
-import type { CalendarDay, CalendarEvent } from '../types/Calendar';
+import type { CalendarDay } from '../types/Calendar';
+import type { Event } from '../types/Event';
 import { useEventsStore } from '../stores/events';
-import type { CreateEventDto } from '../services/API';
+import type { CreateEventDto } from '../types/Event';
 
 export function useCalendar() {
     const currentDate = ref(new Date());
     const eventsStore = useEventsStore();
 
     // Get events from store
-    const events = computed<CalendarEvent[]>(() =>
-        eventsStore.events.map(event => ({
+    const events = computed<Event[]>(() =>
+        eventsStore.events.map((event: Event) => ({
             id: event.id,
             title: event.title,
             description: event.description,

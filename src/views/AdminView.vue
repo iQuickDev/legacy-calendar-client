@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useSessionStore } from '../stores/session';
-import api, { type User, type CreateUserDto, type UpdateUserDto } from '../services/API';
+import api from '../services/API';
+import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';

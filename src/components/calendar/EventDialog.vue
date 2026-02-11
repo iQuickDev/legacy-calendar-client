@@ -8,7 +8,8 @@ import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import ToggleSwitch from 'primevue/toggleswitch';
-import type { CreateEventDto, User } from '../../services/API';
+import type { CreateEventDto } from '../../types/Event';
+import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
 import { baseURL } from '../../services/API';
@@ -160,10 +161,10 @@ const onSave = () => {
                     <template #chip="slotProps">
                         <div class="flex items-center gap-1 px-1">
                             <Avatar
-                                :image="allParticipants.find(p => p.id === slotProps.value)?.profilePicture ? `${baseURL}${allParticipants.find(p => p.id === slotProps.value)?.profilePicture}` : undefined"
-                                :label="!allParticipants.find(p => p.id === slotProps.value)?.profilePicture ? allParticipants.find(p => p.id === slotProps.value)?.username.charAt(0) : undefined"
+                                :image="allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? `${baseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}` : undefined"
+                                :label="!allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? allParticipants.find((p: User) => p.id === slotProps.value)?.username.charAt(0) : undefined"
                                 shape="circle" class="!w-4 !h-4 !text-[10px]" />
-                            <span>{{allParticipants.find(p => p.id === slotProps.value)?.username}}</span>
+                            <span>{{allParticipants.find((p: User) => p.id === slotProps.value)?.username}}</span>
                         </div>
                     </template>
                 </MultiSelect>
@@ -180,7 +181,8 @@ const onSave = () => {
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="emit('update:visible', false)" :disabled="loading" />
-            <Button :label="loading ? 'Saving...' : 'Save'" :icon="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'" @click="onSave" autofocus :disabled="loading" />
+            <Button :label="loading ? 'Saving...' : 'Save'" :icon="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+                @click="onSave" autofocus :disabled="loading" />
         </template>
     </Dialog>
 </template>

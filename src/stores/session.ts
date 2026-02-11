@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { Session } from '../types/Session'
 import { useAPIStore } from './api'
-import type { AuthLoginDto } from '../services/API'
+import type { AuthLoginDto } from '../types/Auth'
 
 export const useSessionStore = defineStore('session', {
     state: () => ({

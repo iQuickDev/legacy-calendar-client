@@ -2,15 +2,15 @@
 import Avatar from 'primevue/avatar';
 import Badge from 'primevue/badge';
 import Chip from 'primevue/chip';
-import type { CalendarEvent } from '../../types/Calendar';
+import type { Event } from '../../types/Event';
 import { baseURL } from '../../services/API';
 
 const props = defineProps<{
-    event: CalendarEvent;
+    event: Event;
 }>();
 
 const emit = defineEmits<{
-    (e: 'click', event: CalendarEvent): void;
+    (e: 'click', event: Event): void;
 }>();
 
 </script>

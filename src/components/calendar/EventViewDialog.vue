@@ -8,8 +8,8 @@ import Tag from 'primevue/tag';
 import Avatar from 'primevue/avatar';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import type { CalendarEvent } from '../../types/Calendar';
-import type { User } from '../../services/API';
+import type { Event } from '../../types/Event';
+import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
 import { useEventsStore } from '../../stores/events';
@@ -17,7 +17,7 @@ import { baseURL } from '../../services/API';
 
 const props = defineProps<{
     visible: boolean;
-    event: CalendarEvent | null;
+    event: Event | null;
 }>();
 
 const emit = defineEmits<{

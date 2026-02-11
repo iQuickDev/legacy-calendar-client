@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAPIStore } from './api'
-import type { Event, CreateEventDto } from '../services/API'
+import type { Event, CreateEventDto } from '../types/Event'
 
 export interface EventsState {
     events: Event[];

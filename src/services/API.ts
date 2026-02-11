@@ -2,57 +2,9 @@ import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
 
 export const baseURL = import.meta.env.VITE_API_URL
 
-// --- Interfaces ---
-
-export interface CreateUserDto {
-    username: string;
-    password: string;
-}
-
-export interface UpdateUserDto {
-    [key: string]: any;
-}
-
-export interface AuthLoginDto {
-    username: string;
-    password: string;
-}
-
-export interface ChangePasswordDto {
-    currentPassword: string;
-    newPassword: string;
-}
-
-export interface CreateEventDto {
-    title: string;
-    description?: string;
-    location?: string;
-    startTime: string;
-    endTime: string;
-    participants?: number[];
-    isOpen: boolean;
-}
-
-export interface User {
-    id: number;
-    username: string;
-    profilePicture?: string;
-    [key: string]: any;
-}
-
-export interface Event {
-    id: number;
-    title: string;
-    description?: string;
-    location?: string;
-    startTime: string;
-    endTime: string;
-    hostId?: number;
-    host?: { id: number; username: string; profilePicture?: string };
-    participants?: { id: number; username: string; status: string; profilePicture?: string }[];
-    isOpen: boolean;
-    [key: string]: any;
-}
+import type { CreateUserDto, UpdateUserDto, User } from '../types/User';
+import type { AuthLoginDto, ChangePasswordDto } from '../types/Auth';
+import type { CreateEventDto, Event } from '../types/Event';
 
 // --- API Class ---
 

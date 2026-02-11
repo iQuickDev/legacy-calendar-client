@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { CalendarDay, CalendarEvent } from '../../types/Calendar';
+import type { CalendarDay } from '../../types/Calendar';
+import type { Event } from '../../types/Event';
 import EventCard from './EventCard.vue';
 
 const props = defineProps<{
@@ -9,7 +10,7 @@ const props = defineProps<{
 
 defineEmits<{
     (e: 'add-event', date: Date): void;
-    (e: 'view-event', event: CalendarEvent): void;
+    (e: 'view-event', event: Event): void;
 }>();
 
 const dayName = computed(() => {

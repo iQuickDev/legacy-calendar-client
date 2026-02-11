@@ -4,7 +4,7 @@ export const baseURL = import.meta.env.VITE_API_URL
 
 import type { CreateUserDto, UpdateUserDto, User } from '../types/User';
 import type { AuthLoginDto, ChangePasswordDto } from '../types/Auth';
-import type { CreateEventDto, Event } from '../types/Event';
+import type { CreateEventDto, Event, ParticipateDto } from '../types/Event';
 
 // --- API Class ---
 
@@ -94,8 +94,8 @@ class API {
         return this.client.delete(`/events/${id}`);
     }
 
-    async joinEvent(id: number): Promise<AxiosResponse<void>> {
-        return this.client.post(`/events/${id}/join`);
+    async joinEvent(id: number, dto?: ParticipateDto): Promise<AxiosResponse<void>> {
+        return this.client.post(`/events/${id}/join`, dto || {});
     }
 
     // --- Notifications ---

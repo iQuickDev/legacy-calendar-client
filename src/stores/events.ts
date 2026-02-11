@@ -85,12 +85,12 @@ export const useEventsStore = defineStore('events', {
             }
         },
 
-        async joinEvent(id: number) {
+        async joinEvent(id: number, dto?: any) { // using any to avoid circular dependency or import issues for now, or import ParticipateDto if easy
             this.loading = true;
             this.error = null;
             try {
                 const { client } = useAPIStore();
-                await client.joinEvent(id);
+                await client.joinEvent(id, dto);
                 // Refresh to get updated event data
                 await this.fetchEvents();
                 return true;

@@ -8,7 +8,7 @@ import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import ToggleSwitch from 'primevue/toggleswitch';
-import type { CreateEventDto } from '../../types/Event';
+import type { CreateEventDto, EventFeature } from '../../types/Event';
 import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
@@ -29,6 +29,18 @@ const title = ref('');
 const description = ref('');
 const location = ref('');
 const isOpen = ref(true);
+const selectedFeatures = ref<EventFeature[]>([]);
+
+import { FEATURES } from '../../constants/features';
+
+const toggleFeature = (feature: EventFeature) => {
+    const index = selectedFeatures.value.indexOf(feature);
+    if (index === -1) {
+        selectedFeatures.value.push(feature);
+    } else {
+        selectedFeatures.value.splice(index, 1);
+    }
+};
 
 // Split State for Start
 const startDateOnly = ref<Date | null>(null);
@@ -61,6 +73,7 @@ watch(() => props.visible, (newVal) => {
         location.value = '';
         selectedParticipants.value = [];
         isOpen.value = true;
+        selectedFeatures.value = [];
 
         // Set initial start date/time
         startDateOnly.value = new Date(props.initialDate);
@@ -102,6 +115,10 @@ const onSave = () => {
         endTime: end ? end.toISOString() : start.toISOString(),
         participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
         isOpen: isOpen.value,
+        hasFood: selectedFeatures.value.includes('FOOD'),
+        hasWeed: selectedFeatures.value.includes('WEED'),
+        hasSleep: selectedFeatures.value.includes('SLEEP'),
+        hasAlcohol: selectedFeatures.value.includes('ALCOHOL'),
     });
 };
 </script>
@@ -169,7 +186,22 @@ const onSave = () => {
                     </template>
                 </MultiSelect>
             </div>
-
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold">Features</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button v-for="feature in FEATURES" :key="feature.id" @click="toggleFeature(feature.id)"
+                        type="button"
+                        class="flex flex-col cursor-pointer items-center justify-center gap-2 p-2 rounded-xl border-1  border-zinc-800 transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="[
+                            selectedFeatures.includes(feature.id)
+                                ? `${feature.color} border-current`
+                                : ''
+                        ]">
+                        <span class="text-2xl">{{ feature.icon }}</span>
+                        <span class="text-xs font-medium">{{ feature.label }}</span>
+                    </button>
+                </div>
+            </div>
             <div class="flex items-center justify-between p-3">
                 <div class="flex flex-col gap-1">
                     <label for="isOpen" class="font-semibold cursor-pointer">Open Event</label>

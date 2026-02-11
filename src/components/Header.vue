@@ -33,7 +33,6 @@ const items = ref([
     <Menubar :model="isAuthenticated ? items : []">
         <template #start>
             <router-link :to="{ name: 'calendar' }" class="flex items-center no-underline text-inherit cursor-pointer">
-                <img src="/icon.png" alt="Legacy Calendar Icon" class="h-8 w-8 object-contain" />
                 <h1 class="text-lg md:text-2xl font-bold ml-2">Legacy Calendar</h1>
             </router-link>
         </template>

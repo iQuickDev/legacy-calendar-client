@@ -30,10 +30,13 @@ export function useCalendar() {
             location: event.location,
             startTime: event.startTime,
             endTime: event.endTime,
-            hostId: event.hostId,
             host: event.host,
             participants: event.participants,
             isOpen: event.isOpen,
+            hasFood: event.hasFood,
+            hasWeed: event.hasWeed,
+            hasSleep: event.hasSleep,
+            hasAlcohol: event.hasAlcohol,
         }))
     );
 
@@ -82,8 +85,8 @@ export function useCalendar() {
         return await eventsStore.deleteEvent(id);
     };
 
-    const joinEvent = async (id: number) => {
-        return await eventsStore.joinEvent(id);
+    const joinEvent = async (id: number, dto?: any) => {
+        return await eventsStore.joinEvent(id, dto);
     };
 
     return {

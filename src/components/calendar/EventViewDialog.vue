@@ -14,6 +14,9 @@ import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
 import { useEventsStore } from '../../stores/events';
 import { baseURL } from '../../services/API';
+import FeatureSelectionDialog from './FeatureSelectionDialog.vue';
+import type { EventFeature } from '../../types/Event';
+import { FEATURES } from '../../constants/features';
 
 const props = defineProps<{
     visible: boolean;
@@ -103,18 +106,106 @@ const canAccept = computed(() => {
 });
 
 const joining = ref(false);
+const showFeatureSelection = ref(false);
 
-const onAccept = async () => {
-    if (!props.event) return;
+const onAcceptClick = () => {
+    // If user is already accepted/host, do nothing (button disabled anyway)
+    // If user needs to join, show dialog first
+    showFeatureSelection.value = true;
+};
+
+const handleFeatureConfirm = async (features: EventFeature[]) => {
+    showFeatureSelection.value = false;
+    if (!props.event || !currentUser.value) return;
+
     joining.value = true;
     try {
-        const success = await eventsStore.joinEvent(props.event.id);
+        const participateDto = {
+            wantsFood: features.includes('FOOD'),
+            wantsWeed: features.includes('WEED'),
+            wantsSleep: features.includes('SLEEP'),
+            wantsAlcohol: features.includes('ALCOHOL')
+        };
+
+        const success = await eventsStore.joinEvent(props.event.id, participateDto);
         if (success) {
             emit('joined');
-            // Refresh local status if possible, or the parent will refresh events
         }
     } finally {
         joining.value = false;
+    }
+};
+
+const getParticipantFeatures = (userId: number): EventFeature[] => {
+    // Return real features from participant data
+    const participant = resolvedInvitees.value.find(p => p.id === userId);
+    if (!participant) return [];
+
+    const features: EventFeature[] = [];
+    if (participant.wantsFood) features.push('FOOD');
+    if (participant.wantsWeed) features.push('WEED');
+    if (participant.wantsAlcohol) features.push('ALCOHOL');
+    if (participant.wantsSleep) features.push('SLEEP');
+
+    return features;
+};
+
+const featuresListColumns = FEATURES.map(f => ({
+    field: f.id,
+    header: f.label,
+    icon: f.icon
+}));
+
+const eventFeatures = computed(() => {
+    if (!props.event) return [];
+
+    // Filter features that are enabled for this event
+    return FEATURES.filter(feature => {
+        if (feature.id === 'FOOD' && props.event!.hasFood) return true;
+        if (feature.id === 'WEED' && props.event!.hasWeed) return true;
+        if (feature.id === 'ALCOHOL' && props.event!.hasAlcohol) return true;
+        if (feature.id === 'SLEEP' && props.event!.hasSleep) return true;
+        return false;
+    });
+});
+
+const availableFeatureIds = computed(() => {
+    if (!props.event) return [];
+    const features: EventFeature[] = [];
+    if (props.event.hasFood) features.push('FOOD');
+    if (props.event.hasWeed) features.push('WEED');
+    if (props.event.hasAlcohol) features.push('ALCOHOL');
+    if (props.event.hasSleep) features.push('SLEEP');
+    return features;
+});
+
+const hasFeature = (userId: number, feature: EventFeature) => {
+    const features = getParticipantFeatures(userId);
+    return features.includes(feature);
+};
+
+const getFeatureCount = (feature: EventFeature) => {
+    if (!resolvedInvitees.value) return 0;
+    return resolvedInvitees.value.filter(p => {
+        // Only count accepted participants who want the feature
+        if (p.status !== 'ACCEPTED') return false;
+
+        switch (feature) {
+            case 'FOOD': return p.wantsFood;
+            case 'WEED': return p.wantsWeed;
+            case 'ALCOHOL': return p.wantsAlcohol;
+            case 'SLEEP': return p.wantsSleep;
+            default: return false;
+        }
+    }).length;
+};
+
+const getStatusIcon = (status: string) => {
+    switch (status) {
+        case 'ACCEPTED': return 'pi pi-check';
+        case 'DECLINED': return 'pi pi-times';
+        case 'PENDING': return 'pi pi-clock';
+        default: return 'pi pi-info-circle';
     }
 };
 
@@ -156,7 +247,7 @@ const onDelete = () => {
 
 <template>
     <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Event Details"
-        :style="{ width: '550px' }" :breakpoints="{ '640px': '95vw' }" class="p-fluid" dismissableMask
+        :style="{ width: '900px' }" :breakpoints="{ '960px': '85vw', '640px': '95vw' }" class="p-fluid" dismissableMask
         :draggable="false">
 
         <!-- View Mode -->
@@ -227,6 +318,25 @@ const onDelete = () => {
                 </div>
             </div>
 
+
+            <Divider v-if="eventFeatures.length > 0" class="!my-2" />
+
+            <!-- Event Features -->
+            <div v-if="eventFeatures.length > 0" class="flex flex-col gap-2">
+                <div class="flex items-center gap-2 text-surface-600 dark:text-surface-400">
+                    <i class="pi pi-star"></i>
+                    <span class="font-semibold">Available Features</span>
+                </div>
+                <div class="flex flex-wrap gap-2 md:pl-6 pl-0">
+                    <div v-for="feature in eventFeatures" :key="feature.label"
+                        class="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium"
+                        :class="feature.color">
+                        <span>{{ feature.icon }}</span>
+                        <span>{{ feature.label }}</span>
+                    </div>
+                </div>
+            </div>
+
             <Divider class="!my-2" />
 
             <!-- Invitees Table -->
@@ -236,7 +346,7 @@ const onDelete = () => {
                     <span class="font-semibold">Invitees</span>
                 </div>
 
-                <DataTable :value="resolvedInvitees">
+                <DataTable :value="resolvedInvitees" scrollable>
                     <template #empty>
                         <div class="p-4 text-center text-surface-500">No invitees found</div>
                     </template>
@@ -251,10 +361,35 @@ const onDelete = () => {
                             </div>
                         </template>
                     </Column>
-                    <Column field="status" header="Status" class="w-24">
+                    <Column v-for="col in featuresListColumns" :key="col.field"
+                        class="text-center min-w-[4rem] sm:min-w-[7rem]">
+                        <template #header>
+                            <span class="font-bold hidden sm:inline whitespace-nowrap">{{ col.header }} ({{
+                                getFeatureCount(col.field) }})</span>
+                            <span class="font-bold sm:hidden whitespace-nowrap" :title="col.header">{{ col.icon }} ({{
+                                getFeatureCount(col.field) }})</span>
+                        </template>
                         <template #body="slotProps">
-                            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)"
-                                size="small" />
+                            <div v-if="slotProps.data.status === 'ACCEPTED'" class="flex justify-center">
+                                <i v-if="hasFeature(slotProps.data.id, col.field)"
+                                    class="pi pi-check text-green-500 font-bold"></i>
+                                <i v-else class="pi pi-times text-red-500 font-bold"></i>
+                            </div>
+                            <div v-else class="text-center text-surface-400">-</div>
+                        </template>
+                    </Column>
+                    <Column field="status" header="Status" class="w-16 sm:w-24 text-center">
+                        <template #body="slotProps">
+                            <span class="hidden sm:inline">
+                                <Tag :severity="getStatusSeverity(slotProps.data.status)" size="small"
+                                    :value="slotProps.data.status" />
+                            </span>
+                            <div class="sm:hidden flex justify-center">
+                                <Tag :severity="getStatusSeverity(slotProps.data.status)"
+                                    class="!w-8 !h-8 !p-0 flex items-center justify-center" size="small">
+                                    <i :class="getStatusIcon(slotProps.data.status)" class="text-xs"></i>
+                                </Tag>
+                            </div>
                         </template>
                     </Column>
                 </DataTable>
@@ -268,13 +403,33 @@ const onDelete = () => {
                     <Button label="Delete" icon="pi pi-trash" severity="danger" text @click="onDelete" />
                 </div>
 
-                <Button v-if="canAccept"
-                    :label="(isHost || userParticipantStatus === 'ACCEPTED') ? 'Accepted' : 'Accept'" icon="pi pi-check"
-                    severity="success" :loading="joining" :disabled="isHost || userParticipantStatus === 'ACCEPTED'"
-                    @click="onAccept" />
+                <Button v-if="canAccept" :label="(userParticipantStatus === 'ACCEPTED') ? 'Joined' : 'Join'"
+                    icon="pi pi-check" severity="success" :loading="joining"
+                    :disabled="userParticipantStatus === 'ACCEPTED'" @click="onAcceptClick" />
             </div>
         </template>
     </Dialog>
+
+    <FeatureSelectionDialog v-model:visible="showFeatureSelection" :availableFeatures="availableFeatureIds"
+        @confirm="handleFeatureConfirm" />
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.p-datatable) {
+    font-size: 0.95rem;
+}
+
+@media screen and (max-width: 640px) {
+    :deep(.p-datatable) {
+        font-size: 0.8rem;
+    }
+
+    :deep(.p-datatable .p-datatable-thead > tr > th) {
+        padding: 0.5rem 0.25rem;
+    }
+
+    :deep(.p-datatable .p-datatable-tbody > tr > td) {
+        padding: 0.5rem 0.25rem;
+    }
+}
+</style>

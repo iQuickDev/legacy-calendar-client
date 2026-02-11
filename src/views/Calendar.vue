@@ -27,23 +27,30 @@ const openAddEvent = (date: Date) => {
     showDialog.value = true;
 };
 
+const isSaving = ref(false);
+
 const handleSaveEvent = async (eventData: CreateEventDto) => {
-    const success = await addEvent(eventData);
-    if (success) {
-        toast.add({
-            severity: 'success',
-            summary: 'Event Created',
-            detail: `"${eventData.title}" has been added`,
-            life: 3000
-        });
-        showDialog.value = false;
-    } else {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.value || 'Failed to create event',
-            life: 4000
-        });
+    isSaving.value = true;
+    try {
+        const success = await addEvent(eventData);
+        if (success) {
+            toast.add({
+                severity: 'success',
+                summary: 'Event Created',
+                detail: `"${eventData.title}" has been added`,
+                life: 3000
+            });
+            showDialog.value = false;
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.value || 'Failed to create event',
+                life: 4000
+            });
+        }
+    } finally {
+        isSaving.value = false;
     }
 };
 
@@ -82,7 +89,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 <template>
     <div class="calendar-container flex flex-col p-4 md:px-6 md:py-4 gap-3 md:gap-4 w-full">
         <!-- Loading Overlay -->
-        <div v-if="loading" class="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div v-if="loading && !isSaving" class="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
             <ProgressSpinner />
         </div>
 
@@ -120,7 +127,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         </div>
 
         <!-- Event Dialog -->
-        <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent" />
+        <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent" :loading="isSaving" />
 
         <!-- Event View Dialog -->
         <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent"

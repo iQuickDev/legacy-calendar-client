@@ -16,6 +16,7 @@ import { baseURL } from '../../services/API';
 const props = defineProps<{
     visible: boolean;
     initialDate: Date;
+    loading?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -178,8 +179,8 @@ const onSave = () => {
         </div>
 
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" text @click="emit('update:visible', false)" />
-            <Button label="Save" icon="pi pi-check" @click="onSave" autofocus />
+            <Button label="Cancel" icon="pi pi-times" text @click="emit('update:visible', false)" :disabled="loading" />
+            <Button :label="loading ? 'Saving...' : 'Save'" :icon="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'" @click="onSave" autofocus :disabled="loading" />
         </template>
     </Dialog>
 </template>

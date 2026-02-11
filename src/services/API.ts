@@ -18,6 +18,11 @@ export interface AuthLoginDto {
     password: string;
 }
 
+export interface ChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export interface CreateEventDto {
     title: string;
     description?: string;
@@ -91,6 +96,10 @@ class API {
     async getProfile(): Promise<AxiosResponse<User>> {
         // Note: Spec defines this as POST /auth/profile
         return this.client.post('/auth/profile');
+    }
+
+    async changePassword(dto: ChangePasswordDto): Promise<AxiosResponse<void>> {
+        return this.client.post('/auth/change-password', dto);
     }
 
     // --- Users ---

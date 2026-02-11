@@ -98,13 +98,18 @@ export const useSessionStore = defineStore('session', {
                 // In a real app, this would make an API call
             }
         },
-        async changePassword(_current: string, _newPass: string) {
-            // Mock API call
-            return new Promise<void>((resolve) => {
-                setTimeout(() => {
-                    resolve();
-                }, 1000);
-            });
+        async changePassword(currentPassword: string, newPassword: string) {
+            try {
+                this.loading = true;
+                const { client } = useAPIStore();
+                await client.changePassword({ currentPassword, newPassword });
+                return true;
+            } catch (error: any) {
+                console.error('Failed to change password:', error);
+                throw error; // Re-throw to let the component handle the error toast
+            } finally {
+                this.loading = false;
+            }
         },
         async uploadProfilePicture(file: File) {
             try {

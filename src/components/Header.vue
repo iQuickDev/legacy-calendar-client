@@ -51,7 +51,7 @@ const items = ref([
         <template #end>
             <div v-if="isAuthenticated" class="flex items-center">
                 <router-link :to="{ name: 'profile' }"
-                    class="no-underline flex items-center gap-2 bg-zinc-900 px-2 py-1 rounded-xl hover:bg-zinc-800 transition-all">
+                    class="no-underline flex items-center gap-2 bg-zinc-900 px-2 py-1 rounded-full hover:bg-zinc-800 transition-all">
                     <Avatar :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
                         :label="!currentUser?.profilePicture ? (currentUser?.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
                         shape="circle"

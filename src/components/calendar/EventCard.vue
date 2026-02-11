@@ -3,6 +3,7 @@ import Avatar from 'primevue/avatar';
 import Badge from 'primevue/badge';
 import Chip from 'primevue/chip';
 import type { CalendarEvent } from '../../types/Calendar';
+import { baseURL } from '../../services/API';
 
 const props = defineProps<{
     event: CalendarEvent;
@@ -23,8 +24,9 @@ const emit = defineEmits<{
             }">
             <template #icon>
                 <div class="flex items-center gap-1 shrink-0 ml-auto">
-                    <Avatar icon="pi pi-user" shape="circle" size="small"
-                        class="!w-6 !h-6 !text-xs bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm" />
+                    <Avatar :image="event.host?.profilePicture ? `${baseURL}${event.host.profilePicture}` : undefined"
+                        :icon="!event.host?.profilePicture ? 'pi pi-user' : undefined" shape="circle" size="small"
+                        class="!w-6 !h-6 !text-[10px] bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm shadow-sm" />
 
                     <Badge v-if="event.participants && event.participants.length > 0" :value="event.participants.length"
                         severity="contrast" class="!min-w-[1rem] !h-4 !text-[10px] !leading-3" />

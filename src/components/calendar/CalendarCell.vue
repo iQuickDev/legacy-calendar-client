@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { CalendarDay } from '../../types/Calendar';
 import type { Event } from '../../types/Event';
 import EventCard from './EventCard.vue';
+import { useMagicCard } from '../../composables/useMagicCard';
 
 const props = defineProps<{
     day: CalendarDay;
@@ -16,10 +17,18 @@ defineEmits<{
 const dayName = computed(() => {
     return props.day.date.toLocaleDateString('en-US', { weekday: 'short' });
 });
+
+const spotlightColor = computed(() => props.day.isToday ? '#064e23' : '#262626');
+
+const { cardRef, backgroundStyle } = useMagicCard({
+    gradientSize: 250,
+    gradientColor: spotlightColor.value,
+    gradientOpacity: 0.8,
+});
 </script>
 
 <template>
-    <div class="calendar-cell min-h-[60px] md:min-h-0 p-3 md:p-2 flex flex-row md:flex-col gap-3 md:gap-1 relative group cursor-pointer items-center md:items-stretch shrink-0 md:shrink"
+    <div ref="cardRef" class="calendar-cell min-h-[60px] md:min-h-0 p-3 md:p-2 flex flex-row md:flex-col gap-3 md:gap-1 relative group cursor-pointer items-center md:items-stretch shrink-0 md:shrink"
         :class="[
             {
                 'cell-active': day.isCurrentMonth,
@@ -49,12 +58,12 @@ const dayName = computed(() => {
         </div>
 
         <!-- Events List -->
-        <div class="flex flex-col gap-1 z-10 flex-1 w-full overflow-y-auto min-h-0 custom-scrollbar pr-1">
+        <div class="flex flex-col gap-1 z-10 flex-1 w-full overflow-y-auto min-h-0 pr-1">
             <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
         </div>
 
-        <!-- Hover overlay -->
-        <div class="hover-overlay"></div>
+        <!-- Magic card spotlight overlay -->
+        <div class="magic-spotlight" :style="backgroundStyle"></div>
 
         <!-- Today green glow -->
         <div v-if="day.isToday" class="today-glow"></div>
@@ -76,7 +85,6 @@ const dayName = computed(() => {
 }
 
 .cell-active:hover {
-    background: rgba(255, 255, 255, 0.03);
     z-index: 10;
 }
 
@@ -109,20 +117,17 @@ const dayName = computed(() => {
     box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
 }
 
-/* Hover overlay with animated gradient */
-.hover-overlay {
+/* Magic card spotlight overlay */
+.magic-spotlight {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.02) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0.02) 100%);
+    inset: -1px;
+    border-radius: inherit;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
 }
 
-.cell-active:hover .hover-overlay {
+.cell-active:hover .magic-spotlight {
     opacity: 1;
 }
 
@@ -150,27 +155,4 @@ const dayName = computed(() => {
     border-color: rgba(255, 255, 255, 0.08);
 }
 
-/* Custom Scrollbar for events list */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-}
-
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Firefox */
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
 </style>

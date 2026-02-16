@@ -332,7 +332,7 @@ const onDelete = () => {
                         class="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium"
                         :class="feature.color">
                         <span>{{ feature.icon }}</span>
-                        <span>{{ feature.label }}</span>
+                        <span>{{ feature.label }} <span class="sm:hidden">({{ getFeatureCount(feature.id) }})</span></span>
                     </div>
                 </div>
             </div>
@@ -362,12 +362,11 @@ const onDelete = () => {
                         </template>
                     </Column>
                     <Column v-for="col in featuresListColumns" :key="col.field"
-                        class="text-center min-w-[4rem] sm:min-w-[7rem]">
+                        class="text-center min-w-[3rem] sm:min-w-[7rem]">
                         <template #header>
                             <span class="font-bold hidden sm:inline whitespace-nowrap">{{ col.header }} ({{
                                 getFeatureCount(col.field) }})</span>
-                            <span class="font-bold sm:hidden whitespace-nowrap" :title="col.header">{{ col.icon }} ({{
-                                getFeatureCount(col.field) }})</span>
+                            <span class="font-bold sm:hidden whitespace-nowrap" :title="col.header">{{ col.icon }}</span>
                         </template>
                         <template #body="slotProps">
                             <div v-if="slotProps.data.status === 'ACCEPTED'" class="flex justify-center">

@@ -103,6 +103,24 @@ export const useEventsStore = defineStore('events', {
             }
         },
 
+        async leaveEvent(id: number) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const { client } = useAPIStore();
+                await client.leaveEvent(id);
+                // Refresh to get updated event data
+                await this.fetchEvents();
+                return true;
+            } catch (err: any) {
+                this.error = err.response?.data?.message || 'Failed to leave event';
+                console.error('Failed to leave event:', err);
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         clearError() {
             this.error = null;
         },

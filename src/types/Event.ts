@@ -3,7 +3,7 @@ export interface CreateEventDto {
     description?: string;
     location?: string;
     startTime: string;
-    endTime: string;
+    endTime?: string;
     participants?: number[];
     isOpen: boolean;
     hasFood?: boolean;
@@ -18,7 +18,7 @@ export interface Event {
     description?: string;
     location?: string;
     startTime: string;
-    endTime: string;
+    endTime?: string;
     hostId?: number;
     host?: { id: number; username: string; profilePicture?: string };
     participants?: {

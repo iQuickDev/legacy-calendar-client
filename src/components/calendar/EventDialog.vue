@@ -42,11 +42,9 @@ const toggleFeature = (feature: EventFeature) => {
     }
 };
 
-// Split State for Start
 const startDateOnly = ref<Date | null>(null);
 const startTimeOnly = ref<Date | null>(null);
 
-// Split State for End
 const endDateOnly = ref<Date | null>(null);
 const endTimeOnly = ref<Date | null>(null);
 
@@ -58,7 +56,6 @@ const fetchUsers = async () => {
         const { client } = useAPIStore();
         const sessionStore = useSessionStore();
         const response = await client.findAllUsers();
-        // Filter out current user (the host)
         allParticipants.value = response.data.filter(user => user.id !== sessionStore.currentUser?.id);
     } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -67,7 +64,6 @@ const fetchUsers = async () => {
 
 watch(() => props.visible, (newVal) => {
     if (newVal) {
-        // Reset form
         title.value = '';
         description.value = '';
         location.value = '';
@@ -75,16 +71,14 @@ watch(() => props.visible, (newVal) => {
         isOpen.value = true;
         selectedFeatures.value = [];
 
-        // Set initial start date/time
         startDateOnly.value = new Date(props.initialDate);
         startTimeOnly.value = new Date(props.initialDate);
 
-        // Default end date to 1 hour after start
         const end = new Date(props.initialDate);
         end.setHours(end.getHours() + 1);
 
-        endDateOnly.value = new Date(end);
-        endTimeOnly.value = new Date(end);
+        endDateOnly.value = null;
+        endTimeOnly.value = null;
 
         fetchUsers();
     }
@@ -112,7 +106,7 @@ const onSave = () => {
         description: description.value || undefined,
         location: location.value || undefined,
         startTime: start.toISOString(),
-        endTime: end ? end.toISOString() : start.toISOString(),
+        endTime: end ? end.toISOString() : undefined,
         participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
         isOpen: isOpen.value,
         hasFood: selectedFeatures.value.includes('FOOD'),
@@ -143,7 +137,6 @@ const onSave = () => {
                 <InputText id="location" v-model="location" placeholder="Meeting Room, Online, etc." />
             </div>
 
-            <!-- Start Date/Time -->
             <div class="flex flex-col gap-2">
                 <label class="font-semibold">Start</label>
                 <div class="flex gap-2">
@@ -152,9 +145,8 @@ const onSave = () => {
                 </div>
             </div>
 
-            <!-- End Date/Time -->
             <div class="flex flex-col gap-2">
-                <label class="font-semibold">End</label>
+                <label class="font-semibold">End (Optional)</label>
                 <div class="flex gap-2">
                     <DatePicker v-model="endDateOnly" class="flex-1" placeholder="Date" />
                     <DatePicker v-model="endTimeOnly" timeOnly class="w-24" placeholder="Time" />

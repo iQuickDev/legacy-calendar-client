@@ -37,6 +37,23 @@ class API {
                 return Promise.reject(error);
             }
         );
+
+        this.client.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                    // Session is invalid or expired
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('bypass_token');
+
+                    // Force redirect to login if not already there
+                    if (!window.location.pathname.startsWith('/login') && window.location.pathname !== '/') {
+                        window.location.href = '/';
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     // --- Auth ---
@@ -96,6 +113,10 @@ class API {
 
     async joinEvent(id: number, dto?: ParticipateDto): Promise<AxiosResponse<void>> {
         return this.client.post(`/events/${id}/join`, dto || {});
+    }
+
+    async leaveEvent(id: number): Promise<AxiosResponse<void>> {
+        return this.client.delete(`/events/${id}/join`);
     }
 
     // --- Notifications ---

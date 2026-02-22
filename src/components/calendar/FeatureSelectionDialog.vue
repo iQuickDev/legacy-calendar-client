@@ -9,6 +9,8 @@ import { FEATURES } from '../../constants/features';
 const props = defineProps<{
     visible: boolean;
     availableFeatures?: EventFeature[];
+    initialFeatures?: EventFeature[];
+    submitLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -40,7 +42,7 @@ const onConfirm = () => {
 
 watch(() => props.visible, (newVal) => {
     if (newVal) {
-        selectedFeatures.value = []; // Reset on open
+        selectedFeatures.value = props.initialFeatures ? [...props.initialFeatures] : [];
     }
 });
 </script>
@@ -72,7 +74,7 @@ watch(() => props.visible, (newVal) => {
         <template #footer>
             <div class="flex justify-end gap-2 w-full">
                 <Button label="Cancel" severity="secondary" text @click="emit('update:visible', false)" />
-                <Button label="Join Event" icon="pi pi-check" @click="onConfirm" />
+                <Button :label="submitLabel || 'Join Event'" icon="pi pi-check" @click="onConfirm" />
             </div>
         </template>
     </Dialog>

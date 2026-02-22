@@ -20,7 +20,7 @@ const dayName = computed(() => {
 
 const spotlightColor = computed(() => props.day.isToday ? '#064e23' : '#262626');
 
-const { cardRef, backgroundStyle } = useMagicCard({
+const { backgroundStyle } = useMagicCard({
     gradientSize: 250,
     gradientColor: spotlightColor.value,
     gradientOpacity: 0.8,

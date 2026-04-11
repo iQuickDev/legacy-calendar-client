@@ -215,7 +215,7 @@ const onSave = () => {
                                 <span class="text-xs text-zinc-500">Price:</span>
                                 <div class="relative flex-1">
                                     <InputNumber v-model="featurePrices[feature.id]" mode="currency" currency="EUR" locale="de-DE" 
-                                        placeholder="0.00" class="w-full !text-sm" size="small" :min="0" />
+                                        placeholder="0.00" class="w-32 text-sm!" size="small" :min="0" />
                                 </div>
                             </div>
                         </div>

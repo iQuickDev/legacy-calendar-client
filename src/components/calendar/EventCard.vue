@@ -20,6 +20,9 @@ const { cardRef, backgroundStyle } = useMagicCard({
     gradientOpacity: 0.15,
 });
 
+// Reference cardRef to satisfy TypeScript noUnusedLocals (it's used as a template ref)
+cardRef;
+
 </script>
 
 <template>

@@ -214,19 +214,19 @@ const eventFeatures = computed(() => {
     });
 });
 
-const eventPrices = computed(() => {
-    if (!props.event) return {};
+const eventPrices = computed<Record<string, number | null>>(() => {
+    if (!props.event) return {} as Record<string, number | null>;
     return {
-        FOOD: props.event.foodPrice || null,
-        WEED: props.event.weedPrice || null,
-        SLEEP: props.event.sleepPrice || null,
-        ALCOHOL: props.event.alcoholPrice || null,
-        BEER: props.event.beerPrice || null
+        FOOD: props.event.foodPrice ?? null,
+        WEED: props.event.weedPrice ?? null,
+        SLEEP: props.event.sleepPrice ?? null,
+        ALCOHOL: props.event.alcoholPrice ?? null,
+        BEER: props.event.beerPrice ?? null
     };
 });
 
-const eventSplitPrices = computed(() => {
-    if (!props.event) return {};
+const eventSplitPrices = computed<Record<string, number | null>>(() => {
+    if (!props.event) return {} as Record<string, number | null>;
     return {
         FOOD: getFeatureSplitPrice('FOOD'),
         WEED: getFeatureSplitPrice('WEED'),
@@ -661,7 +661,7 @@ const toggleEditFeature = (feature: EventFeature) => {
                             <span class="ml-1 opacity-60">({{ getFeatureCount(feature.id) }})</span>
                         </div>
                         <div v-if="eventPrices[feature.id]" class="text-[9px] font-bold px-1 flex flex-col gap-0.5">
-                            <span class="text-zinc-500/70 whitespace-nowrap">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(eventPrices[feature.id]) }}</span>
+                            <span class="text-zinc-500/70 whitespace-nowrap">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(eventPrices[feature.id] ?? 0) }}</span>
                             <span class="text-emerald-500 whitespace-nowrap">Share: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(getFeatureSplitPrice(feature.id)) }}</span>
                         </div>
                     </div>

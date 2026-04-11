@@ -382,17 +382,17 @@ const eventTotalBudget = computed(() => {
 const isAldoMoro = computed(() => {
     if (!props.event?.participants) return false;
     
-    const acceptedParticipants = resolvedInvitees.value.filter(p => p.status === 'ACCEPTED');
-    if (acceptedParticipants.length === 0) return false;
+    const rideNeedingParticipants = needsRide.value;
+    if (rideNeedingParticipants.length === 0) return false;
 
-    const totalSeats = acceptedParticipants.reduce((acc, p) => {
+    const totalSeats = drivers.value.reduce((acc, p) => {
         if (p.hasVehicle) {
             return acc + (p.vehicleSeats || 0);
         }
         return acc;
     }, 0);
 
-    return totalSeats < acceptedParticipants.length;
+    return totalSeats < rideNeedingParticipants.length;
 });
 
 const getStatusIcon = (status: string) => {
@@ -583,19 +583,22 @@ const toggleEditFeature = (feature: EventFeature) => {
                 </div>
 
                 <!-- User Share Section -->
-                <div v-if="userParticipantStatus === 'ACCEPTED' && userTotalShare > 0" 
-                    class="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 mt-1">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-                            <i class="pi pi-wallet text-lg sm:text-xl"></i>
+                <div v-if="userParticipantStatus === 'ACCEPTED'" 
+                    class="relative overflow-hidden group bg-linear-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 backdrop-blur-md p-4 sm:p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-1 shadow-sm hover:shadow-emerald-500/10 transition-all duration-300">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="flex items-center gap-4 w-full sm:w-auto relative z-10">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr from-emerald-500 to-emerald-400 flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-500/20">
+                            <i class="pi pi-wallet text-xl sm:text-2xl"></i>
                         </div>
                         <div>
-                            <div class="text-[10px] sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Your Share</div>
-                            <div class="text-[9px] sm:text-xs text-emerald-600/70 dark:text-emerald-400/50">Based on selections</div>
+                            <div class="text-[10px] sm:text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Your Personal Contribution</div>
+                            <div class="text-[9px] sm:text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Based on selected features</div>
                         </div>
                     </div>
-                    <div class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 w-full sm:w-auto text-right border-t sm:border-t-0 border-emerald-500/10 pt-2 sm:pt-0">
-                        {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(userTotalShare) }}
+                    <div class="flex flex-col items-end w-full sm:w-auto relative z-10">
+                        <div class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 flex items-baseline gap-1">
+                            {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(userTotalShare) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -644,25 +647,65 @@ const toggleEditFeature = (feature: EventFeature) => {
             </div>
 
 
-            <Divider v-if="eventFeatures.length > 0" class="!my-2" />
+            <Divider v-if="availableFeatureIds.length > 0" class="!my-2" />
 
-            <div v-if="eventFeatures.length > 0" class="flex flex-col gap-2">
-                <div class="flex items-center gap-2 text-surface-600 dark:text-surface-400">
-                    <i class="pi pi-star"></i>
-                    <span class="font-semibold">Available Features</span>
+            <!-- Costs Breakdown Section -->
+            <div v-if="availableFeatureIds.length > 0" class="flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-surface-600 dark:text-surface-400">
+                        <i class="pi pi-receipt"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm">Costs & Budget Breakdown</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 text-[10px] font-black uppercase text-zinc-500 tracking-tighter border border-zinc-200 dark:border-zinc-700/50">
+                        <span>Splits are auto-calculated</span>
+                    </div>
                 </div>
-                <div class="flex flex-wrap gap-2 md:pl-6 pl-0">
-                    <div v-for="feature in eventFeatures" :key="feature.label"
-                        class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium border border-zinc-200 dark:border-zinc-800"
-                            :class="feature.color">
-                            <span>{{ feature.icon }}</span>
-                            <span>{{ feature.label }}</span>
-                            <span class="ml-1 opacity-60">({{ getFeatureCount(feature.id) }})</span>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:pl-0 pl-0">
+                    <div v-for="feature in eventFeatures" :key="feature.id"
+                        class="flex flex-col gap-3 p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden group"
+                        :class="[
+                            getFeatureCount(feature.id) > 0 
+                                ? 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800' 
+                                : 'bg-zinc-50/50 dark:bg-zinc-950/30 border-dashed border-zinc-200 dark:border-zinc-800 opacity-60'
+                        ]">
+                        <!-- Background Glow Effect (on hover) -->
+                        <div class="absolute -right-2 -bottom-2 w-16 h-16 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-full blur-xl"
+                            :class="feature.color.split(' ')[0]"></div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-inner"
+                                    :class="feature.color">
+                                    {{ feature.icon }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm">{{ feature.label }}</span>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                                        {{ getFeatureCount(feature.id) }} participating
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div v-if="eventPrices[feature.id]" class="text-[9px] font-bold px-1 flex flex-col gap-0.5">
-                            <span class="text-zinc-500/70 whitespace-nowrap">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(eventPrices[feature.id] ?? 0) }}</span>
-                            <span class="text-emerald-500 whitespace-nowrap">Share: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(getFeatureSplitPrice(feature.id)) }}</span>
+
+                        <div class="flex flex-col gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/50">
+                            <div v-if="eventPrices[feature.id] !== null" class="flex flex-col gap-0.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[9px] font-bold text-zinc-400 uppercase tracking-tighter">Budget</span>
+                                    <span class="text-[10px] font-bold text-zinc-500">
+                                        {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(eventPrices[feature.id] ?? 0) }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.1em]">Your Share</span>
+                                    <span class="text-lg font-black text-emerald-500">
+                                        {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(getFeatureSplitPrice(feature.id)) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div v-else class="flex flex-col items-center justify-center py-2">
+                                <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">No budget set</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -932,12 +975,12 @@ const toggleEditFeature = (feature: EventFeature) => {
                         <Button label="Edit" icon="pi pi-pencil" severity="secondary" text @click="onEdit" />
                     </div>
 
-                    <template v-if="userParticipantStatus === 'ACCEPTED' && !isHost">
+                    <template v-if="userParticipantStatus === 'ACCEPTED'">
                         <Button label="Leave" icon="pi pi-times" severity="danger" text :loading="cancelling"
                             @click="onCancelParticipation" />
                         <Button label="Edit Participation" icon="pi pi-pencil" severity="secondary" @click="onEditParticipation" />
                     </template>
-                    <template v-else-if="!isHost">
+                    <template v-else>
                         <Button v-if="userParticipantStatus === 'PENDING'" label="Decline" icon="pi pi-times"
                             severity="danger" text :loading="cancelling" @click="onDecline" />
                         <Button v-if="canAccept" :label="(userParticipantStatus === 'ACCEPTED') ? 'Joined' : 'Join'"

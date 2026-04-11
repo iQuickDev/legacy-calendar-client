@@ -193,29 +193,39 @@ const onSave = () => {
                     </template>
                 </MultiSelect>
             </div>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-3">
+                <label class="font-bold text-sm uppercase tracking-widest text-zinc-500">Event Features & Budgets</label>
                 <div class="space-y-3">
                     <div v-for="feature in FEATURES" :key="feature.id"
-                        class="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all duration-200"
-                        :class="[selectedFeatures.includes(feature.id) ? 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-300 dark:border-zinc-700' : '']">
-                        <button @click="toggleFeature(feature.id)" type="button"
-                            class="flex flex-col items-center justify-center gap-1 w-16 h-16 rounded-lg transition-all duration-200 focus:outline-none shrink-0"
-                            :class="[selectedFeatures.includes(feature.id) ? feature.color : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400']">
-                            <span class="text-2xl">{{ feature.icon }}</span>
-                            <span class="text-[10px] font-bold">{{ feature.label }}</span>
-                        </button>
+                        class="flex flex-col gap-3 p-4 rounded-2xl border transition-all duration-300"
+                        :class="[selectedFeatures.includes(feature.id) ? 'bg-zinc-50 dark:bg-zinc-900/50 border-emerald-500/30 ring-1 ring-emerald-500/10' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950']">
                         
-                        <div class="flex-1 flex flex-col gap-1">
-                            <div class="flex items-center justify-between">
-                                <span class="font-medium text-sm">{{ feature.label }}</span>
-                                <ToggleSwitch :modelValue="selectedFeatures.includes(feature.id)" @update:modelValue="toggleFeature(feature.id)" />
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <button @click="toggleFeature(feature.id)" type="button"
+                                    class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all duration-300 focus:outline-none shadow-inner"
+                                    :class="[selectedFeatures.includes(feature.id) ? feature.color : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-400 opacity-50']">
+                                    {{ feature.icon }}
+                                </button>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-sm" :class="selectedFeatures.includes(feature.id) ? '' : 'text-zinc-500'">{{ feature.label }}</span>
+                                    <span v-if="selectedFeatures.includes(feature.id)" class="text-[9px] font-black uppercase tracking-widest text-emerald-500 animate-in fade-in duration-500">Feature Active</span>
+                                    <span v-else class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Disabled</span>
+                                </div>
                             </div>
-                            
-                            <div v-if="selectedFeatures.includes(feature.id)" class="flex items-center gap-2 mt-1 animate-in fade-in slide-in-from-left-2 duration-300">
-                                <span class="text-xs text-zinc-500">Price:</span>
-                                <div class="relative flex-1">
+                            <ToggleSwitch :modelValue="selectedFeatures.includes(feature.id)" @update:modelValue="toggleFeature(feature.id)" />
+                        </div>
+                        
+                        <div v-if="selectedFeatures.includes(feature.id)" class="animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div class="flex flex-col gap-1.5 pt-3 border-t border-zinc-200 dark:border-zinc-800/50">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Target Budget</label>
+                                    <span class="text-[10px] font-bold text-zinc-400">Optional</span>
+                                </div>
+                                <div class="relative group">
                                     <InputNumber v-model="featurePrices[feature.id]" mode="currency" currency="EUR" locale="de-DE" 
-                                        placeholder="0.00" class="w-32 text-sm!" size="small" :min="0" />
+                                        placeholder="0.00" class="w-full" :min="0" />
+                                    <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500 rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
                                 </div>
                             </div>
                         </div>

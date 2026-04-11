@@ -75,22 +75,32 @@ watch(() => props.visible, (newVal) => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button v-for="feature in FEATURES" :key="feature.id"
                     @click="isFeatureAvailable(feature.id) && toggleFeature(feature.id)"
-                    class="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-zinc-800 transition-all duration-200 focus:outline-none"
+                    class="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300 focus:outline-none relative overflow-hidden group"
                     :class="[
-                        isFeatureAvailable(feature.id) ? 'hover:scale-[1.02] cursor-pointer' : 'opacity-40 cursor-not-allowed grayscale',
+                        isFeatureAvailable(feature.id) ? 'hover:scale-[1.02] cursor-pointer' : 'opacity-40 cursor-not-allowed grayscale border-zinc-200 dark:border-zinc-800',
                         selectedFeatures.includes(feature.id)
-                            ? `${feature.color} border-current`
+                            ? `${feature.color} border-transparent ring-2 ring-offset-2 ring-offset-white dark:ring-offset-zinc-950 ring-current shadow-lg`
                             : isFeatureAvailable(feature.id)
-                                ? 'border-surface-200'
-                                : ''
+                                ? 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm'
+                                : 'border-zinc-100 dark:border-zinc-900'
                     ]" :disabled="!isFeatureAvailable(feature.id)">
-                    <span class="text-3xl">{{ feature.icon }}</span>
+                    
+                    <span class="text-3xl group-hover:scale-110 transition-transform duration-300">{{ feature.icon }}</span>
+                    
                     <div class="flex flex-col items-center">
-                        <span class="font-medium text-sm">{{ feature.label }}</span>
-                        <div v-if="featurePrices?.[feature.id]" class="flex flex-col items-center mt-1">
-                            <span class="text-[9px] opacity-60 uppercase font-black leading-tight tracking-tighter">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featurePrices[feature.id]!) }}</span>
-                            <span class="text-[11px] font-bold text-emerald-500 leading-tight">Share: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featureSplitPrices?.[feature.id] || 0) }}</span>
+                        <span class="font-bold text-xs uppercase tracking-wider">{{ feature.label }}</span>
+                        <div v-if="featurePrices?.[feature.id] !== null && featurePrices?.[feature.id] !== undefined" 
+                            class="flex flex-col items-center mt-1 pt-1 border-t border-current/10 w-full">
+                            <span class="text-[8px] opacity-60 uppercase font-black tracking-tighter">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featurePrices[feature.id]!) }}</span>
+                            <span class="text-[10px] font-black leading-tight mt-0.5" :class="selectedFeatures.includes(feature.id) ? 'text-white' : 'text-emerald-500'">
+                                Share: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featureSplitPrices?.[feature.id] || 0) }}
+                            </span>
                         </div>
+                    </div>
+
+                    <!-- Selected Indicator -->
+                    <div v-if="selectedFeatures.includes(feature.id)" class="absolute top-2 right-2">
+                        <i class="pi pi-check-circle text-xs"></i>
                     </div>
                 </button>
             </div>

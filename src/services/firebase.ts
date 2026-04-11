@@ -36,6 +36,7 @@ export const requestNotificationPermission = async () => {
             });
             if (token) {
                 console.log('FCM Token:', token);
+                localStorage.setItem('fcm_token', token);
                 // Send the token to your server if needed
                 await API.subscribeNotifications(token);
                 console.log('FCM Token registered on server.');

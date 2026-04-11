@@ -84,6 +84,17 @@ export const useSessionStore = defineStore('session', {
             }
         },
         async logout() {
+            const fcmToken = localStorage.getItem('fcm_token');
+            if (fcmToken) {
+                try {
+                    const { client } = useAPIStore();
+                    await client.unsubscribeNotifications(fcmToken);
+                } catch (err) {
+                    console.warn('Failed to unsubscribe from notifications on logout:', err);
+                } finally {
+                    localStorage.removeItem('fcm_token');
+                }
+            }
             this.session = {} as Session
             this.bypassToken = null
             localStorage.removeItem('token')

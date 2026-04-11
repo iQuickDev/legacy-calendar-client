@@ -111,6 +111,10 @@ class API {
         return this.client.delete(`/events/${id}`);
     }
 
+    async updateEvent(id: number, dto: Partial<CreateEventDto>): Promise<AxiosResponse<void>> {
+        return this.client.patch(`/events/${id}`, dto);
+    }
+
     async joinEvent(id: number, dto?: ParticipateDto): Promise<AxiosResponse<void>> {
         return this.client.post(`/events/${id}/join`, dto || {});
     }
@@ -123,6 +127,10 @@ class API {
 
     async subscribeNotifications(token: string): Promise<AxiosResponse<void>> {
         return this.client.post('/notifications/subscribe', { token });
+    }
+
+    async unsubscribeNotifications(token: string): Promise<AxiosResponse<void>> {
+        return this.client.post('/notifications/unsubscribe', { token });
     }
 
     // --- Profile Picture ---
@@ -139,6 +147,10 @@ class API {
 
     async removeProfilePicture(): Promise<AxiosResponse<void>> {
         return this.client.delete('/users/profile-picture');
+    }
+
+    async assignRide(eventId: number, passengerId: number, driverId: number | null): Promise<AxiosResponse<void>> {
+        return this.client.post(`/events/${eventId}/assign-ride`, { passengerId, driverId });
     }
 }
 

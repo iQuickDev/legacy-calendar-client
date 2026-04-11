@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { format } from 'date-fns';
 import { useCalendar } from '../composables/useCalendar';
 import { useToast } from 'primevue/usetoast';
@@ -11,7 +11,7 @@ import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import type { Event, CreateEventDto } from '../types/Event';
 
 const toast = useToast();
-const { currentDate, days, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } = useCalendar();
+const { currentDate, days, events, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } = useCalendar();
 
 const showDialog = ref(false);
 const selectedDate = ref(new Date());
@@ -55,10 +55,15 @@ const handleSaveEvent = async (eventData: CreateEventDto) => {
 
 // Event view dialog state
 const showViewDialog = ref(false);
-const selectedEvent = ref<Event | null>(null);
+const selectedEventId = ref<number | null>(null);
+
+const selectedEvent = computed(() => {
+    if (selectedEventId.value === null) return null;
+    return events.value.find(e => e.id === selectedEventId.value) || null;
+});
 
 const openViewEvent = (event: Event) => {
-    selectedEvent.value = event;
+    selectedEventId.value = event.id;
     showViewDialog.value = true;
 };
 
@@ -131,7 +136,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
         <!-- Event View Dialog -->
         <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent"
-            @joined="showViewDialog = false" />
+            @joined="showViewDialog = false" @refresh="fetchEvents" />
     </div>
 </template>
 

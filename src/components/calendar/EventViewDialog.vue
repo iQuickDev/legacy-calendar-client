@@ -8,6 +8,13 @@ import Tag from 'primevue/tag';
 import Avatar from 'primevue/avatar';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
+import DatePicker from 'primevue/datepicker';
+import MultiSelect from 'primevue/multiselect';
+import ToggleSwitch from 'primevue/toggleswitch';
+import InputNumber from 'primevue/inputnumber';
+
 import type { Event } from '../../types/Event';
 import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
@@ -27,6 +34,7 @@ const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
     (e: 'delete', id: number): void;
     (e: 'joined'): void;
+    (e: 'refresh'): void;
 }>();
 
 const allUsers = ref<User[]>([]);
@@ -353,7 +361,7 @@ const assignRide = async (passengerId: number, driverId: number | null) => {
     assigningRide.value = true;
     try {
         await eventsStore.assignRide(props.event.id, passengerId, driverId);
-        emit('joined');
+        emit('refresh');
     } catch (error) {
         console.error('Failed to assign ride:', error);
     } finally {
@@ -369,6 +377,22 @@ const eventTotalBudget = computed(() => {
         (props.event.sleepPrice || 0) +
         (props.event.alcoholPrice || 0) +
         (props.event.beerPrice || 0);
+});
+
+const isAldoMoro = computed(() => {
+    if (!props.event?.participants) return false;
+    
+    const acceptedParticipants = resolvedInvitees.value.filter(p => p.status === 'ACCEPTED');
+    if (acceptedParticipants.length === 0) return false;
+
+    const totalSeats = acceptedParticipants.reduce((acc, p) => {
+        if (p.hasVehicle) {
+            return acc + (p.vehicleSeats || 0);
+        }
+        return acc;
+    }, 0);
+
+    return totalSeats < acceptedParticipants.length;
 });
 
 const getStatusIcon = (status: string) => {
@@ -404,6 +428,129 @@ const onDelete = () => {
     emit('delete', props.event.id);
 };
 
+// --- Edit Mode ---
+
+const isEditing = ref(false);
+const editTitle = ref('');
+const editDescription = ref('');
+const editLocation = ref('');
+const editIsOpen = ref(true);
+const editSelectedFeatures = ref<EventFeature[]>([]);
+const editFeaturePrices = ref<Record<string, number | null>>({
+    FOOD: null,
+    WEED: null,
+    SLEEP: null,
+    ALCOHOL: null,
+    BEER: null
+});
+const editStartDateOnly = ref<Date | null>(null);
+const editStartTimeOnly = ref<Date | null>(null);
+const editEndDateOnly = ref<Date | null>(null);
+const editEndTimeOnly = ref<Date | null>(null);
+const editSelectedParticipants = ref<number[]>([]);
+
+const onEdit = () => {
+    if (!props.event) return;
+    
+    editTitle.value = props.event.title;
+    editDescription.value = props.event.description || '';
+    editLocation.value = props.event.location || '';
+    editIsOpen.value = props.event.isOpen;
+    
+    editSelectedFeatures.value = [];
+    if (props.event.hasFood) editSelectedFeatures.value.push('FOOD');
+    if (props.event.hasWeed) editSelectedFeatures.value.push('WEED');
+    if (props.event.hasSleep) editSelectedFeatures.value.push('SLEEP');
+    if (props.event.hasAlcohol) editSelectedFeatures.value.push('ALCOHOL');
+    if (props.event.hasBeer) editSelectedFeatures.value.push('BEER');
+    
+    editFeaturePrices.value.FOOD = props.event.foodPrice || null;
+    editFeaturePrices.value.WEED = props.event.weedPrice || null;
+    editFeaturePrices.value.SLEEP = props.event.sleepPrice || null;
+    editFeaturePrices.value.ALCOHOL = props.event.alcoholPrice || null;
+    editFeaturePrices.value.BEER = props.event.beerPrice || null;
+    
+    const start = parseISO(props.event.startTime);
+    editStartDateOnly.value = start;
+    editStartTimeOnly.value = start;
+    
+    if (props.event.endTime) {
+        const end = parseISO(props.event.endTime);
+        editEndDateOnly.value = end;
+        editEndTimeOnly.value = end;
+    } else {
+        editEndDateOnly.value = null;
+        editEndTimeOnly.value = null;
+    }
+    
+    editSelectedParticipants.value = props.event.participants?.map(p => p.id) || [];
+    
+    isEditing.value = true;
+};
+
+const combineDateAndTime = (datePart: Date, timePart: Date): Date => {
+    const combined = new Date(datePart);
+    combined.setHours(timePart.getHours());
+    combined.setMinutes(timePart.getMinutes());
+    return combined;
+};
+
+const savingEdit = ref(false);
+
+const onSaveEdit = async () => {
+    if (!props.event || !editTitle.value || !editStartDateOnly.value || !editStartTimeOnly.value) return;
+
+    savingEdit.value = true;
+    try {
+        const start = combineDateAndTime(editStartDateOnly.value, editStartTimeOnly.value);
+        let end: Date | undefined;
+        if (editEndDateOnly.value && editEndTimeOnly.value) {
+            end = combineDateAndTime(editEndDateOnly.value, editEndTimeOnly.value);
+        }
+
+        const dto = {
+            title: editTitle.value,
+            description: editDescription.value || undefined,
+            location: editLocation.value || undefined,
+            startTime: start.toISOString(),
+            endTime: end ? end.toISOString() : undefined,
+            participants: editSelectedParticipants.value,
+            isOpen: editIsOpen.value,
+            hasFood: editSelectedFeatures.value.includes('FOOD'),
+            hasWeed: editSelectedFeatures.value.includes('WEED'),
+            hasSleep: editSelectedFeatures.value.includes('SLEEP'),
+            hasAlcohol: editSelectedFeatures.value.includes('ALCOHOL'),
+            hasBeer: editSelectedFeatures.value.includes('BEER'),
+            foodPrice: editFeaturePrices.value.FOOD || undefined,
+            weedPrice: editFeaturePrices.value.WEED || undefined,
+            sleepPrice: editFeaturePrices.value.SLEEP || undefined,
+            alcoholPrice: editFeaturePrices.value.ALCOHOL || undefined,
+            beerPrice: editFeaturePrices.value.BEER || undefined,
+        };
+
+        const success = await eventsStore.updateEvent(props.event.id, dto);
+        if (success) {
+            isEditing.value = false;
+            emit('refresh');
+        }
+    } finally {
+        savingEdit.value = false;
+    }
+};
+
+const onCancelEdit = () => {
+    isEditing.value = false;
+};
+
+const toggleEditFeature = (feature: EventFeature) => {
+    const index = editSelectedFeatures.value.indexOf(feature);
+    if (index === -1) {
+        editSelectedFeatures.value.push(feature);
+    } else {
+        editSelectedFeatures.value.splice(index, 1);
+    }
+};
+
 </script>
 
 <template>
@@ -412,7 +559,7 @@ const onDelete = () => {
         :draggable="false">
 
         <!-- View Mode -->
-        <div v-if="event" class="flex flex-col gap-4">
+        <div v-if="event && !isEditing" class="flex flex-col gap-4">
             <!-- Title and Host Header -->
             <div class="flex flex-col gap-3">
                 <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -521,7 +668,7 @@ const onDelete = () => {
                 </div>
             </div>
 
-            <Divider class="!my-2" />
+            <Divider class="my-2!" />
 
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2 text-surface-600 dark:text-surface-400">
@@ -572,7 +719,7 @@ const onDelete = () => {
                             </span>
                             <div class="sm:hidden flex justify-center">
                                 <Tag :severity="getStatusSeverity(slotProps.data.status)"
-                                    class="!w-8 !h-8 !p-0 flex items-center justify-center" size="small">
+                                    class="w-8! h-8! p-0! flex items-center justify-center" size="small">
                                     <i :class="getStatusIcon(slotProps.data.status)" class="text-xs"></i>
                                 </Tag>
                             </div>
@@ -669,30 +816,134 @@ const onDelete = () => {
                 </div>
 
                 <!-- Warning Section -->
-                <div class="mt-4 flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500">
+                <div v-if="isAldoMoro" class="mt-4 flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500">
                     <i class="pi pi-exclamation-triangle text-lg"></i>
                     <span class="text-xs font-bold uppercase tracking-widest animate-pulse">Aldo moro detected</span>
                 </div>
             </div>
         </div>
 
-        <template #footer>
-            <div class="flex justify-end w-full gap-2 pt-2">
-                <div v-if="isHost" class="mr-auto">
-                    <Button label="Delete" icon="pi pi-trash" severity="danger" text @click="onDelete" />
+        <!-- Edit Mode -->
+        <div v-else-if="event && isEditing" class="flex flex-col gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Basic Info -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label for="edit-title" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Title</label>
+                        <InputText id="edit-title" v-model="editTitle" placeholder="Event Title" class="!rounded-xl" />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="edit-desc" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Description</label>
+                        <Textarea id="edit-desc" v-model="editDescription" rows="4" placeholder="Add a description..." class="!rounded-xl" />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="edit-location" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Location</label>
+                        <InputText id="edit-location" v-model="editLocation" placeholder="Meeting Room, Online, etc." class="!rounded-xl" />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wider text-zinc-500">Start Time</label>
+                        <div class="flex gap-2">
+                            <DatePicker v-model="editStartDateOnly" class="flex-1 !rounded-xl" placeholder="Date" />
+                            <DatePicker v-model="editStartTimeOnly" timeOnly class="w-32 !rounded-xl" placeholder="Time" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wider text-zinc-500">End Time (Optional)</label>
+                        <div class="flex gap-2">
+                            <DatePicker v-model="editEndDateOnly" class="flex-1 !rounded-xl" placeholder="Date" />
+                            <DatePicker v-model="editEndTimeOnly" timeOnly class="w-32 !rounded-xl" placeholder="Time" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 mt-2">
+                        <label for="edit-participants" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Invite More People</label>
+                        <MultiSelect id="edit-participants" v-model="editSelectedParticipants" :options="allUsers"
+                            optionLabel="username" optionValue="id" placeholder="Select Participants" display="chip" filter
+                            class="w-full !rounded-xl">
+                            <template #option="slotProps">
+                                <div class="flex items-center gap-2">
+                                    <Avatar
+                                        :image="slotProps.option.profilePicture ? `${baseURL}${slotProps.option.profilePicture}` : undefined"
+                                        :label="!slotProps.option.profilePicture ? slotProps.option.username.charAt(0) : undefined"
+                                        shape="circle" size="small" />
+                                    <span>{{ slotProps.option.username }}</span>
+                                </div>
+                            </template>
+                        </MultiSelect>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 mt-2">
+                        <div class="flex flex-col gap-1">
+                            <label for="edit-isOpen" class="font-bold text-sm uppercase tracking-wider text-zinc-500 cursor-pointer">Open Event</label>
+                            <small class="text-zinc-400">Anyone can see and join this event</small>
+                        </div>
+                        <ToggleSwitch id="edit-isOpen" v-model="editIsOpen" />
+                    </div>
                 </div>
 
-                <template v-if="userParticipantStatus === 'ACCEPTED' && !isHost">
-                    <Button label="Leave" icon="pi pi-times" severity="danger" text :loading="cancelling"
-                        @click="onCancelParticipation" />
-                    <Button label="Edit" icon="pi pi-pencil" severity="secondary" @click="onEditParticipation" />
+                <!-- Right Column: Features & Prices -->
+                <div class="flex flex-col gap-4">
+                    <label class="font-bold text-sm uppercase tracking-wider text-zinc-500">Event Features & Budgets</label>
+                    <div class="space-y-3">
+                        <div v-for="feature in FEATURES" :key="feature.id"
+                            class="flex flex-col gap-3 p-4 rounded-2xl border transition-all duration-200"
+                            :class="[editSelectedFeatures.includes(feature.id) ? 'bg-zinc-50 dark:bg-zinc-900/50 border-emerald-500/30' : 'border-zinc-200 dark:border-zinc-800']">
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" 
+                                        :class="editSelectedFeatures.includes(feature.id) ? feature.color : 'bg-zinc-100 dark:bg-zinc-800 opacity-50'">
+                                        {{ feature.icon }}
+                                    </div>
+                                    <span class="font-bold" :class="editSelectedFeatures.includes(feature.id) ? '' : 'text-zinc-500'">{{ feature.label }}</span>
+                                </div>
+                                <ToggleSwitch :modelValue="editSelectedFeatures.includes(feature.id)" @update:modelValue="toggleEditFeature(feature.id)" />
+                            </div>
+                            
+                            <div v-if="editSelectedFeatures.includes(feature.id)" class="animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div class="flex flex-col gap-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                                    <label class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Total Budget for {{ feature.label }}</label>
+                                    <InputNumber v-model="editFeaturePrices[feature.id]" mode="currency" currency="EUR" locale="de-DE" 
+                                        placeholder="0.00" class="w-full" :min="0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <template #footer>
+            <div class="flex justify-end w-full gap-2 pt-2">
+                <!-- Footer for Edit Mode -->
+                <template v-if="isEditing">
+                    <Button label="Cancel" icon="pi pi-times" severity="secondary" text @click="onCancelEdit" :disabled="savingEdit" />
+                    <Button label="Save Changes" icon="pi pi-check" severity="success" @click="onSaveEdit" :loading="savingEdit" />
                 </template>
+
+                <!-- Footer for View Mode -->
                 <template v-else>
-                    <Button v-if="userParticipantStatus === 'PENDING'" label="Decline" icon="pi pi-times"
-                        severity="danger" text :loading="cancelling" @click="onDecline" />
-                    <Button v-if="canAccept" :label="(userParticipantStatus === 'ACCEPTED') ? 'Joined' : 'Join'"
-                        icon="pi pi-check" severity="success" :loading="joining"
-                        :disabled="userParticipantStatus === 'ACCEPTED'" @click="onAcceptClick" />
+                    <div v-if="isHost" class="mr-auto flex gap-2">
+                        <Button label="Delete" icon="pi pi-trash" severity="danger" text @click="onDelete" />
+                        <Button label="Edit" icon="pi pi-pencil" severity="secondary" text @click="onEdit" />
+                    </div>
+
+                    <template v-if="userParticipantStatus === 'ACCEPTED' && !isHost">
+                        <Button label="Leave" icon="pi pi-times" severity="danger" text :loading="cancelling"
+                            @click="onCancelParticipation" />
+                        <Button label="Edit Participation" icon="pi pi-pencil" severity="secondary" @click="onEditParticipation" />
+                    </template>
+                    <template v-else-if="!isHost">
+                        <Button v-if="userParticipantStatus === 'PENDING'" label="Decline" icon="pi pi-times"
+                            severity="danger" text :loading="cancelling" @click="onDecline" />
+                        <Button v-if="canAccept" :label="(userParticipantStatus === 'ACCEPTED') ? 'Joined' : 'Join'"
+                            icon="pi pi-check" severity="success" :loading="joining"
+                            :disabled="userParticipantStatus === 'ACCEPTED'" @click="onAcceptClick" />
+                    </template>
                 </template>
             </div>
         </template>

@@ -67,6 +67,23 @@ export const useEventsStore = defineStore('events', {
             }
         },
 
+        async updateEvent(id: number, dto: Partial<CreateEventDto>) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const { client } = useAPIStore();
+                await client.updateEvent(id, dto);
+                await this.fetchEvents();
+                return true;
+            } catch (err: any) {
+                this.error = err.response?.data?.message || 'Failed to update event';
+                console.error('Failed to update event:', err);
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async deleteEvent(id: number) {
             this.loading = true;
             this.error = null;
@@ -126,10 +143,7 @@ export const useEventsStore = defineStore('events', {
             this.error = null;
             try {
                 const { client } = useAPIStore();
-                await (client as any).post(`/events/${eventId}/assign-ride`, {
-                    passengerId,
-                    driverId
-                });
+                await client.assignRide(eventId, passengerId, driverId);
                 await this.fetchEvents();
                 return true;
             } catch (err: any) {

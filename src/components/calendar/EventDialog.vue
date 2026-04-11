@@ -8,6 +8,7 @@ import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import ToggleSwitch from 'primevue/toggleswitch';
+import InputNumber from 'primevue/inputnumber';
 import type { CreateEventDto, EventFeature } from '../../types/Event';
 import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
@@ -30,6 +31,13 @@ const description = ref('');
 const location = ref('');
 const isOpen = ref(true);
 const selectedFeatures = ref<EventFeature[]>([]);
+const featurePrices = ref<Record<string, number | null>>({
+    FOOD: null,
+    WEED: null,
+    SLEEP: null,
+    ALCOHOL: null,
+    BEER: null
+});
 
 import { FEATURES } from '../../constants/features';
 
@@ -70,6 +78,7 @@ watch(() => props.visible, (newVal) => {
         selectedParticipants.value = [];
         isOpen.value = true;
         selectedFeatures.value = [];
+        Object.keys(featurePrices.value).forEach(key => featurePrices.value[key] = null);
 
         startDateOnly.value = new Date(props.initialDate);
         startTimeOnly.value = new Date(props.initialDate);
@@ -113,6 +122,12 @@ const onSave = () => {
         hasWeed: selectedFeatures.value.includes('WEED'),
         hasSleep: selectedFeatures.value.includes('SLEEP'),
         hasAlcohol: selectedFeatures.value.includes('ALCOHOL'),
+        hasBeer: selectedFeatures.value.includes('BEER'),
+        foodPrice: featurePrices.value.FOOD || undefined,
+        weedPrice: featurePrices.value.WEED || undefined,
+        sleepPrice: featurePrices.value.SLEEP || undefined,
+        alcoholPrice: featurePrices.value.ALCOHOL || undefined,
+        beerPrice: featurePrices.value.BEER || undefined,
     });
 };
 </script>
@@ -179,19 +194,32 @@ const onSave = () => {
                 </MultiSelect>
             </div>
             <div class="flex flex-col gap-2">
-                <label class="font-semibold">Features</label>
-                <div class="grid grid-cols-4 gap-2">
-                    <button v-for="feature in FEATURES" :key="feature.id" @click="toggleFeature(feature.id)"
-                        type="button"
-                        class="flex flex-col cursor-pointer items-center justify-center gap-2 p-2 rounded-xl border-1  border-zinc-800 transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="[
-                            selectedFeatures.includes(feature.id)
-                                ? `${feature.color} border-current`
-                                : ''
-                        ]">
-                        <span class="text-2xl">{{ feature.icon }}</span>
-                        <span class="text-xs font-medium">{{ feature.label }}</span>
-                    </button>
+                <div class="space-y-3">
+                    <div v-for="feature in FEATURES" :key="feature.id"
+                        class="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all duration-200"
+                        :class="[selectedFeatures.includes(feature.id) ? 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-300 dark:border-zinc-700' : '']">
+                        <button @click="toggleFeature(feature.id)" type="button"
+                            class="flex flex-col items-center justify-center gap-1 w-16 h-16 rounded-lg transition-all duration-200 focus:outline-none shrink-0"
+                            :class="[selectedFeatures.includes(feature.id) ? feature.color : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400']">
+                            <span class="text-2xl">{{ feature.icon }}</span>
+                            <span class="text-[10px] font-bold">{{ feature.label }}</span>
+                        </button>
+                        
+                        <div class="flex-1 flex flex-col gap-1">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium text-sm">{{ feature.label }}</span>
+                                <ToggleSwitch :modelValue="selectedFeatures.includes(feature.id)" @update:modelValue="toggleFeature(feature.id)" />
+                            </div>
+                            
+                            <div v-if="selectedFeatures.includes(feature.id)" class="flex items-center gap-2 mt-1 animate-in fade-in slide-in-from-left-2 duration-300">
+                                <span class="text-xs text-zinc-500">Price:</span>
+                                <div class="relative flex-1">
+                                    <InputNumber v-model="featurePrices[feature.id]" mode="currency" currency="EUR" locale="de-DE" 
+                                        placeholder="0.00" class="w-full !text-sm" size="small" :min="0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center justify-between p-3">

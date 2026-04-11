@@ -121,6 +121,26 @@ export const useEventsStore = defineStore('events', {
             }
         },
 
+        async assignRide(eventId: number, passengerId: number, driverId: number | null) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const { client } = useAPIStore();
+                await (client as any).post(`/events/${eventId}/assign-ride`, {
+                    passengerId,
+                    driverId
+                });
+                await this.fetchEvents();
+                return true;
+            } catch (err: any) {
+                this.error = err.response?.data?.message || 'Failed to assign ride';
+                console.error('Failed to assign ride:', err);
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         clearError() {
             this.error = null;
         },

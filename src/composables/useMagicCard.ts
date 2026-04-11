@@ -1,15 +1,16 @@
-import { ref, computed, onMounted, onBeforeUnmount, type Ref } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, type Ref, toValue, type MaybeRefOrGetter } from 'vue';
 
 export interface MagicCardOptions {
-    gradientSize?: number;
-    gradientColor?: string;
-    gradientOpacity?: number;
+    gradientSize?: MaybeRefOrGetter<number>;
+    gradientColor?: MaybeRefOrGetter<string>;
+    gradientOpacity?: MaybeRefOrGetter<number>;
 }
 
 /**
  * Converts a hex color (e.g. "#262626") to an rgba string with the given alpha.
  */
 function hexToRgba(hex: string, alpha: number): string {
+    if (!hex.startsWith('#')) return hex;
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
@@ -17,17 +18,17 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 export function useMagicCard(options: MagicCardOptions = {}) {
-    const {
-        gradientSize = 200,
-        gradientColor = '#262626',
-        gradientOpacity = 0.8,
-    } = options;
-
     const cardRef: Ref<HTMLElement | null> = ref(null);
-    const mouseX = ref(-gradientSize);
-    const mouseY = ref(-gradientSize);
+    const mouseX = ref(-200);
+    const mouseY = ref(-200);
 
-    const colorWithAlpha = hexToRgba(gradientColor, gradientOpacity);
+    const colorWithAlpha = computed(() => {
+        const color = toValue(options.gradientColor) ?? '#262626';
+        const opacity = toValue(options.gradientOpacity) ?? 0.8;
+        return hexToRgba(color, opacity);
+    });
+
+    const size = computed(() => toValue(options.gradientSize) ?? 200);
 
     function handleMouseMove(e: MouseEvent) {
         const el = cardRef.value;
@@ -38,12 +39,12 @@ export function useMagicCard(options: MagicCardOptions = {}) {
     }
 
     function handleMouseLeave() {
-        mouseX.value = -gradientSize;
-        mouseY.value = -gradientSize;
+        mouseX.value = -size.value;
+        mouseY.value = -size.value;
     }
 
     const backgroundStyle = computed(() => ({
-        background: `radial-gradient(${gradientSize}px circle at ${mouseX.value}px ${mouseY.value}px, ${colorWithAlpha}, transparent 100%)`,
+        background: `radial-gradient(${size.value}px circle at ${mouseX.value}px ${mouseY.value}px, ${colorWithAlpha.value}, transparent 100%)`,
     }));
 
     onMounted(() => {
@@ -51,6 +52,9 @@ export function useMagicCard(options: MagicCardOptions = {}) {
         if (!el) return;
         el.addEventListener('mousemove', handleMouseMove);
         el.addEventListener('mouseleave', handleMouseLeave);
+        // Set initial off-screen position based on size
+        mouseX.value = -size.value;
+        mouseY.value = -size.value;
     });
 
     onBeforeUnmount(() => {

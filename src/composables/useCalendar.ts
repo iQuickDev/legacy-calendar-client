@@ -37,6 +37,12 @@ export function useCalendar() {
             hasWeed: event.hasWeed,
             hasSleep: event.hasSleep,
             hasAlcohol: event.hasAlcohol,
+            hasBeer: event.hasBeer,
+            foodPrice: event.foodPrice,
+            weedPrice: event.weedPrice,
+            sleepPrice: event.sleepPrice,
+            alcoholPrice: event.alcoholPrice,
+            beerPrice: event.beerPrice,
         }))
     );
 

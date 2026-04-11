@@ -20,15 +20,17 @@ const dayName = computed(() => {
 
 const spotlightColor = computed(() => props.day.isToday ? '#064e23' : '#262626');
 
-const { backgroundStyle } = useMagicCard({
+//@ts-expect-error
+const { cardRef, backgroundStyle } = useMagicCard({
     gradientSize: 250,
-    gradientColor: spotlightColor.value,
+    gradientColor: () => spotlightColor.value,
     gradientOpacity: 0.8,
 });
 </script>
 
 <template>
-    <div ref="cardRef" class="calendar-cell min-h-[60px] md:min-h-0 p-3 md:p-2 flex flex-row md:flex-col gap-3 md:gap-1 relative group cursor-pointer items-center md:items-stretch shrink-0 md:shrink"
+    <div ref="cardRef"
+        class="calendar-cell min-h-[60px] md:min-h-0 p-3 md:p-2 flex flex-row md:flex-col gap-3 md:gap-1 relative group cursor-pointer items-center md:items-stretch shrink-0 md:shrink"
         :class="[
             {
                 'cell-active': day.isCurrentMonth,
@@ -154,5 +156,4 @@ const { backgroundStyle } = useMagicCard({
 .cell-active:hover::before {
     border-color: rgba(255, 255, 255, 0.08);
 }
-
 </style>

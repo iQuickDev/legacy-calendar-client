@@ -31,5 +31,11 @@ export const FEATURES: FeatureConfig[] = [
         label: 'Sleep',
         icon: '🌑',
         color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 ring-purple-500'
+    },
+    {
+        id: 'BEER',
+        label: 'Beer',
+        icon: '🍺',
+        color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 ring-yellow-500'
     }
 ];

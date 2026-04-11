@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import { useSessionStore } from '../stores/session';
 import Button from 'primevue/button';
 import Password from 'primevue/password';
 import FileUpload from 'primevue/fileupload';
 import Avatar from 'primevue/avatar';
 import Card from 'primevue/card';
+import ToggleSwitch from 'primevue/toggleswitch';
 import { useToast } from 'primevue/usetoast';
 import { baseURL } from '../services/API';
+import { onMounted } from 'vue';
+import { notificationStorage } from '../services/notificationStorage';
+import { NotificationLabel, type NotificationSettings } from '../types/Notification';
 
 const sessionStore = useSessionStore();
 const toast = useToast();
@@ -19,6 +23,24 @@ const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const passwordLoading = ref(false);
+
+// Notification Settings State
+const notificationSettings = ref<NotificationSettings | null>(null);
+
+onMounted(async () => {
+    notificationSettings.value = await notificationStorage.getSettings();
+});
+
+const handleToggleSetting = async () => {
+    if (notificationSettings.value) {
+        try {
+            await notificationStorage.saveSettings(toRaw(notificationSettings.value));
+        } catch (error) {
+            console.error(error)
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save notification settings', life: 3000 });
+        }
+    }
+};
 
 // Profile Picture State
 const fileUpload = ref<any>(null);
@@ -173,6 +195,32 @@ const handleDeletePicture = async () => {
                                 class="w-full py-3 font-bold" />
                         </div>
                     </form>
+                </template>
+            </Card>
+
+            <!-- Notification Preferences Section -->
+            <Card v-if="notificationSettings">
+                <template #title>
+                    <div class="flex items-center gap-2 text-xl font-bold">
+                        <i class="pi pi-bell text-primary"></i>
+                        Notification Preferences
+                    </div>
+                </template>
+                <template #content>
+                    <div class="flex flex-col gap-4 pt-2">
+                        <p class="text-sm text-zinc-400 mb-2">
+                            Choose which notifications you would like to receive. These filters are applied locally on this device.
+                        </p>
+                        
+                        <div v-for="(label, code) in NotificationLabel" :key="code" 
+                            class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800/50 rounded-xl hover:bg-zinc-900/50 transition-colors">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="font-medium">{{ label }}</span>
+                                <span class="text-xs text-zinc-500 font-mono uppercase tracking-tighter opacity-70">{{ code }}</span>
+                            </div>
+                            <ToggleSwitch v-model="notificationSettings[code]" @change="handleToggleSetting" />
+                        </div>
+                    </div>
                 </template>
             </Card>
         </div>

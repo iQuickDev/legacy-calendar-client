@@ -878,6 +878,22 @@ const toggleEditFeature = (feature: EventFeature) => {
                     <span class="text-xs font-bold uppercase tracking-widest animate-pulse">Aldo moro detected</span>
                 </div>
             </div>
+
+            <!-- Event Settings Section (Host Only) -->
+            <template v-if="isHost">
+                <Divider class="my-2!" />
+                
+                <div class="flex flex-col gap-3 pb-4">
+                    <div class="flex items-center gap-2 text-surface-600 dark:text-surface-400">
+                        <i class="pi pi-cog"></i>
+                        <span class="font-semibold uppercase tracking-wider text-sm">Event Settings</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <Button label="Edit Event" icon="pi pi-pencil" severity="secondary" outlined @click="onEdit" />
+                        <Button label="Delete Event" icon="pi pi-trash" severity="danger" outlined @click="onDelete" />
+                    </div>
+                </div>
+            </template>
         </div>
 
         <!-- Edit Mode -->
@@ -984,11 +1000,6 @@ const toggleEditFeature = (feature: EventFeature) => {
 
                 <!-- Footer for View Mode -->
                 <template v-else>
-                    <div v-if="isHost" class="mr-auto flex gap-2">
-                        <Button label="Delete" icon="pi pi-trash" severity="danger" text @click="onDelete" />
-                        <Button label="Edit" icon="pi pi-pencil" severity="secondary" text @click="onEdit" />
-                    </div>
-
                     <template v-if="userParticipantStatus === 'ACCEPTED'">
                         <Button label="Leave" icon="pi pi-times" severity="danger" text :loading="cancelling"
                             @click="onCancelParticipation" />

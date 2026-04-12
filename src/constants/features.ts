@@ -27,15 +27,21 @@ export const FEATURES: FeatureConfig[] = [
         color: 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 ring-indigo-500'
     },
     {
-        id: 'SLEEP',
-        label: 'Sleep',
-        icon: '🌑',
-        color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 ring-purple-500'
-    },
-    {
         id: 'BEER',
         label: 'Beer',
         icon: '🍺',
         color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 ring-yellow-500'
+    },
+    {
+        id: 'GAS',
+        label: 'Gas',
+        icon: '⛽',
+        color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ring-slate-500'
+    },
+    {
+        id: 'SLEEP',
+        label: 'Sleep',
+        icon: '🌑',
+        color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 ring-purple-500'
     }
 ];

@@ -101,16 +101,16 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         <div class="flex flex-row items-center justify-between gap-2">
             <div class="flex items-center gap-1 sm:gap-2">
                 <Button icon="pi pi-chevron-left" @click="prevMonth" text rounded aria-label="Previous Month"
-                    class="!p-1 sm:!p-2" />
+                    class="p-1! sm:p-2!" />
                 <Button icon="pi pi-chevron-right" @click="nextMonth" text rounded aria-label="Next Month"
-                    class="!p-1 sm:!p-2" />
+                    class="p-1! sm:p-2!" />
             </div>
             <h1
                 class="text-lg sm:text-2xl md:text-3xl font-bold text-surface-900 dark:text-surface-0 whitespace-nowrap">
                 {{ format(currentDate, 'MMMM yyyy') }}
             </h1>
             <Button label="Today" @click="currentDate = new Date()" outlined size="small"
-                class="!text-xs sm:!text-sm" />
+                class="text-xs! sm:text-sm!" />
         </div>
 
         <!-- Calendar Grid -->

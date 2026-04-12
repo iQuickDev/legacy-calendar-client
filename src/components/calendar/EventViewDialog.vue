@@ -169,6 +169,7 @@ const handleFeatureConfirm = async (data: { features: EventFeature[], vehicle: {
             wantsSleep: features.includes('SLEEP'),
             wantsAlcohol: features.includes('ALCOHOL'),
             wantsBeer: features.includes('BEER'),
+            wantsGas: features.includes('GAS'),
             ...vehicle
         };
 
@@ -191,6 +192,7 @@ const getParticipantFeatures = (userId: number): EventFeature[] => {
     if (participant.wantsAlcohol) features.push('ALCOHOL');
     if (participant.wantsSleep) features.push('SLEEP');
     if (participant.wantsBeer) features.push('BEER');
+    if (participant.wantsGas) features.push('GAS');
 
     return features;
 };
@@ -210,6 +212,7 @@ const eventFeatures = computed(() => {
         if (feature.id === 'ALCOHOL' && props.event!.hasAlcohol) return true;
         if (feature.id === 'SLEEP' && props.event!.hasSleep) return true;
         if (feature.id === 'BEER' && props.event!.hasBeer) return true;
+        if (feature.id === 'GAS' && props.event!.hasGas) return true;
         return false;
     });
 });
@@ -221,7 +224,8 @@ const eventPrices = computed<Record<string, number | null>>(() => {
         WEED: props.event.weedPrice ?? null,
         SLEEP: props.event.sleepPrice ?? null,
         ALCOHOL: props.event.alcoholPrice ?? null,
-        BEER: props.event.beerPrice ?? null
+        BEER: props.event.beerPrice ?? null,
+        GAS: props.event.gasPrice ?? null
     };
 });
 
@@ -232,7 +236,8 @@ const eventSplitPrices = computed<Record<string, number | null>>(() => {
         WEED: getFeatureSplitPrice('WEED'),
         SLEEP: getFeatureSplitPrice('SLEEP'),
         ALCOHOL: getFeatureSplitPrice('ALCOHOL'),
-        BEER: getFeatureSplitPrice('BEER')
+        BEER: getFeatureSplitPrice('BEER'),
+        GAS: getFeatureSplitPrice('GAS')
     };
 });
 
@@ -244,6 +249,7 @@ const availableFeatureIds = computed(() => {
     if (props.event.hasAlcohol) features.push('ALCOHOL');
     if (props.event.hasSleep) features.push('SLEEP');
     if (props.event.hasBeer) features.push('BEER');
+    if (props.event.hasGas) features.push('GAS');
     return features;
 });
 
@@ -264,6 +270,7 @@ const getFeatureCount = (feature: EventFeature) => {
             case 'ALCOHOL': return p.wantsAlcohol;
             case 'SLEEP': return p.wantsSleep;
             case 'BEER': return p.wantsBeer;
+            case 'GAS': return p.wantsGas;
             default: return false;
         }
     }).length;
@@ -288,6 +295,7 @@ const userTotalShare = computed(() => {
     if (participant.wantsAlcohol) total += getFeatureSplitPrice('ALCOHOL');
     if (participant.wantsSleep) total += getFeatureSplitPrice('SLEEP');
     if (participant.wantsBeer) total += getFeatureSplitPrice('BEER');
+    if (participant.wantsGas) total += getFeatureSplitPrice('GAS');
 
     return total;
 });
@@ -376,7 +384,8 @@ const eventTotalBudget = computed(() => {
         (props.event.weedPrice || 0) +
         (props.event.sleepPrice || 0) +
         (props.event.alcoholPrice || 0) +
-        (props.event.beerPrice || 0);
+        (props.event.beerPrice || 0) +
+        (props.event.gasPrice || 0);
 });
 
 const isAldoMoro = computed(() => {
@@ -441,7 +450,8 @@ const editFeaturePrices = ref<Record<string, number | null>>({
     WEED: null,
     SLEEP: null,
     ALCOHOL: null,
-    BEER: null
+    BEER: null,
+    GAS: null
 });
 const editStartDateOnly = ref<Date | null>(null);
 const editStartTimeOnly = ref<Date | null>(null);
@@ -463,12 +473,14 @@ const onEdit = () => {
     if (props.event.hasSleep) editSelectedFeatures.value.push('SLEEP');
     if (props.event.hasAlcohol) editSelectedFeatures.value.push('ALCOHOL');
     if (props.event.hasBeer) editSelectedFeatures.value.push('BEER');
+    if (props.event.hasGas) editSelectedFeatures.value.push('GAS');
     
     editFeaturePrices.value.FOOD = props.event.foodPrice || null;
     editFeaturePrices.value.WEED = props.event.weedPrice || null;
     editFeaturePrices.value.SLEEP = props.event.sleepPrice || null;
     editFeaturePrices.value.ALCOHOL = props.event.alcoholPrice || null;
     editFeaturePrices.value.BEER = props.event.beerPrice || null;
+    editFeaturePrices.value.GAS = props.event.gasPrice || null;
     
     const start = parseISO(props.event.startTime);
     editStartDateOnly.value = start;
@@ -521,11 +533,13 @@ const onSaveEdit = async () => {
             hasSleep: editSelectedFeatures.value.includes('SLEEP'),
             hasAlcohol: editSelectedFeatures.value.includes('ALCOHOL'),
             hasBeer: editSelectedFeatures.value.includes('BEER'),
+            hasGas: editSelectedFeatures.value.includes('GAS'),
             foodPrice: editFeaturePrices.value.FOOD || undefined,
             weedPrice: editFeaturePrices.value.WEED || undefined,
             sleepPrice: editFeaturePrices.value.SLEEP || undefined,
             alcoholPrice: editFeaturePrices.value.ALCOHOL || undefined,
             beerPrice: editFeaturePrices.value.BEER || undefined,
+            gasPrice: editFeaturePrices.value.GAS || undefined,
         };
 
         const success = await eventsStore.updateEvent(props.event.id, dto);
@@ -555,7 +569,7 @@ const toggleEditFeature = (feature: EventFeature) => {
 
 <template>
     <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Event Details"
-        :style="{ width: '900px' }" :breakpoints="{ '960px': '85vw', '640px': '95vw' }" class="p-fluid" dismissableMask
+        :style="{ width: '1000px' }" :breakpoints="{ '960px': '85vw', '640px': '95vw' }" class="p-fluid" dismissableMask
         :draggable="false">
 
         <!-- View Mode -->
@@ -647,7 +661,7 @@ const toggleEditFeature = (feature: EventFeature) => {
             </div>
 
 
-            <Divider v-if="availableFeatureIds.length > 0" class="!my-2" />
+            <Divider v-if="availableFeatureIds.length > 0" class="my-2!" />
 
             <!-- Costs Breakdown Section -->
             <div v-if="availableFeatureIds.length > 0" class="flex flex-col gap-4">
@@ -697,7 +711,7 @@ const toggleEditFeature = (feature: EventFeature) => {
                                     </span>
                                 </div>
                                 <div class="flex items-center justify-between mt-1">
-                                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.1em]">Your Share</span>
+                                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Your Share</span>
                                     <span class="text-lg font-black text-emerald-500">
                                         {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(getFeatureSplitPrice(feature.id)) }}
                                     </span>
@@ -735,7 +749,7 @@ const toggleEditFeature = (feature: EventFeature) => {
                         </template>
                     </Column>
                     <Column v-for="col in featuresListColumns" :key="col.field"
-                        class="text-center min-w-[3rem] sm:min-w-[7rem]">
+                        class="text-center min-w-12 sm:min-w-28">
                         <template #header>
                             <span class="font-bold hidden sm:inline whitespace-nowrap">{{ col.header }} ({{
                                 getFeatureCount(col.field) }})</span>
@@ -818,9 +832,9 @@ const toggleEditFeature = (feature: EventFeature) => {
                             <div v-for="passenger in getAssignedPassengers(driver.id)" :key="passenger.id" 
                                 class="flex items-center gap-2 px-2 py-1 rounded-lg bg-zinc-200/50 dark:bg-zinc-800/50 border border-zinc-300/30 dark:border-zinc-700/30 group">
                                 <Avatar :image="passenger.profilePicture ? `${baseURL}${passenger.profilePicture}` : undefined"
-                                    :label="!passenger.profilePicture ? passenger.username.charAt(0) : undefined" shape="circle" size="small" class="!w-4 !h-4" />
+                                    :label="!passenger.profilePicture ? passenger.username.charAt(0) : undefined" shape="circle" size="small" class="w-4! h-4!" />
                                 <span class="text-[10px] font-medium">{{ passenger.username }}</span>
-                                <Button v-if="isHost || driver.id === currentUser?.id" icon="pi pi-times" severity="danger" text class="!p-0 !w-4 !h-4 opacity-0 group-hover:opacity-100 transition-opacity" 
+                                <Button v-if="isHost || driver.id === currentUser?.id" icon="pi pi-times" severity="danger" text class="p-0! w-4! h-4! opacity-0 group-hover:opacity-100 transition-opacity" 
                                     @click="assignRide(passenger.id, null)" />
                             </div>
                             <div v-if="getAssignedPassengers(driver.id).length === 0" class="text-[10px] text-zinc-500 italic px-1">
@@ -852,7 +866,7 @@ const toggleEditFeature = (feature: EventFeature) => {
                             <div class="flex gap-2">
                                 <Button v-for="driver in drivers.filter(d => (isHost || d.id === currentUser?.id) && getAvailableSeats(d) > 0)" :key="driver.id"
                                     :label="isHost && driver.id !== currentUser?.id ? `Add to ${driver.username}` : 'Add to my vehicle'" icon="pi pi-plus" size="small" severity="secondary" outlined 
-                                    class="!text-[10px] !py-1" @click="assignRide(passenger.id, driver.id)" />
+                                    class="text-[10px]! py-1!" @click="assignRide(passenger.id, driver.id)" />
                             </div>
                         </div>
                     </div>
@@ -873,32 +887,32 @@ const toggleEditFeature = (feature: EventFeature) => {
                 <div class="flex flex-col gap-4">
                     <div class="flex flex-col gap-2">
                         <label for="edit-title" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Title</label>
-                        <InputText id="edit-title" v-model="editTitle" placeholder="Event Title" class="!rounded-xl" />
+                        <InputText id="edit-title" v-model="editTitle" placeholder="Event Title" class="rounded-xl!" />
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label for="edit-desc" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Description</label>
-                        <Textarea id="edit-desc" v-model="editDescription" rows="4" placeholder="Add a description..." class="!rounded-xl" />
+                        <Textarea id="edit-desc" v-model="editDescription" rows="4" placeholder="Add a description..." class="rounded-xl!" />
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label for="edit-location" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Location</label>
-                        <InputText id="edit-location" v-model="editLocation" placeholder="Meeting Room, Online, etc." class="!rounded-xl" />
+                        <InputText id="edit-location" v-model="editLocation" placeholder="Meeting Room, Online, etc." class="rounded-xl!" />
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-sm uppercase tracking-wider text-zinc-500">Start Time</label>
                         <div class="flex gap-2">
-                            <DatePicker v-model="editStartDateOnly" class="flex-1 !rounded-xl" placeholder="Date" />
-                            <DatePicker v-model="editStartTimeOnly" timeOnly class="w-32 !rounded-xl" placeholder="Time" />
+                            <DatePicker v-model="editStartDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
+                            <DatePicker v-model="editStartTimeOnly" timeOnly class="w-32 rounded-xl!" placeholder="Time" />
                         </div>
                     </div>
 
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-sm uppercase tracking-wider text-zinc-500">End Time (Optional)</label>
                         <div class="flex gap-2">
-                            <DatePicker v-model="editEndDateOnly" class="flex-1 !rounded-xl" placeholder="Date" />
-                            <DatePicker v-model="editEndTimeOnly" timeOnly class="w-32 !rounded-xl" placeholder="Time" />
+                            <DatePicker v-model="editEndDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
+                            <DatePicker v-model="editEndTimeOnly" timeOnly class="w-32 rounded-xl!" placeholder="Time" />
                         </div>
                     </div>
 
@@ -906,7 +920,7 @@ const toggleEditFeature = (feature: EventFeature) => {
                         <label for="edit-participants" class="font-bold text-sm uppercase tracking-wider text-zinc-500">Invite More People</label>
                         <MultiSelect id="edit-participants" v-model="editSelectedParticipants" :options="allUsers"
                             optionLabel="username" optionValue="id" placeholder="Select Participants" display="chip" filter
-                            class="w-full !rounded-xl">
+                            class="w-full rounded-xl!">
                             <template #option="slotProps">
                                 <div class="flex items-center gap-2">
                                     <Avatar

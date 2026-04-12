@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useSessionStore } from '../stores/session';
-import api from '../services/API';
+import api, { baseURL } from '../services/API';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
@@ -11,6 +11,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
 import Card from 'primevue/card';
+import Avatar from 'primevue/avatar';
 
 const sessionStore = useSessionStore();
 const toast = useToast();
@@ -166,7 +167,7 @@ onMounted(() => {
                                 @keyup.enter="handleBypassSubmit"
                                 inputClass="!bg-surface-950 !border-surface-800 !py-3 w-full" />
                             <Button label="Login" @click="handleBypassSubmit" :loading="loading"
-                                class="!py-3 font-bold" />
+                                class="py-3! font-bold" />
                         </div>
                     </div>
                 </template>
@@ -182,7 +183,7 @@ onMounted(() => {
                 <div class="flex items-center gap-3">
                     <Button label="Logout" icon="pi pi-power-off" severity="danger"
                         @click="isVerified = false; sessionStore.clearBypassToken()"
-                        class="!text-surface-400 hover:!text-danger-400 transition-colors" />
+                        class="text-surface-400! hover:text-danger-400! transition-colors" />
                     <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
                 </div>
             </div>
@@ -194,16 +195,26 @@ onMounted(() => {
                         bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
                     }">
                     <Column field="id" header="ID" class="text-surface-500 w-24 font-mono"></Column>
-                    <Column field="username" header="Username" class="text-surface-0 font-semibold"></Column>
+                    <Column header="User" class="text-surface-0 font-semibold" sortable sortField="username">
+                        <template #body="slotProps">
+                            <div class="flex items-center gap-3">
+                                <Avatar :image="slotProps.data.profilePicture ? `${baseURL}${slotProps.data.profilePicture}` : undefined"
+                                    :label="!slotProps.data.profilePicture ? (slotProps.data.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
+                                    shape="circle"
+                                    class="bg-primary text-primary-contrast" />
+                                <span>{{ slotProps.data.username }}</span>
+                            </div>
+                        </template>
+                    </Column>
                     <Column header="Actions" class="w-32">
                         <template #body="slotProps">
                             <div class="flex items-center justify-end gap-1">
                                 <Button icon="pi pi-pencil" text rounded severity="secondary"
                                     @click="editUser(slotProps.data)" v-tooltip.top="'Edit User'"
-                                    class="!w-10 !h-10 !text-surface-400 hover:!text-primary-400" />
+                                    class="w-10! h-10! text-surface-400! hover:text-primary-400!" />
                                 <Button icon="pi pi-trash" text rounded severity="danger"
                                     @click="deleteUser(slotProps.data.id)" v-tooltip.top="'Delete User'"
-                                    class="!w-10 !h-10 !text-surface-500 hover:!text-danger-500" />
+                                    class="w-10! h-10! text-surface-500! hover:text-danger-500!" />
                             </div>
                         </template>
                     </Column>
@@ -223,7 +234,7 @@ onMounted(() => {
                 <div class="flex flex-col gap-2">
                     <label for="username" class="font-medium text-surface-300">Username</label>
                     <InputText id="username" v-model="userForm.username" required autofocus placeholder="Enter username"
-                        class="!bg-black !border-surface-800" @keyup.enter="saveUser" />
+                        class="bg-black! border-surface-800!" @keyup.enter="saveUser" />
                 </div>
                 <div class="flex flex-col gap-2">
                     <label for="password" class="font-medium text-surface-300">
@@ -236,7 +247,7 @@ onMounted(() => {
             </div>
             <template #footer>
                 <div class="flex gap-2 justify-end">
-                    <Button label="Cancel" text @click="showUserDialog = false" class="!text-surface-400" />
+                    <Button label="Cancel" text @click="showUserDialog = false" class="text-surface-400!" />
                     <Button label="Save" @click="saveUser" />
                 </div>
             </template>

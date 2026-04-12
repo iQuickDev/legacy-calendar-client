@@ -67,7 +67,7 @@ watch(() => props.visible, (newVal) => {
 </script>
 
 <template>
-    <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Event Features"
+    <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Join Event"
         :style="{ width: '400px' }" :breakpoints="{ '640px': '95vw' }" class="p-fluid text-center" dismissableMask
         :draggable="false">
 

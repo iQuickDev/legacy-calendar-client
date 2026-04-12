@@ -131,7 +131,7 @@ const handleDeletePicture = async () => {
 
         <div class="space-y-8">
             <!-- Information Section -->
-            <Card>
+            <Card class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-user text-primary"></i>
@@ -153,7 +153,7 @@ const handleDeletePicture = async () => {
             </Card>
 
             <!-- Security Section -->
-            <Card>
+            <Card class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-lock text-primary"></i>
@@ -200,7 +200,7 @@ const handleDeletePicture = async () => {
             </Card>
 
             <!-- Notification Preferences Section -->
-            <Card v-if="notificationSettings">
+            <Card v-if="notificationSettings" class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-bell text-primary"></i>
@@ -229,13 +229,6 @@ const handleDeletePicture = async () => {
 </template>
 
 <style scoped>
-@reference "tailwindcss";
-
-:deep(.p-card) {
-    @apply border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl;
-    background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
-}
-
 .bg-primary {
     background-color: var(--p-primary-color);
 }

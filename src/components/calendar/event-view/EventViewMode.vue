@@ -219,15 +219,18 @@ const props = defineProps<{
                             <Avatar
                                 :image="slotProps.data.profilePicture ? `${baseURL}${slotProps.data.profilePicture}` : undefined"
                                 :label="!slotProps.data.profilePicture ? slotProps.data.username.charAt(0) : undefined"
-                                shape="circle" size="small" class="!w-6 !h-6" />
+                                shape="circle" size="small" class="w-6! h-6!" />
                             <span>{{ slotProps.data.username }}</span>
                         </div>
                     </template>
                 </Column>
                 <Column v-for="col in featuresListColumns" :key="col.field" class="text-center min-w-12 sm:min-w-28">
                     <template #header>
-                        <span class="font-bold hidden sm:inline whitespace-nowrap">{{ col.header }} ({{ getFeatureCount(col.field) }})</span>
-                        <span class="font-bold sm:hidden whitespace-nowrap" :title="col.header">{{ col.icon }}</span>
+                        <span class="font-bold hidden sm:inline whitespace-nowrap text-center w-full">
+                            <span :class="getFeatureCount(col.field) > 0 ? 'text-green-500' : 'text-zinc-400'" class="font-bold uppercase tracking-widest">{{ getFeatureCount(col.field) }}</span>
+                            {{ col.header }}
+                        </span>
+                        <span class="font-bold sm:hidden whitespace-nowrap text-center w-full" :title="col.header">{{ col.icon }}</span>
                     </template>
                     <template #body="slotProps">
                         <div v-if="slotProps.data.status === 'ACCEPTED'" class="flex justify-center text-xs">
@@ -235,7 +238,7 @@ const props = defineProps<{
                                 <i class="pi pi-check text-green-500 font-bold"></i>
                             </template>
                             <template v-else>
-                                <i class="pi pi-times text-red-500 font-bold opacity-30"></i>
+                                <i class="pi pi-times text-red-500/40 font-bold"></i>
                             </template>
                         </div>
                         <div v-else class="text-center text-surface-400">-</div>
@@ -256,7 +259,7 @@ const props = defineProps<{
             </DataTable>
         </div>
 
-        <Divider class="!my-2" />
+        <Divider class="my-2!" />
 
         <div class="flex flex-col gap-3 pb-4">
             <div class="flex items-center justify-between">

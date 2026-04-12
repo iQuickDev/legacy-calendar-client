@@ -167,7 +167,7 @@ const onSave = () => {
                             <Avatar
                                 :image="allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? `${baseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}` : undefined"
                                 :label="!allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? allParticipants.find((p: User) => p.id === slotProps.value)?.username.charAt(0) : undefined"
-                                shape="circle" class="!w-4 !h-4 !text-[10px]" />
+                                shape="circle" class="w-4! h-4! text-[10px]!" />
                             <span>{{allParticipants.find((p: User) => p.id === slotProps.value)?.username}}</span>
                         </div>
                     </template>

@@ -28,7 +28,7 @@ cardRef;
 <template>
     <div ref="cardRef" class="event-card-wrapper mb-1 relative overflow-hidden group"
         @click.stop="emit('click', event)">
-        <Chip :label="event.title" class="w-full cursor-pointer hover:brightness-95 transition-all !justify-between"
+        <Chip :label="event.title" class="w-full cursor-pointer hover:brightness-95 transition-all justify-between!"
             :pt="{
                 root: { class: '!rounded-md shadow-sm border border-white/5' },
                 label: { class: 'flex-1 truncate font-medium text-sm z-10' }
@@ -37,10 +37,10 @@ cardRef;
                 <div class="flex items-center gap-1 shrink-0 ml-auto z-10">
                     <Avatar :image="event.host?.profilePicture ? `${baseURL}${event.host.profilePicture}` : undefined"
                         :icon="!event.host?.profilePicture ? 'pi pi-user' : undefined" shape="circle" size="small"
-                        class="!w-6 !h-6 !text-[10px] bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm shadow-sm" />
+                        class="w-6! h-6! text-[10px]! bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm shadow-sm" />
 
                     <Badge v-if="event.participants && event.participants.length > 0" :value="event.participants.length"
-                        severity="contrast" class="!min-w-[1rem] !h-4 !text-[10px] !leading-3" />
+                        severity="contrast" class="min-w-4! h-4! text-[10px]! leading-3!" />
                 </div>
             </template>
         </Chip>

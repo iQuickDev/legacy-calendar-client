@@ -8,14 +8,15 @@ import Divider from 'primevue/divider';
 import { type EventFeature } from '../../types/Event';
 
 import { FEATURES } from '../../constants/features';
+import { toggleFeature as toggleFeatureInSelection } from '../../utils/event';
 
 const props = defineProps<{
     visible: boolean;
     availableFeatures?: EventFeature[];
     initialFeatures?: EventFeature[];
     submitLabel?: string;
-    featurePrices?: Record<string, number | null>;
-    featureSplitPrices?: Record<string, number | null>;
+    featurePrices?: Record<EventFeature, number | null>;
+    featureSplitPrices?: Record<EventFeature, number | null>;
     initialHasVehicle?: boolean;
     initialVehicleSeats?: number;
 }>();
@@ -35,13 +36,10 @@ const isFeatureAvailable = (id: EventFeature) => {
     return props.availableFeatures.includes(id);
 };
 
+const currency = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+
 const toggleFeature = (feature: EventFeature) => {
-    const index = selectedFeatures.value.indexOf(feature);
-    if (index === -1) {
-        selectedFeatures.value.push(feature);
-    } else {
-        selectedFeatures.value.splice(index, 1);
-    }
+    toggleFeatureInSelection(selectedFeatures.value, feature);
 };
 
 const onConfirm = () => {
@@ -91,9 +89,9 @@ watch(() => props.visible, (newVal) => {
                         <span class="font-bold text-xs uppercase tracking-wider">{{ feature.label }}</span>
                         <div v-if="featurePrices?.[feature.id] !== null && featurePrices?.[feature.id] !== undefined" 
                             class="flex flex-col items-center mt-1 pt-1 border-t border-current/10 w-full">
-                            <span class="text-[8px] opacity-60 uppercase font-black tracking-tighter">Budget: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featurePrices[feature.id]!) }}</span>
+                            <span class="text-[8px] opacity-60 uppercase font-black tracking-tighter">Budget: {{ currency.format(featurePrices[feature.id]!) }}</span>
                             <span class="text-[10px] font-black leading-tight mt-0.5" :class="selectedFeatures.includes(feature.id) ? 'text-white' : 'text-emerald-500'">
-                                Share: {{ new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(featureSplitPrices?.[feature.id] || 0) }}
+                                Share: {{ currency.format(featureSplitPrices?.[feature.id] || 0) }}
                             </span>
                         </div>
                     </div>

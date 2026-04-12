@@ -13,38 +13,14 @@ import {
     parseISO
 } from 'date-fns';
 import type { CalendarDay } from '../types/Calendar';
-import type { Event } from '../types/Event';
+import type { CreateEventDto, Event, ParticipateDto } from '../types/Event';
 import { useEventsStore } from '../stores/events';
-import type { CreateEventDto } from '../types/Event';
 
 export function useCalendar() {
     const currentDate = ref(new Date());
     const eventsStore = useEventsStore();
 
-    // Get events from store
-    const events = computed<Event[]>(() =>
-        eventsStore.events.map((event: Event) => ({
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            location: event.location,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            host: event.host,
-            participants: event.participants,
-            isOpen: event.isOpen,
-            hasFood: event.hasFood,
-            hasWeed: event.hasWeed,
-            hasSleep: event.hasSleep,
-            hasAlcohol: event.hasAlcohol,
-            hasBeer: event.hasBeer,
-            foodPrice: event.foodPrice,
-            weedPrice: event.weedPrice,
-            sleepPrice: event.sleepPrice,
-            alcoholPrice: event.alcoholPrice,
-            beerPrice: event.beerPrice,
-        }))
-    );
+    const events = computed<Event[]>(() => eventsStore.events);
 
     const days = computed<CalendarDay[]>(() => {
         const monthStart = startOfMonth(currentDate.value);
@@ -91,7 +67,7 @@ export function useCalendar() {
         return await eventsStore.deleteEvent(id);
     };
 
-    const joinEvent = async (id: number, dto?: any) => {
+    const joinEvent = async (id: number, dto?: ParticipateDto) => {
         return await eventsStore.joinEvent(id, dto);
     };
 

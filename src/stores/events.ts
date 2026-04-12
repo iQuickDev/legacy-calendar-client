@@ -1,11 +1,29 @@
 import { defineStore } from 'pinia'
 import { useAPIStore } from './api'
-import type { Event, CreateEventDto } from '../types/Event'
+import type { CreateEventDto, Event, ParticipateDto } from '../types/Event'
 
 export interface EventsState {
     events: Event[];
     loading: boolean;
     error: string | null;
+}
+
+async function runEventsAction<T>(
+    store: EventsState,
+    errorMessage: string,
+    action: () => Promise<T>
+): Promise<T | false> {
+    store.loading = true;
+    store.error = null;
+    try {
+        return await action();
+    } catch (err: any) {
+        store.error = err.response?.data?.message || errorMessage;
+        console.error(errorMessage, err);
+        return false;
+    } finally {
+        store.loading = false;
+    }
 }
 
 export const useEventsStore = defineStore('events', {
@@ -35,124 +53,73 @@ export const useEventsStore = defineStore('events', {
 
     actions: {
         async fetchEvents() {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to load events', async () => {
                 const { client } = useAPIStore();
                 const response = await client.findAllEvents();
                 this.events = response.data;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to load events';
-                console.error('Failed to fetch events:', err);
-            } finally {
-                this.loading = false;
-            }
+                return true;
+            });
+            return result !== false;
         },
 
         async createEvent(dto: CreateEventDto) {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to create event', async () => {
                 const { client } = useAPIStore();
                 await client.createEvent(dto);
-                // Refresh events list to get the new event with its ID
                 await this.fetchEvents();
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to create event';
-                console.error('Failed to create event:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
         async updateEvent(id: number, dto: Partial<CreateEventDto>) {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to update event', async () => {
                 const { client } = useAPIStore();
                 await client.updateEvent(id, dto);
                 await this.fetchEvents();
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to update event';
-                console.error('Failed to update event:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
         async deleteEvent(id: number) {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to delete event', async () => {
                 const { client } = useAPIStore();
                 await client.deleteEvent(id);
-                // Remove from local state
                 this.events = this.events.filter((event) => event.id !== id);
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to delete event';
-                console.error('Failed to delete event:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
-        async joinEvent(id: number, dto?: any) { // using any to avoid circular dependency or import issues for now, or import ParticipateDto if easy
-            this.loading = true;
-            this.error = null;
-            try {
+        async joinEvent(id: number, dto?: ParticipateDto) {
+            const result = await runEventsAction(this, 'Failed to join event', async () => {
                 const { client } = useAPIStore();
                 await client.joinEvent(id, dto);
-                // Refresh to get updated event data
                 await this.fetchEvents();
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to join event';
-                console.error('Failed to join event:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
         async leaveEvent(id: number) {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to leave event', async () => {
                 const { client } = useAPIStore();
                 await client.leaveEvent(id);
-                // Refresh to get updated event data
                 await this.fetchEvents();
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to leave event';
-                console.error('Failed to leave event:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
         async assignRide(eventId: number, passengerId: number, driverId: number | null) {
-            this.loading = true;
-            this.error = null;
-            try {
+            const result = await runEventsAction(this, 'Failed to assign ride', async () => {
                 const { client } = useAPIStore();
                 await client.assignRide(eventId, passengerId, driverId);
                 await this.fetchEvents();
                 return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Failed to assign ride';
-                console.error('Failed to assign ride:', err);
-                return false;
-            } finally {
-                this.loading = false;
-            }
+            });
+            return result !== false;
         },
 
         clearError() {

@@ -14,6 +14,13 @@ import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
 import { baseURL } from '../../services/API';
+import { FEATURES } from '../../constants/features';
+import {
+    combineDateAndTime,
+    createNullFeatureRecord,
+    featureFlagsFromSelection,
+    toggleFeature as toggleFeatureInSelection,
+} from '../../utils/event';
 
 const props = defineProps<{
     visible: boolean;
@@ -26,29 +33,14 @@ const emit = defineEmits<{
     (e: 'save', event: CreateEventDto): void;
 }>();
 
+const sessionStore = useSessionStore();
+
 const title = ref('');
 const description = ref('');
 const location = ref('');
 const isOpen = ref(true);
 const selectedFeatures = ref<EventFeature[]>([]);
-const featurePrices = ref<Record<string, number | null>>({
-    FOOD: null,
-    WEED: null,
-    SLEEP: null,
-    ALCOHOL: null,
-    BEER: null
-});
-
-import { FEATURES } from '../../constants/features';
-
-const toggleFeature = (feature: EventFeature) => {
-    const index = selectedFeatures.value.indexOf(feature);
-    if (index === -1) {
-        selectedFeatures.value.push(feature);
-    } else {
-        selectedFeatures.value.splice(index, 1);
-    }
-};
+const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 
 const startDateOnly = ref<Date | null>(null);
 const startTimeOnly = ref<Date | null>(null);
@@ -61,13 +53,15 @@ const allParticipants = ref<User[]>([]);
 
 const fetchUsers = async () => {
     try {
-        const { client } = useAPIStore();
-        const sessionStore = useSessionStore();
-        const response = await client.findAllUsers();
+        const response = await useAPIStore().client.findAllUsers();
         allParticipants.value = response.data.filter(user => user.id !== sessionStore.currentUser?.id);
     } catch (error) {
         console.error('Failed to fetch users:', error);
     }
+};
+
+const toggleFeature = (feature: EventFeature) => {
+    toggleFeatureInSelection(selectedFeatures.value, feature);
 };
 
 watch(() => props.visible, (newVal) => {
@@ -78,13 +72,10 @@ watch(() => props.visible, (newVal) => {
         selectedParticipants.value = [];
         isOpen.value = true;
         selectedFeatures.value = [];
-        Object.keys(featurePrices.value).forEach(key => featurePrices.value[key] = null);
+        featurePrices.value = createNullFeatureRecord();
 
         startDateOnly.value = new Date(props.initialDate);
         startTimeOnly.value = new Date(props.initialDate);
-
-        const end = new Date(props.initialDate);
-        end.setHours(end.getHours() + 1);
 
         endDateOnly.value = null;
         endTimeOnly.value = null;
@@ -92,13 +83,6 @@ watch(() => props.visible, (newVal) => {
         fetchUsers();
     }
 });
-
-const combineDateAndTime = (datePart: Date, timePart: Date): Date => {
-    const combined = new Date(datePart);
-    combined.setHours(timePart.getHours());
-    combined.setMinutes(timePart.getMinutes());
-    return combined;
-};
 
 const onSave = () => {
     if (!title.value || !startDateOnly.value || !startTimeOnly.value) return;
@@ -118,16 +102,12 @@ const onSave = () => {
         endTime: end ? end.toISOString() : undefined,
         participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
         isOpen: isOpen.value,
-        hasFood: selectedFeatures.value.includes('FOOD'),
-        hasWeed: selectedFeatures.value.includes('WEED'),
-        hasSleep: selectedFeatures.value.includes('SLEEP'),
-        hasAlcohol: selectedFeatures.value.includes('ALCOHOL'),
-        hasBeer: selectedFeatures.value.includes('BEER'),
-        foodPrice: featurePrices.value.FOOD || undefined,
-        weedPrice: featurePrices.value.WEED || undefined,
-        sleepPrice: featurePrices.value.SLEEP || undefined,
-        alcoholPrice: featurePrices.value.ALCOHOL || undefined,
-        beerPrice: featurePrices.value.BEER || undefined,
+        ...featureFlagsFromSelection(selectedFeatures.value),
+        foodPrice: featurePrices.value.FOOD ?? undefined,
+        weedPrice: featurePrices.value.WEED ?? undefined,
+        sleepPrice: featurePrices.value.SLEEP ?? undefined,
+        alcoholPrice: featurePrices.value.ALCOHOL ?? undefined,
+        beerPrice: featurePrices.value.BEER ?? undefined,
     });
 };
 </script>

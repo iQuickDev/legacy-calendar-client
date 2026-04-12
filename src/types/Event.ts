@@ -18,6 +18,32 @@ export interface CreateEventDto {
     beerPrice?: number;
 }
 
+export const EVENT_FEATURES = ['FOOD', 'WEED', 'ALCOHOL', 'SLEEP', 'BEER'] as const;
+export type EventFeature = typeof EVENT_FEATURES[number];
+
+export const PARTICIPANT_STATUSES = ['ACCEPTED', 'DECLINED', 'PENDING'] as const;
+export type ParticipantStatus = typeof PARTICIPANT_STATUSES[number];
+
+export interface EventPersonSummary {
+    id: number;
+    username: string;
+    profilePicture?: string;
+}
+
+export interface EventParticipant extends EventPersonSummary {
+    status: ParticipantStatus | string;
+    wantsFood?: boolean;
+    wantsWeed?: boolean;
+    wantsSleep?: boolean;
+    wantsAlcohol?: boolean;
+    wantsBeer?: boolean;
+    hasVehicle?: boolean;
+    vehicleType?: string;
+    vehicleSeats?: number;
+    driverId?: number;
+    driver?: EventPersonSummary;
+}
+
 export interface Event {
     id: number;
     title: string;
@@ -26,23 +52,8 @@ export interface Event {
     startTime: string;
     endTime?: string;
     hostId?: number;
-    host?: { id: number; username: string; profilePicture?: string };
-    participants?: {
-        id: number;
-        username: string;
-        status: string;
-        profilePicture?: string;
-        wantsFood?: boolean;
-        wantsWeed?: boolean;
-        wantsSleep?: boolean;
-        wantsAlcohol?: boolean;
-        wantsBeer?: boolean;
-        hasVehicle?: boolean;
-        vehicleType?: string;
-        vehicleSeats?: number;
-        driverId?: number;
-        driver?: { id: number; username: string; profilePicture?: string };
-    }[];
+    host?: EventPersonSummary;
+    participants?: EventParticipant[];
     isOpen: boolean;
     hasFood?: boolean;
     hasWeed?: boolean;
@@ -56,8 +67,6 @@ export interface Event {
     beerPrice?: number;
     [key: string]: any;
 }
-
-export type EventFeature = 'FOOD' | 'WEED' | 'ALCOHOL' | 'SLEEP' | 'BEER';
 
 export interface ParticipateDto {
     wantsFood?: boolean;

@@ -11,13 +11,11 @@ export interface CreateEventDto {
     hasSleep?: boolean;
     hasAlcohol?: boolean;
     hasBeer?: boolean;
-    hasGas?: boolean;
     foodPrice?: number;
     weedPrice?: number;
     sleepPrice?: number;
     alcoholPrice?: number;
     beerPrice?: number;
-    gasPrice?: number;
 }
 
 export interface Event {
@@ -39,7 +37,6 @@ export interface Event {
         wantsSleep?: boolean;
         wantsAlcohol?: boolean;
         wantsBeer?: boolean;
-        wantsGas?: boolean;
         hasVehicle?: boolean;
         vehicleType?: string;
         vehicleSeats?: number;
@@ -52,17 +49,15 @@ export interface Event {
     hasSleep?: boolean;
     hasAlcohol?: boolean;
     hasBeer?: boolean;
-    hasGas?: boolean;
     foodPrice?: number;
     weedPrice?: number;
     sleepPrice?: number;
     alcoholPrice?: number;
     beerPrice?: number;
-    gasPrice?: number;
     [key: string]: any;
 }
 
-export type EventFeature = 'FOOD' | 'WEED' | 'ALCOHOL' | 'SLEEP' | 'BEER' | 'GAS';
+export type EventFeature = 'FOOD' | 'WEED' | 'ALCOHOL' | 'SLEEP' | 'BEER';
 
 export interface ParticipateDto {
     wantsFood?: boolean;
@@ -70,7 +65,6 @@ export interface ParticipateDto {
     wantsSleep?: boolean;
     wantsAlcohol?: boolean;
     wantsBeer?: boolean;
-    wantsGas?: boolean;
     hasVehicle?: boolean;
     vehicleType?: string;
     vehicleSeats?: number;

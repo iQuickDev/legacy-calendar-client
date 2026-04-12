@@ -169,7 +169,6 @@ const handleFeatureConfirm = async (data: { features: EventFeature[], vehicle: {
             wantsSleep: features.includes('SLEEP'),
             wantsAlcohol: features.includes('ALCOHOL'),
             wantsBeer: features.includes('BEER'),
-            wantsGas: features.includes('GAS'),
             ...vehicle
         };
 
@@ -192,7 +191,6 @@ const getParticipantFeatures = (userId: number): EventFeature[] => {
     if (participant.wantsAlcohol) features.push('ALCOHOL');
     if (participant.wantsSleep) features.push('SLEEP');
     if (participant.wantsBeer) features.push('BEER');
-    if (participant.wantsGas) features.push('GAS');
 
     return features;
 };
@@ -212,7 +210,6 @@ const eventFeatures = computed(() => {
         if (feature.id === 'ALCOHOL' && props.event!.hasAlcohol) return true;
         if (feature.id === 'SLEEP' && props.event!.hasSleep) return true;
         if (feature.id === 'BEER' && props.event!.hasBeer) return true;
-        if (feature.id === 'GAS' && props.event!.hasGas) return true;
         return false;
     });
 });
@@ -225,7 +222,6 @@ const eventPrices = computed<Record<string, number | null>>(() => {
         SLEEP: props.event.sleepPrice ?? null,
         ALCOHOL: props.event.alcoholPrice ?? null,
         BEER: props.event.beerPrice ?? null,
-        GAS: props.event.gasPrice ?? null
     };
 });
 
@@ -236,8 +232,7 @@ const eventSplitPrices = computed<Record<string, number | null>>(() => {
         WEED: getFeatureSplitPrice('WEED'),
         SLEEP: getFeatureSplitPrice('SLEEP'),
         ALCOHOL: getFeatureSplitPrice('ALCOHOL'),
-        BEER: getFeatureSplitPrice('BEER'),
-        GAS: getFeatureSplitPrice('GAS')
+        BEER: getFeatureSplitPrice('BEER')
     };
 });
 
@@ -249,7 +244,6 @@ const availableFeatureIds = computed(() => {
     if (props.event.hasAlcohol) features.push('ALCOHOL');
     if (props.event.hasSleep) features.push('SLEEP');
     if (props.event.hasBeer) features.push('BEER');
-    if (props.event.hasGas) features.push('GAS');
     return features;
 });
 
@@ -270,7 +264,6 @@ const getFeatureCount = (feature: EventFeature) => {
             case 'ALCOHOL': return p.wantsAlcohol;
             case 'SLEEP': return p.wantsSleep;
             case 'BEER': return p.wantsBeer;
-            case 'GAS': return p.wantsGas;
             default: return false;
         }
     }).length;
@@ -295,7 +288,6 @@ const userTotalShare = computed(() => {
     if (participant.wantsAlcohol) total += getFeatureSplitPrice('ALCOHOL');
     if (participant.wantsSleep) total += getFeatureSplitPrice('SLEEP');
     if (participant.wantsBeer) total += getFeatureSplitPrice('BEER');
-    if (participant.wantsGas) total += getFeatureSplitPrice('GAS');
 
     return total;
 });
@@ -384,8 +376,7 @@ const eventTotalBudget = computed(() => {
         (props.event.weedPrice || 0) +
         (props.event.sleepPrice || 0) +
         (props.event.alcoholPrice || 0) +
-        (props.event.beerPrice || 0) +
-        (props.event.gasPrice || 0);
+        (props.event.beerPrice || 0)
 });
 
 const isAldoMoro = computed(() => {
@@ -450,8 +441,7 @@ const editFeaturePrices = ref<Record<string, number | null>>({
     WEED: null,
     SLEEP: null,
     ALCOHOL: null,
-    BEER: null,
-    GAS: null
+    BEER: null
 });
 const editStartDateOnly = ref<Date | null>(null);
 const editStartTimeOnly = ref<Date | null>(null);
@@ -473,14 +463,12 @@ const onEdit = () => {
     if (props.event.hasSleep) editSelectedFeatures.value.push('SLEEP');
     if (props.event.hasAlcohol) editSelectedFeatures.value.push('ALCOHOL');
     if (props.event.hasBeer) editSelectedFeatures.value.push('BEER');
-    if (props.event.hasGas) editSelectedFeatures.value.push('GAS');
     
     editFeaturePrices.value.FOOD = props.event.foodPrice || null;
     editFeaturePrices.value.WEED = props.event.weedPrice || null;
     editFeaturePrices.value.SLEEP = props.event.sleepPrice || null;
     editFeaturePrices.value.ALCOHOL = props.event.alcoholPrice || null;
     editFeaturePrices.value.BEER = props.event.beerPrice || null;
-    editFeaturePrices.value.GAS = props.event.gasPrice || null;
     
     const start = parseISO(props.event.startTime);
     editStartDateOnly.value = start;
@@ -533,13 +521,11 @@ const onSaveEdit = async () => {
             hasSleep: editSelectedFeatures.value.includes('SLEEP'),
             hasAlcohol: editSelectedFeatures.value.includes('ALCOHOL'),
             hasBeer: editSelectedFeatures.value.includes('BEER'),
-            hasGas: editSelectedFeatures.value.includes('GAS'),
             foodPrice: editFeaturePrices.value.FOOD || undefined,
             weedPrice: editFeaturePrices.value.WEED || undefined,
             sleepPrice: editFeaturePrices.value.SLEEP || undefined,
             alcoholPrice: editFeaturePrices.value.ALCOHOL || undefined,
             beerPrice: editFeaturePrices.value.BEER || undefined,
-            gasPrice: editFeaturePrices.value.GAS || undefined,
         };
 
         const success = await eventsStore.updateEvent(props.event.id, dto);

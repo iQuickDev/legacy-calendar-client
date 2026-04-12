@@ -36,8 +36,7 @@ const featurePrices = ref<Record<string, number | null>>({
     WEED: null,
     SLEEP: null,
     ALCOHOL: null,
-    BEER: null,
-    GAS: null
+    BEER: null
 });
 
 import { FEATURES } from '../../constants/features';
@@ -124,13 +123,11 @@ const onSave = () => {
         hasSleep: selectedFeatures.value.includes('SLEEP'),
         hasAlcohol: selectedFeatures.value.includes('ALCOHOL'),
         hasBeer: selectedFeatures.value.includes('BEER'),
-        hasGas: selectedFeatures.value.includes('GAS'),
         foodPrice: featurePrices.value.FOOD || undefined,
         weedPrice: featurePrices.value.WEED || undefined,
         sleepPrice: featurePrices.value.SLEEP || undefined,
         alcoholPrice: featurePrices.value.ALCOHOL || undefined,
         beerPrice: featurePrices.value.BEER || undefined,
-        gasPrice: featurePrices.value.GAS || undefined,
     });
 };
 </script>

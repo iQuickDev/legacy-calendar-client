@@ -33,12 +33,6 @@ export const FEATURES: FeatureConfig[] = [
         color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300 ring-yellow-500'
     },
     {
-        id: 'GAS',
-        label: 'Gas',
-        icon: '⛽',
-        color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ring-slate-500'
-    },
-    {
         id: 'SLEEP',
         label: 'Sleep',
         icon: '🌑',

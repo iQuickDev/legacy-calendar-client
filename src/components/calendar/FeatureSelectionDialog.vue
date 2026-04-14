@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
-import InputSwitch from 'primevue/inputswitch';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Slider from 'primevue/slider';
 import Divider from 'primevue/divider';
 import { type EventFeature } from '../../types/Event';
@@ -135,7 +135,7 @@ watch(
                         <span class="text-sm font-bold tracking-wider text-zinc-400 uppercase">Transport</span>
                         <span class="text-xs text-zinc-500">Do you have a vehicle?</span>
                     </div>
-                    <InputSwitch v-model="hasVehicle" />
+                    <ToggleSwitch v-model="hasVehicle" />
                 </div>
 
                 <div v-if="hasVehicle" class="animate-in fade-in slide-in-from-top-2 flex flex-col gap-4 duration-300">

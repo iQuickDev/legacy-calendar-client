@@ -142,7 +142,7 @@ watch(
                     <div class="flex flex-col items-start gap-2 px-2">
                         <span class="text-xs font-bold tracking-wider text-zinc-400 uppercase">Available Seats</span>
                         <div class="flex w-full items-center gap-4">
-                            <Slider v-model="vehicleSeats" :min="0" :max="10" class="flex-1" />
+                            <Slider v-model="vehicleSeats" :min="0" :max="8" class="flex-1" />
                             <span class="w-8 text-xl font-black text-emerald-500">{{ vehicleSeats }}</span>
                         </div>
                     </div>

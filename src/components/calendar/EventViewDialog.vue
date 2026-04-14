@@ -101,6 +101,7 @@ const joining = ref(false);
 const cancelling = ref(false);
 const showFeatureSelection = ref(false);
 const showLeaveConfirmation = ref(false);
+const showDeleteConfirmation = ref(false);
 const assigningRide = ref(false);
 const dragOverDriverId = ref<number | null>(null);
 const isEditing = ref(false);
@@ -300,6 +301,12 @@ watch(
 
 const onDelete = () => {
     if (!props.event) return;
+    showDeleteConfirmation.value = true;
+};
+
+const confirmDelete = () => {
+    if (!props.event) return;
+    showDeleteConfirmation.value = false;
     emit('delete', props.event.id);
 };
 
@@ -458,6 +465,28 @@ const handleEditSave = async (dto: CreateEventDto) => {
             <div class="flex w-full justify-end gap-2">
                 <Button label="No" severity="secondary" text @click="showLeaveConfirmation = false" />
                 <Button label="Yes, Leave" severity="danger" @click="confirmLeave" />
+            </div>
+        </template>
+    </Dialog>
+
+    <Dialog
+        v-model:visible="showDeleteConfirmation"
+        modal
+        header="Confirm Deletion"
+        :style="{ width: '350px' }"
+        :breakpoints="{ '640px': '90vw' }"
+        dismissableMask
+        :draggable="false"
+    >
+        <div class="flex flex-col items-center gap-4 pt-2">
+            <p class="m-0 text-center">
+                Are you sure you want to delete this event? This action cannot be undone and all data will be lost.
+            </p>
+        </div>
+        <template #footer>
+            <div class="flex w-full justify-end gap-2">
+                <Button label="No" severity="secondary" text @click="showDeleteConfirmation = false" />
+                <Button label="Yes, Delete" severity="danger" @click="confirmDelete" />
             </div>
         </template>
     </Dialog>

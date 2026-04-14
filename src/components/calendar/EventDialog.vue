@@ -8,6 +8,7 @@ import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import SelectButton from 'primevue/selectbutton';
+import ToggleSwitch from 'primevue/toggleswitch';
 import InputNumber from 'primevue/inputnumber';
 import type { CreateEventDto, EventFeature } from '../../types/Event';
 import type { User } from '../../types/User';

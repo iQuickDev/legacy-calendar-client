@@ -322,7 +322,7 @@ const onSave = () => {
                     <template v-else-if="eventVisibility === 'private'">
                         Only invited participants can see this event
                     </template>
-                    <template v-else>Only invited participants and their friends can see this event</template>
+                    <template v-else>Everyone can see this event, only invited participants can join</template>
                 </small>
             </div>
         </div>

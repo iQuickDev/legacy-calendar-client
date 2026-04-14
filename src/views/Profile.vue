@@ -168,7 +168,7 @@ const handleDeletePicture = async () => {
                                 Password</label>
                             <Password id="current-password" v-model="currentPassword" toggleMask :feedback="false"
                                 class="w-full" inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
-                                placeholder="••••••••" autocomplete="current-password" />
+                                placeholder="••••••••" :inputProps="{ autocomplete: 'current-password' }" />
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,7 +178,7 @@ const handleDeletePicture = async () => {
                                     Password</label>
                                 <Password id="new-password" v-model="newPassword" toggleMask class="w-full"
                                     inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800" placeholder="••••••••" 
-                                    autocomplete="new-password" />
+                                    :inputProps="{ autocomplete: 'new-password' }" />
                             </div>
 
                             <div class="flex flex-col gap-1.5">
@@ -187,7 +187,7 @@ const handleDeletePicture = async () => {
                                     Password</label>
                                 <Password id="confirm-password" v-model="confirmPassword" toggleMask :feedback="false"
                                     class="w-full" inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
-                                    placeholder="••••••••" autocomplete="new-password" />
+                                    placeholder="••••••••" :inputProps="{ autocomplete: 'new-password' }" />
                             </div>
                         </div>
 

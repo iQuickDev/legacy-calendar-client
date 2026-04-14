@@ -50,9 +50,6 @@ const onConfirm = () => {
             vehicleSeats: hasVehicle.value ? vehicleSeats.value : 0
         }
     });
-    selectedFeatures.value = [];
-    hasVehicle.value = false;
-    vehicleSeats.value = 0;
 };
 
 watch(

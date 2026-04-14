@@ -16,13 +16,13 @@ import { FEATURES } from '../../constants/features';
 import {
     canUserRespondToEvent,
     createFeatureRecord,
-    featureFlagsFromSelection,
     featureCount,
     featurePricesFromEvent,
     featureSplitPrice,
     getParticipantStatusIcon,
     getParticipantStatusSeverity,
     participantFeatures,
+    participantWantsFromSelection,
     selectedFeaturesFromEvent,
     totalEventBudget
 } from '../../utils/event';
@@ -153,7 +153,7 @@ const handleFeatureConfirm = async (data: {
     joining.value = true;
     try {
         const participateDto: ParticipateDto = {
-            ...featureFlagsFromSelection(data.features),
+            ...participantWantsFromSelection(data.features),
             ...data.vehicle
         };
 

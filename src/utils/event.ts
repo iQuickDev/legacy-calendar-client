@@ -90,6 +90,16 @@ export function featureFlagsFromSelection(features: EventFeature[]) {
     };
 }
 
+export function participantWantsFromSelection(features: EventFeature[]) {
+    return {
+        wantsFood: features.includes('FOOD'),
+        wantsWeed: features.includes('WEED'),
+        wantsSleep: features.includes('SLEEP'),
+        wantsAlcohol: features.includes('ALCOHOL'),
+        wantsBeer: features.includes('BEER')
+    };
+}
+
 export function featurePricesFromEvent(
     event: Pick<Event, 'foodPrice' | 'weedPrice' | 'sleepPrice' | 'alcoholPrice' | 'beerPrice'> | null | undefined
 ) {

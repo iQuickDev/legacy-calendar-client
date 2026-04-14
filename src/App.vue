@@ -36,6 +36,11 @@ onMounted(async () => {
             life: 5000
         });
     });
+
+    // get the page's title and add "(DEV)" to it if in dev mode
+    if (import.meta.env.DEV) {
+        document.title = `${document.title} (DEV)`;
+    }
 });
 </script>
 

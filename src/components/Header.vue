@@ -6,7 +6,7 @@ import Avatar from 'primevue/avatar';
 import Menubar from 'primevue/menubar';
 import { useSessionStore } from '../stores/session';
 import { router } from '../router/router';
-import { baseURL } from '../services/API';
+import { uploadsBaseURL } from '../services/API';
 
 const sessionStore = useSessionStore();
 
@@ -58,7 +58,9 @@ const items = ref([
                     class="flex items-center gap-2 rounded-full bg-zinc-900 px-2 py-1 no-underline transition-all hover:bg-zinc-800"
                 >
                     <Avatar
-                        :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
+                        :image="
+                            currentUser?.profilePicture ? `${uploadsBaseURL}${currentUser.profilePicture}` : undefined
+                        "
                         :label="
                             !currentUser?.profilePicture
                                 ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'

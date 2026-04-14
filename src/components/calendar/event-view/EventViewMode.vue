@@ -7,7 +7,7 @@ import Divider from 'primevue/divider';
 import Tag from 'primevue/tag';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import { baseURL } from '../../../services/API';
+import { uploadsBaseURL } from '../../../services/API';
 import { FEATURES } from '../../../constants/features';
 
 type FeatureColumn = {
@@ -106,7 +106,7 @@ defineProps<{
 
             <div v-if="eventHost" class="flex items-center gap-2">
                 <Avatar
-                    :image="eventHost.profilePicture ? `${baseURL}${eventHost.profilePicture}` : undefined"
+                    :image="eventHost.profilePicture ? `${uploadsBaseURL}${eventHost.profilePicture}` : undefined"
                     :label="!eventHost.profilePicture ? eventHost.username.charAt(0) : undefined"
                     shape="circle"
                     size="small"
@@ -300,7 +300,7 @@ defineProps<{
                             <Avatar
                                 :image="
                                     slotProps.data.profilePicture
-                                        ? `${baseURL}${slotProps.data.profilePicture}`
+                                        ? `${uploadsBaseURL}${slotProps.data.profilePicture}`
                                         : undefined
                                 "
                                 :label="!slotProps.data.profilePicture ? slotProps.data.username.charAt(0) : undefined"
@@ -397,7 +397,7 @@ defineProps<{
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <Avatar
-                                :image="driver.profilePicture ? `${baseURL}${driver.profilePicture}` : undefined"
+                                :image="driver.profilePicture ? `${uploadsBaseURL}${driver.profilePicture}` : undefined"
                                 :label="!driver.profilePicture ? driver.username.charAt(0) : undefined"
                                 shape="circle"
                                 size="normal"
@@ -424,7 +424,11 @@ defineProps<{
                             class="group flex items-center gap-2 rounded-lg border border-zinc-300/30 bg-zinc-200/50 px-2 py-1 dark:border-zinc-700/30 dark:bg-zinc-800/50"
                         >
                             <Avatar
-                                :image="passenger.profilePicture ? `${baseURL}${passenger.profilePicture}` : undefined"
+                                :image="
+                                    passenger.profilePicture
+                                        ? `${uploadsBaseURL}${passenger.profilePicture}`
+                                        : undefined
+                                "
                                 :label="!passenger.profilePicture ? passenger.username.charAt(0) : undefined"
                                 shape="circle"
                                 size="small"
@@ -476,7 +480,11 @@ defineProps<{
                     >
                         <div class="flex items-center gap-3">
                             <Avatar
-                                :image="passenger.profilePicture ? `${baseURL}${passenger.profilePicture}` : undefined"
+                                :image="
+                                    passenger.profilePicture
+                                        ? `${uploadsBaseURL}${passenger.profilePicture}`
+                                        : undefined
+                                "
                                 :label="!passenger.profilePicture ? passenger.username.charAt(0) : undefined"
                                 shape="circle"
                                 size="small"

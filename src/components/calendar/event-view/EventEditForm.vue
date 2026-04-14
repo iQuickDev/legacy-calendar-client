@@ -11,7 +11,7 @@ import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import { FEATURES } from '../../../constants/features';
-import { baseURL } from '../../../services/API';
+import { uploadsBaseURL } from '../../../services/API';
 import {
     combineDateAndTime,
     createNullFeatureRecord,
@@ -182,7 +182,7 @@ const onSave = () => {
                                 <Avatar
                                     :image="
                                         slotProps.option.profilePicture
-                                            ? `${baseURL}${slotProps.option.profilePicture}`
+                                            ? `${uploadsBaseURL}${slotProps.option.profilePicture}`
                                             : undefined
                                     "
                                     :label="

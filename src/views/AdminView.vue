@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useSessionStore } from '../stores/session';
-import api, { baseURL } from '../services/API';
+import api, { uploadsBaseURL } from '../services/API';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
 import Button from 'primevue/button';
@@ -220,7 +220,7 @@ onMounted(() => {
                                 <Avatar
                                     :image="
                                         slotProps.data.profilePicture
-                                            ? `${baseURL}${slotProps.data.profilePicture}`
+                                            ? `${uploadsBaseURL}${slotProps.data.profilePicture}`
                                             : undefined
                                     "
                                     :label="

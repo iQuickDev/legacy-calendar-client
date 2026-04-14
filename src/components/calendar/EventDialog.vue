@@ -13,7 +13,7 @@ import type { CreateEventDto, EventFeature } from '../../types/Event';
 import type { User } from '../../types/User';
 import { useAPIStore } from '../../stores/api';
 import { useSessionStore } from '../../stores/session';
-import { baseURL } from '../../services/API';
+import { uploadsBaseURL } from '../../services/API';
 import { FEATURES } from '../../constants/features';
 import {
     combineDateAndTime,
@@ -188,7 +188,7 @@ const onSave = () => {
                             <Avatar
                                 :image="
                                     slotProps.option.profilePicture
-                                        ? `${baseURL}${slotProps.option.profilePicture}`
+                                        ? `${uploadsBaseURL}${slotProps.option.profilePicture}`
                                         : undefined
                                 "
                                 :label="
@@ -205,7 +205,7 @@ const onSave = () => {
                             <Avatar
                                 :image="
                                     allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture
-                                        ? `${baseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}`
+                                        ? `${uploadsBaseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}`
                                         : undefined
                                 "
                                 :label="

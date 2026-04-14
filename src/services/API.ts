@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 
 export const baseURL = import.meta.env.VITE_API_URL;
+export const uploadsBaseURL = import.meta.env.VITE_UPLOADS_API_URL ?? baseURL;
 
 import type { CreateUserDto, UpdateUserDto, User } from '../types/User';
 import type { AuthLoginDto, ChangePasswordDto } from '../types/Auth';

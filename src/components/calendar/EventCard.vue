@@ -3,7 +3,7 @@ import Avatar from 'primevue/avatar';
 import Badge from 'primevue/badge';
 import Chip from 'primevue/chip';
 import type { Event } from '../../types/Event';
-import { baseURL } from '../../services/API';
+import { uploadsBaseURL } from '../../services/API';
 import { useMagicCard } from '../../composables/useMagicCard';
 
 defineProps<{
@@ -39,7 +39,9 @@ const { cardRef, backgroundStyle } = useMagicCard({
             <template #icon>
                 <div class="z-10 ml-auto flex shrink-0 items-center gap-1">
                     <Avatar
-                        :image="event.host?.profilePicture ? `${baseURL}${event.host.profilePicture}` : undefined"
+                        :image="
+                            event.host?.profilePicture ? `${uploadsBaseURL}${event.host.profilePicture}` : undefined
+                        "
                         :icon="!event.host?.profilePicture ? 'pi pi-user' : undefined"
                         shape="circle"
                         size="small"

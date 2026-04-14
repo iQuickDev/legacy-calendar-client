@@ -8,7 +8,7 @@ import Avatar from 'primevue/avatar';
 import Card from 'primevue/card';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useToast } from 'primevue/usetoast';
-import { baseURL } from '../services/API';
+import { uploadsBaseURL } from '../services/API';
 import { onMounted } from 'vue';
 import { notificationStorage } from '../services/notificationStorage';
 import { NotificationLabel, type NotificationSettings } from '../types/Notification';
@@ -111,7 +111,7 @@ const handleDeletePicture = async () => {
                 @click="triggerUpload"
             >
                 <Avatar
-                    :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
+                    :image="currentUser?.profilePicture ? `${uploadsBaseURL}${currentUser.profilePicture}` : undefined"
                     :label="
                         !currentUser?.profilePicture
                             ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'

@@ -7,7 +7,7 @@ import DatePicker from 'primevue/datepicker';
 import MultiSelect from 'primevue/multiselect';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
-import ToggleSwitch from 'primevue/toggleswitch';
+import SelectButton from 'primevue/selectbutton';
 import InputNumber from 'primevue/inputnumber';
 import type { CreateEventDto, EventFeature } from '../../types/Event';
 import type { User } from '../../types/User';
@@ -38,8 +38,12 @@ const sessionStore = useSessionStore();
 const title = ref('');
 const description = ref('');
 const location = ref('');
-const isOpen = ref(true);
-const isPrivate = ref(false);
+const visibilityOptions = [
+    { label: 'Private', value: 'private', icon: 'pi pi-lock', color: 'text-red-500' },
+    { label: 'Standard', value: 'standard', icon: 'pi pi-users', color: 'text-zinc-500' },
+    { label: 'Open', value: 'open', icon: 'pi pi-globe', color: 'text-emerald-500' }
+];
+const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 
@@ -65,14 +69,6 @@ const toggleFeature = (feature: EventFeature) => {
     toggleFeatureInSelection(selectedFeatures.value, feature);
 };
 
-watch(isOpen, (newVal) => {
-    if (newVal) isPrivate.value = false;
-});
-
-watch(isPrivate, (newVal) => {
-    if (newVal) isOpen.value = false;
-});
-
 watch(
     () => props.visible,
     (newVal) => {
@@ -81,8 +77,7 @@ watch(
             description.value = '';
             location.value = '';
             selectedParticipants.value = [];
-            isOpen.value = true;
-            isPrivate.value = false;
+            eventVisibility.value = 'open';
             selectedFeatures.value = [];
             featurePrices.value = createNullFeatureRecord();
 
@@ -114,8 +109,8 @@ const onSave = () => {
         startTime: start.toISOString(),
         endTime: end ? end.toISOString() : undefined,
         participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
-        isOpen: isOpen.value,
-        isPrivate: isPrivate.value,
+        isOpen: eventVisibility.value === 'open',
+        isPrivate: eventVisibility.value === 'private',
         ...featureFlagsFromSelection(selectedFeatures.value),
         foodPrice: featurePrices.value.FOOD ?? undefined,
         weedPrice: featurePrices.value.WEED ?? undefined,
@@ -304,20 +299,31 @@ const onSave = () => {
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-between p-3">
-                <div class="flex flex-col gap-1">
-                    <label for="isOpen" class="cursor-pointer font-semibold">Open Event</label>
-                    <small class="text-surface-500">Anyone can see and join this event</small>
-                </div>
-                <ToggleSwitch id="isOpen" v-model="isOpen" />
-            </div>
-
-            <div class="flex items-center justify-between p-3">
-                <div class="flex flex-col gap-1">
-                    <label for="isPrivate" class="cursor-pointer font-semibold text-rose-500">Private Event</label>
-                    <small class="text-surface-500">Only invited participants can see this event</small>
-                </div>
-                <ToggleSwitch id="isPrivate" v-model="isPrivate" />
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold">Event Visibility</label>
+                <SelectButton
+                    v-model="eventVisibility"
+                    :options="visibilityOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :allowEmpty="false"
+                    class="mt-2"
+                    fluid
+                >
+                    <template #option="slotProps">
+                        <div class="flex items-center gap-2" :class="slotProps.option.color">
+                            <i :class="slotProps.option.icon"></i>
+                            <span>{{ slotProps.option.label }}</span>
+                        </div>
+                    </template>
+                </SelectButton>
+                <small class="text-surface-500">
+                    <template v-if="eventVisibility === 'open'">Anyone can see and join this event</template>
+                    <template v-else-if="eventVisibility === 'private'">
+                        Only invited participants can see this event
+                    </template>
+                    <template v-else>Only invited participants and their friends can see this event</template>
+                </small>
             </div>
         </div>
 

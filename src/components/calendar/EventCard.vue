@@ -39,6 +39,8 @@ cardRef;
                         :icon="!event.host?.profilePicture ? 'pi pi-user' : undefined" shape="circle" size="small"
                         class="w-6! h-6! text-[10px]! bg-surface-0/50 dark:bg-surface-900/50 backdrop-blur-sm shadow-sm" />
 
+                    <i v-if="event.isPrivate" class="pi pi-lock text-[10px] text-zinc-400 dark:text-zinc-500" title="Private Event"></i>
+
                     <Badge v-if="event.participants && event.participants.length > 0" :value="event.participants.length"
                         severity="contrast" class="min-w-4! h-4! text-[10px]! leading-3!" />
                 </div>

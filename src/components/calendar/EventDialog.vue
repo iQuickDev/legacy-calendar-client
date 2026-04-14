@@ -39,6 +39,7 @@ const title = ref('');
 const description = ref('');
 const location = ref('');
 const isOpen = ref(true);
+const isPrivate = ref(false);
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 
@@ -64,6 +65,14 @@ const toggleFeature = (feature: EventFeature) => {
     toggleFeatureInSelection(selectedFeatures.value, feature);
 };
 
+watch(isOpen, (newVal) => {
+    if (newVal) isPrivate.value = false;
+});
+
+watch(isPrivate, (newVal) => {
+    if (newVal) isOpen.value = false;
+});
+
 watch(() => props.visible, (newVal) => {
     if (newVal) {
         title.value = '';
@@ -71,6 +80,7 @@ watch(() => props.visible, (newVal) => {
         location.value = '';
         selectedParticipants.value = [];
         isOpen.value = true;
+        isPrivate.value = false;
         selectedFeatures.value = [];
         featurePrices.value = createNullFeatureRecord();
 
@@ -102,6 +112,7 @@ const onSave = () => {
         endTime: end ? end.toISOString() : undefined,
         participants: selectedParticipants.value.length > 0 ? selectedParticipants.value : undefined,
         isOpen: isOpen.value,
+        isPrivate: isPrivate.value,
         ...featureFlagsFromSelection(selectedFeatures.value),
         foodPrice: featurePrices.value.FOOD ?? undefined,
         weedPrice: featurePrices.value.WEED ?? undefined,
@@ -218,6 +229,14 @@ const onSave = () => {
                     <small class="text-surface-500">Anyone can see and join this event</small>
                 </div>
                 <ToggleSwitch id="isOpen" v-model="isOpen" />
+            </div>
+
+            <div class="flex items-center justify-between p-3">
+                <div class="flex flex-col gap-1">
+                    <label for="isPrivate" class="font-semibold cursor-pointer text-rose-500">Private Event</label>
+                    <small class="text-surface-500">Only invited participants can see this event</small>
+                </div>
+                <ToggleSwitch id="isPrivate" v-model="isPrivate" />
             </div>
         </div>
 

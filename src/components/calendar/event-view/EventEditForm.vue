@@ -36,6 +36,7 @@ const title = ref('');
 const description = ref('');
 const location = ref('');
 const isOpen = ref(true);
+const isPrivate = ref(false);
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 const startDateOnly = ref<Date | null>(null);
@@ -49,6 +50,7 @@ const initialize = () => {
     description.value = props.event.description || '';
     location.value = props.event.location || '';
     isOpen.value = props.event.isOpen;
+    isPrivate.value = props.event.isPrivate;
     selectedFeatures.value = selectedFeaturesFromEvent(props.event);
     featurePrices.value = featurePricesFromEvent(props.event);
 
@@ -67,6 +69,14 @@ const initialize = () => {
 
     selectedParticipants.value = props.event.participants?.map((participant) => participant.id) || [];
 };
+
+watch(isOpen, (newVal) => {
+    if (newVal) isPrivate.value = false;
+});
+
+watch(isPrivate, (newVal) => {
+    if (newVal) isOpen.value = false;
+});
 
 watch(() => props.event, initialize, { immediate: true });
 
@@ -90,6 +100,7 @@ const onSave = () => {
         endTime: end?.toISOString(),
         participants: selectedParticipants.value,
         isOpen: isOpen.value,
+        isPrivate: isPrivate.value,
         ...featureFlagsFromSelection(selectedFeatures.value),
         foodPrice: featurePrices.value.FOOD ?? undefined,
         weedPrice: featurePrices.value.WEED ?? undefined,
@@ -158,6 +169,14 @@ const onSave = () => {
                         <small class="text-zinc-400">Anyone can see and join this event</small>
                     </div>
                     <ToggleSwitch id="edit-isOpen" v-model="isOpen" />
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 mt-2">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-isPrivate" class="font-bold text-sm uppercase tracking-wider text-rose-500 cursor-pointer">Private Event</label>
+                        <small class="text-zinc-400">Only invited participants can see this event</small>
+                    </div>
+                    <ToggleSwitch id="edit-isPrivate" v-model="isPrivate" />
                 </div>
             </div>
 

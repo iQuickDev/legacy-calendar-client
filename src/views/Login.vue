@@ -62,7 +62,7 @@ const handleLogin = async () => {
             <div class="p-6 sm:p-8">
                 <div class="mb-8 text-center flex flex-col items-center">
                     <div class="w-14 h-14 bg-zinc-800/60 rounded-xl flex items-center justify-center mb-5 border border-zinc-700/50 shadow-sm">
-                        <i class="pi pi-calendar text-2xl text-emerald-400"></i>
+                        <i style="font-size: 1.5rem;" class="pi pi-calendar text-emerald-400"></i>
                     </div>
                     <h1 class="text-2xl font-bold tracking-tight text-white mb-2">Legacy Calendar</h1>
                     <p class="text-sm text-zinc-400">Sign in to your account</p>

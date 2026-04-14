@@ -62,7 +62,14 @@ const props = defineProps<{
     <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-3">
             <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <h2 class="text-xl sm:text-2xl font-bold m-0 uppercase flex-1">{{ event.title }}</h2>
+                <div class="flex flex-col gap-1 flex-1">
+                    <h2 class="text-xl sm:text-2xl font-bold m-0 uppercase">{{ event.title }}</h2>
+                    <div class="flex items-center gap-2">
+                        <Tag v-if="event.isOpen" severity="success" value="Open Event" icon="pi pi-globe" class="text-[10px]!" />
+                        <Tag v-else-if="event.isPrivate" severity="danger" value="Private Event" icon="pi pi-lock" class="text-[10px]!" />
+                        <Tag v-else severity="secondary" value="Standard Event" icon="pi pi-calendar" class="text-[10px]!" />
+                    </div>
+                </div>
                 <div v-if="eventTotalBudget > 0" class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-0 shrink-0 bg-emerald-500/5 sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border border-emerald-500/10 sm:border-none">
                     <span class="text-[10px] sm:text-xs text-zinc-500 font-bold uppercase tracking-wider">Total Expenses</span>
                     <span class="text-lg sm:text-xl font-black text-emerald-500">

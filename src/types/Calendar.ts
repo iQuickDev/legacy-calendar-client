@@ -6,4 +6,3 @@ export interface CalendarDay {
     isToday: boolean;
     events: Event[];
 }
-

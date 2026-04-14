@@ -24,7 +24,7 @@ import {
     getParticipantStatusSeverity,
     participantFeatures,
     selectedFeaturesFromEvent,
-    totalEventBudget,
+    totalEventBudget
 } from '../../utils/event';
 import type { CreateEventDto, ParticipateDto } from '../../types/Event';
 
@@ -71,7 +71,7 @@ const resolvedInvitees = computed(() => {
         return {
             ...participant,
             username: participant.username || user?.username || `User ${participant.id}`,
-            profilePicture: participant.profilePicture || user?.profilePicture,
+            profilePicture: participant.profilePicture || user?.profilePicture
         };
     });
 });
@@ -93,7 +93,7 @@ const canAccept = computed(() => {
     return canUserRespondToEvent({
         isHost: isHost.value,
         userParticipantStatus: userParticipantStatus.value,
-        isOpen: props.event.isOpen,
+        isOpen: props.event.isOpen
     });
 });
 
@@ -143,7 +143,10 @@ const confirmLeave = async () => {
     }
 };
 
-const handleFeatureConfirm = async (data: { features: EventFeature[]; vehicle: { hasVehicle: boolean; vehicleSeats: number } }) => {
+const handleFeatureConfirm = async (data: {
+    features: EventFeature[];
+    vehicle: { hasVehicle: boolean; vehicleSeats: number };
+}) => {
     showFeatureSelection.value = false;
     if (!props.event || !currentUser.value) return;
 
@@ -151,7 +154,7 @@ const handleFeatureConfirm = async (data: { features: EventFeature[]; vehicle: {
     try {
         const participateDto: ParticipateDto = {
             ...featureFlagsFromSelection(data.features),
-            ...data.vehicle,
+            ...data.vehicle
         };
 
         const success = await eventsStore.joinEvent(props.event.id, participateDto);
@@ -168,13 +171,15 @@ const getParticipantFeatures = (userId: number): EventFeature[] => {
 const featuresListColumns = FEATURES.map((feature) => ({
     field: feature.id,
     header: feature.label,
-    icon: feature.icon,
+    icon: feature.icon
 }));
 
 const availableFeatureIds = computed(() => selectedFeaturesFromEvent(props.event));
 
 const eventPrices = computed(() => featurePricesFromEvent(props.event));
-const eventSplitPrices = computed(() => createFeatureRecord((feature) => featureSplitPrice(props.event, resolvedInvitees.value, feature)));
+const eventSplitPrices = computed(() =>
+    createFeatureRecord((feature) => featureSplitPrice(props.event, resolvedInvitees.value, feature))
+);
 
 const hasFeature = (userId: number, feature: EventFeature) => getParticipantFeatures(userId).includes(feature);
 const getFeatureCount = (feature: EventFeature) => featureCount(resolvedInvitees.value, feature);
@@ -197,7 +202,9 @@ const drivers = computed(() => {
 
 const needsRide = computed(() => {
     if (!props.event?.participants) return [];
-    return resolvedInvitees.value.filter((participant) => participant.status === 'ACCEPTED' && !participant.hasVehicle && !participant.driverId);
+    return resolvedInvitees.value.filter(
+        (participant) => participant.status === 'ACCEPTED' && !participant.hasVehicle && !participant.driverId
+    );
 });
 
 const getAssignedPassengers = (driverId: number) => {
@@ -284,9 +291,12 @@ const formattedEnd = computed(() => {
     return format(parseISO(props.event.endTime), 'd MMMM yyyy HH:mm');
 });
 
-watch(() => props.visible, (isVisible) => {
-    if (isVisible) fetchUsers();
-});
+watch(
+    () => props.visible,
+    (isVisible) => {
+        if (isVisible) fetchUsers();
+    }
+);
 
 const onDelete = () => {
     if (!props.event) return;
@@ -313,9 +323,17 @@ const handleEditSave = async (dto: CreateEventDto) => {
 </script>
 
 <template>
-    <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Event Details"
-        :style="{ width: '1000px' }" :breakpoints="{ '960px': '85vw', '640px': '95vw' }" class="p-fluid" dismissableMask
-        :draggable="false">
+    <Dialog
+        :visible="visible"
+        @update:visible="emit('update:visible', $event)"
+        modal
+        header="Event Details"
+        :style="{ width: '1000px' }"
+        :breakpoints="{ '960px': '85vw', '640px': '95vw' }"
+        class="p-fluid"
+        dismissableMask
+        :draggable="false"
+    >
         <EventViewMode
             v-if="event && !isEditing"
             :event="event"
@@ -367,41 +385,77 @@ const handleEditSave = async (dto: CreateEventDto) => {
         />
 
         <template #footer>
-            <div class="flex justify-end w-full gap-2 pt-2">
+            <div class="flex w-full justify-end gap-2 pt-2">
                 <template v-if="!isEditing">
                     <template v-if="userParticipantStatus === 'ACCEPTED'">
-                        <Button label="Leave" icon="pi pi-times" severity="danger" text :loading="cancelling"
-                            @click="onCancelParticipation" />
-                        <Button label="Edit Participation" icon="pi pi-pencil" severity="secondary" @click="onEditParticipation" />
+                        <Button
+                            label="Leave"
+                            icon="pi pi-times"
+                            severity="danger"
+                            text
+                            :loading="cancelling"
+                            @click="onCancelParticipation"
+                        />
+                        <Button
+                            label="Edit Participation"
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            @click="onEditParticipation"
+                        />
                     </template>
                     <template v-else>
-                        <Button v-if="userParticipantStatus === 'PENDING'" label="Decline" icon="pi pi-times"
-                            severity="danger" text :loading="cancelling" @click="onDecline" />
-                        <Button v-if="canAccept" :label="(userParticipantStatus === 'ACCEPTED') ? 'Joined' : 'Join'"
-                            icon="pi pi-check" severity="success" :loading="joining"
-                            :disabled="userParticipantStatus === 'ACCEPTED'" @click="onAcceptClick" />
+                        <Button
+                            v-if="userParticipantStatus === 'PENDING'"
+                            label="Decline"
+                            icon="pi pi-times"
+                            severity="danger"
+                            text
+                            :loading="cancelling"
+                            @click="onDecline"
+                        />
+                        <Button
+                            v-if="canAccept"
+                            :label="userParticipantStatus === 'ACCEPTED' ? 'Joined' : 'Join'"
+                            icon="pi pi-check"
+                            severity="success"
+                            :loading="joining"
+                            :disabled="userParticipantStatus === 'ACCEPTED'"
+                            @click="onAcceptClick"
+                        />
                     </template>
                 </template>
             </div>
         </template>
     </Dialog>
 
-    <FeatureSelectionDialog v-model:visible="showFeatureSelection" :availableFeatures="availableFeatureIds"
+    <FeatureSelectionDialog
+        v-model:visible="showFeatureSelection"
+        :availableFeatures="availableFeatureIds"
         :initialFeatures="currentUser ? getParticipantFeatures(currentUser.id) : []"
-        :initialHasVehicle="props.event?.participants?.find(p => p.id === currentUser?.id)?.hasVehicle || false"
-        :initialVehicleSeats="props.event?.participants?.find(p => p.id === currentUser?.id)?.vehicleSeats || 0"
+        :initialHasVehicle="props.event?.participants?.find((p) => p.id === currentUser?.id)?.hasVehicle || false"
+        :initialVehicleSeats="props.event?.participants?.find((p) => p.id === currentUser?.id)?.vehicleSeats || 0"
         :submitLabel="userParticipantStatus === 'ACCEPTED' ? 'Save Changes' : 'Join Event'"
         :featurePrices="eventPrices"
         :featureSplitPrices="eventSplitPrices"
-        @confirm="handleFeatureConfirm" />
+        @confirm="handleFeatureConfirm"
+    />
 
-    <Dialog v-model:visible="showLeaveConfirmation" modal header="Confirm" :style="{ width: '350px' }"
-        :breakpoints="{ '640px': '90vw' }" dismissableMask :draggable="false">
+    <Dialog
+        v-model:visible="showLeaveConfirmation"
+        modal
+        header="Confirm"
+        :style="{ width: '350px' }"
+        :breakpoints="{ '640px': '90vw' }"
+        dismissableMask
+        :draggable="false"
+    >
         <div class="flex flex-col items-center gap-4 pt-2">
-            <p class="text-center m-0">Are you sure you want to leave this event? You will need to join again to participate.</p>
+            <p class="m-0 text-center">
+                Are you sure you want to leave this event? You will need to join again to participate.
+            </p>
         </div>
         <template #footer>
-            <div class="flex justify-end gap-2 w-full">
+            <div class="flex w-full justify-end gap-2">
                 <Button label="No" severity="secondary" text @click="showLeaveConfirmation = false" />
                 <Button label="Yes, Leave" severity="danger" @click="confirmLeave" />
             </div>

@@ -44,7 +44,7 @@ export function useMagicCard(options: MagicCardOptions = {}) {
     }
 
     const backgroundStyle = computed(() => ({
-        background: `radial-gradient(${size.value}px circle at ${mouseX.value}px ${mouseY.value}px, ${colorWithAlpha.value}, transparent 100%)`,
+        background: `radial-gradient(${size.value}px circle at ${mouseX.value}px ${mouseY.value}px, ${colorWithAlpha.value}, transparent 100%)`
     }));
 
     onMounted(() => {
@@ -66,6 +66,6 @@ export function useMagicCard(options: MagicCardOptions = {}) {
 
     return {
         cardRef,
-        backgroundStyle,
+        backgroundStyle
     };
 }

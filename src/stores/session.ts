@@ -1,86 +1,86 @@
-import { defineStore } from 'pinia'
-import type { Session } from '../types/Session'
-import { useAPIStore } from './api'
-import type { AuthLoginDto } from '../types/Auth'
+import { defineStore } from 'pinia';
+import type { Session } from '../types/Session';
+import { useAPIStore } from './api';
+import type { AuthLoginDto } from '../types/Auth';
 
 export const useSessionStore = defineStore('session', {
     state: () => ({
         session: {} as Session,
         bypassToken: null as string | null,
         loading: false,
-        error: null as string | null,
+        error: null as string | null
     }),
     getters: {
         isAuthenticated: (state) => !!state.session.token,
-        currentUser: (state) => state.session.user,
+        currentUser: (state) => state.session.user
     },
     actions: {
         save() {
-            localStorage.setItem('token', this.session.token)
+            localStorage.setItem('token', this.session.token);
             if (this.bypassToken) {
-                localStorage.setItem('bypass_token', this.bypassToken)
+                localStorage.setItem('bypass_token', this.bypassToken);
             }
         },
         setBypassToken(token: string) {
-            this.bypassToken = token
-            localStorage.setItem('bypass_token', token)
+            this.bypassToken = token;
+            localStorage.setItem('bypass_token', token);
         },
         clearBypassToken() {
-            this.bypassToken = null
-            localStorage.removeItem('bypass_token')
+            this.bypassToken = null;
+            localStorage.removeItem('bypass_token');
         },
         async login(credentials: AuthLoginDto) {
-            this.loading = true
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
-                const { client } = useAPIStore()
-                const loginResponse = await client.login(credentials)
-                const token = loginResponse.data.access_token
+                const { client } = useAPIStore();
+                const loginResponse = await client.login(credentials);
+                const token = loginResponse.data.access_token;
 
                 // Store token
-                localStorage.setItem('token', token)
-                this.session.token = token
+                localStorage.setItem('token', token);
+                this.session.token = token;
 
                 // Fetch user profile
-                const profileResponse = await client.getProfile()
-                this.session.user = profileResponse.data
+                const profileResponse = await client.getProfile();
+                this.session.user = profileResponse.data;
 
-                return true
+                return true;
             } catch (err: any) {
-                this.error = err.response?.data?.message || 'Login failed. Please check your credentials.'
-                localStorage.removeItem('token')
-                this.session = {} as Session
-                return false
+                this.error = err.response?.data?.message || 'Login failed. Please check your credentials.';
+                localStorage.removeItem('token');
+                this.session = {} as Session;
+                return false;
             } finally {
-                this.loading = false
+                this.loading = false;
             }
         },
         async load() {
-            const token = localStorage.getItem('token') ?? null
-            this.bypassToken = localStorage.getItem('bypass_token') ?? null
+            const token = localStorage.getItem('token') ?? null;
+            this.bypassToken = localStorage.getItem('bypass_token') ?? null;
 
             if (!token) {
-                return false
+                return false;
             }
-            this.loading = true
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
-                this.session.token = token
-                const { client } = useAPIStore()
-                const response = await client.getProfile()
+                this.session.token = token;
+                const { client } = useAPIStore();
+                const response = await client.getProfile();
                 this.session = {
                     token,
                     user: response.data
-                }
-                return true
-            } catch (err: any) {
+                };
+                return true;
+            } catch {
                 // Token is invalid or expired
-                this.error = 'Session expired. Please log in again.'
-                localStorage.removeItem('token')
-                this.session = {} as Session
-                return false
+                this.error = 'Session expired. Please log in again.';
+                localStorage.removeItem('token');
+                this.session = {} as Session;
+                return false;
             } finally {
-                this.loading = false
+                this.loading = false;
             }
         },
         async logout() {
@@ -95,13 +95,13 @@ export const useSessionStore = defineStore('session', {
                     localStorage.removeItem('fcm_token');
                 }
             }
-            this.session = {} as Session
-            this.bypassToken = null
-            localStorage.removeItem('token')
-            localStorage.removeItem('bypass_token')
+            this.session = {} as Session;
+            this.bypassToken = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('bypass_token');
         },
         clearError() {
-            this.error = null
+            this.error = null;
         },
         async updateProfile(updates: any) {
             if (this.session.user) {
@@ -157,4 +157,4 @@ export const useSessionStore = defineStore('session', {
             }
         }
     }
-})
+});

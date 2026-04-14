@@ -143,65 +143,94 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="admin-container p-4 md:p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
-        <div v-if="!isVerified" class="flex flex-col items-center justify-center min-h-[70vh]">
+    <div class="admin-container mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 md:p-8">
+        <div v-if="!isVerified" class="flex min-h-[70vh] flex-col items-center justify-center">
             <Card class="w-full max-w-sm border border-gray-500">
                 <template #title>
-                    <div class="flex flex-col items-center gap-6 mb-4 pt-4">
+                    <div class="mb-4 flex flex-col items-center gap-6 pt-4">
                         <div
-                            class="w-20 h-20 rounded-2xl bg-surface-900 border border-surface-800 flex items-center justify-center shadow-inner">
+                            class="bg-surface-900 border-surface-800 flex h-20 w-20 items-center justify-center rounded-2xl border shadow-inner"
+                        >
                             <i class="pi pi-shield text-primary" style="font-size: 2.5rem"></i>
                         </div>
-                        <h2 class="text-2xl font-bold text-center tracking-tight">
-                            Admin Dashboard
-                        </h2>
+                        <h2 class="text-center text-2xl font-bold tracking-tight">Admin Dashboard</h2>
                     </div>
                 </template>
                 <template #content>
                     <div class="flex flex-col gap-6">
-                        <p class="text-center text-sm">
-                            Here you can manage users
-                        </p>
+                        <p class="text-center text-sm">Here you can manage users</p>
                         <div class="flex flex-col gap-3">
-                            <Password v-model="bypassInput" placeholder="Password" :feedback="false" toggleMask fluid
+                            <Password
+                                v-model="bypassInput"
+                                placeholder="Password"
+                                :feedback="false"
+                                toggleMask
+                                fluid
                                 @keyup.enter="handleBypassSubmit"
-                                inputClass="!bg-surface-950 !border-surface-800 !py-3 w-full" />
-                            <Button label="Login" @click="handleBypassSubmit" :loading="loading"
-                                class="py-3! font-bold" />
+                                inputClass="!bg-surface-950 !border-surface-800 !py-3 w-full"
+                            />
+                            <Button
+                                label="Login"
+                                @click="handleBypassSubmit"
+                                :loading="loading"
+                                class="py-3! font-bold"
+                            />
                         </div>
                     </div>
                 </template>
             </Card>
         </div>
 
-        <div v-else class="flex flex-col gap-8 animate-in fade-in duration-500">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6">
+        <div v-else class="animate-in fade-in flex flex-col gap-8 duration-500">
+            <div class="flex flex-col items-start justify-between gap-6 pb-6 md:flex-row md:items-center">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-surface-0 mb-1">User Management</h1>
+                    <h1 class="text-surface-0 mb-1 text-3xl font-black tracking-tight">User Management</h1>
                     <p class="text-surface-400">Manage system users, access levels, and credentials.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <Button label="Logout" icon="pi pi-power-off" severity="danger"
-                        @click="isVerified = false; sessionStore.clearBypassToken()"
-                        class="text-surface-400! hover:text-danger-400! transition-colors" />
+                    <Button
+                        label="Logout"
+                        icon="pi pi-power-off"
+                        severity="danger"
+                        @click="
+                            isVerified = false;
+                            sessionStore.clearBypassToken();
+                        "
+                        class="text-surface-400! hover:text-danger-400! transition-colors"
+                    />
                     <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
                 </div>
             </div>
 
-            <div class="rounded-lg border border-gray-400 bg-surface-950/50 overflow-hidden shadow-sm">
-                <DataTable :value="users" :loading="loading" class="p-datatable-lg border-none"
-                    responsiveLayout="scroll" :pt="{
+            <div class="bg-surface-950/50 overflow-hidden rounded-lg border border-gray-400 shadow-sm">
+                <DataTable
+                    :value="users"
+                    :loading="loading"
+                    class="p-datatable-lg border-none"
+                    responsiveLayout="scroll"
+                    :pt="{
                         header: { class: '!bg-transparent !border-b !border-gray-600' },
                         bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
-                    }">
+                    }"
+                >
                     <Column field="id" header="ID" class="text-surface-500 w-24 font-mono"></Column>
                     <Column header="User" class="text-surface-0 font-semibold" sortable sortField="username">
                         <template #body="slotProps">
                             <div class="flex items-center gap-3">
-                                <Avatar :image="slotProps.data.profilePicture ? `${baseURL}${slotProps.data.profilePicture}` : undefined"
-                                    :label="!slotProps.data.profilePicture ? (slotProps.data.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
+                                <Avatar
+                                    :image="
+                                        slotProps.data.profilePicture
+                                            ? `${baseURL}${slotProps.data.profilePicture}`
+                                            : undefined
+                                    "
+                                    :label="
+                                        !slotProps.data.profilePicture
+                                            ? slotProps.data.username?.charAt(0)?.toUpperCase() || 'U'
+                                            : undefined
+                                    "
                                     shape="circle"
-                                    class="bg-primary text-primary-contrast" />
+                                    class="bg-primary text-primary-contrast"
+                                />
                                 <span>{{ slotProps.data.username }}</span>
                             </div>
                         </template>
@@ -209,17 +238,29 @@ onMounted(() => {
                     <Column header="Actions" class="w-32">
                         <template #body="slotProps">
                             <div class="flex items-center justify-end gap-1">
-                                <Button icon="pi pi-pencil" text rounded severity="secondary"
-                                    @click="editUser(slotProps.data)" v-tooltip.top="'Edit User'"
-                                    class="w-10! h-10! text-surface-400! hover:text-primary-400!" />
-                                <Button icon="pi pi-trash" text rounded severity="danger"
-                                    @click="deleteUser(slotProps.data.id)" v-tooltip.top="'Delete User'"
-                                    class="w-10! h-10! text-surface-500! hover:text-danger-500!" />
+                                <Button
+                                    icon="pi pi-pencil"
+                                    text
+                                    rounded
+                                    severity="secondary"
+                                    @click="editUser(slotProps.data)"
+                                    v-tooltip.top="'Edit User'"
+                                    class="text-surface-400! hover:text-primary-400! h-10! w-10!"
+                                />
+                                <Button
+                                    icon="pi pi-trash"
+                                    text
+                                    rounded
+                                    severity="danger"
+                                    @click="deleteUser(slotProps.data.id)"
+                                    v-tooltip.top="'Delete User'"
+                                    class="text-surface-500! hover:text-danger-500! h-10! w-10!"
+                                />
                             </div>
                         </template>
                     </Column>
                     <template #empty>
-                        <div class="flex flex-col items-center justify-center p-12 text-surface-500">
+                        <div class="text-surface-500 flex flex-col items-center justify-center p-12">
                             <i class="pi pi-users mb-4" style="font-size: 2rem"></i>
                             <p>No users found in the system registry.</p>
                         </div>
@@ -228,25 +269,44 @@ onMounted(() => {
             </div>
         </div>
 
-        <Dialog v-model:visible="showUserDialog" :header="isEditing ? 'Edit User' : 'Add User'"
-            :style="{ width: '400px' }" modal class="p-fluid">
+        <Dialog
+            v-model:visible="showUserDialog"
+            :header="isEditing ? 'Edit User' : 'Add User'"
+            :style="{ width: '400px' }"
+            modal
+            class="p-fluid"
+        >
             <div class="flex flex-col gap-4 pt-4">
                 <div class="flex flex-col gap-2">
-                    <label for="username" class="font-medium text-surface-300">Username</label>
-                    <InputText id="username" v-model="userForm.username" required autofocus placeholder="Enter username"
-                        class="bg-black! border-surface-800!" @keyup.enter="saveUser" />
+                    <label for="username" class="text-surface-300 font-medium">Username</label>
+                    <InputText
+                        id="username"
+                        v-model="userForm.username"
+                        required
+                        autofocus
+                        placeholder="Enter username"
+                        class="border-surface-800! bg-black!"
+                        @keyup.enter="saveUser"
+                    />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label for="password" class="font-medium text-surface-300">
+                    <label for="password" class="text-surface-300 font-medium">
                         {{ isEditing ? 'New Password' : 'Password' }}
                     </label>
-                    <Password id="password" v-model="userForm.password" :feedback="!isEditing" toggleMask
-                        placeholder="Enter password" inputClass="!bg-black !border-surface-800 w-full" fluid
-                        @keyup.enter="saveUser" />
+                    <Password
+                        id="password"
+                        v-model="userForm.password"
+                        :feedback="!isEditing"
+                        toggleMask
+                        placeholder="Enter password"
+                        inputClass="!bg-black !border-surface-800 w-full"
+                        fluid
+                        @keyup.enter="saveUser"
+                    />
                 </div>
             </div>
             <template #footer>
-                <div class="flex gap-2 justify-end">
+                <div class="flex justify-end gap-2">
                     <Button label="Cancel" text @click="showUserDialog = false" class="text-surface-400!" />
                     <Button label="Save" @click="saveUser" />
                 </div>

@@ -18,19 +18,20 @@ const dayName = computed(() => {
     return props.day.date.toLocaleDateString('en-US', { weekday: 'short' });
 });
 
-const spotlightColor = computed(() => props.day.isToday ? '#064e23' : '#262626');
+const spotlightColor = computed(() => (props.day.isToday ? '#064e23' : '#262626'));
 
-//@ts-expect-error
+//@ts-expect-error - useMagicCard is not typed
 const { cardRef, backgroundStyle } = useMagicCard({
     gradientSize: 250,
     gradientColor: () => spotlightColor.value,
-    gradientOpacity: 0.8,
+    gradientOpacity: 0.8
 });
 </script>
 
 <template>
-    <div ref="cardRef"
-        class="calendar-cell min-h-[60px] md:min-h-0 p-3 md:p-2 flex flex-row md:flex-col gap-3 md:gap-1 relative group cursor-pointer items-center md:items-stretch shrink-0 md:shrink"
+    <div
+        ref="cardRef"
+        class="calendar-cell group relative flex min-h-[60px] shrink-0 cursor-pointer flex-row items-center gap-3 p-3 md:min-h-0 md:shrink md:flex-col md:items-stretch md:gap-1 md:p-2"
         :class="[
             {
                 'cell-active': day.isCurrentMonth,
@@ -38,29 +39,32 @@ const { cardRef, backgroundStyle } = useMagicCard({
                 'cell-today': day.isToday,
                 'hidden md:flex': !day.isCurrentMonth
             }
-        ]" @click="$emit('add-event', day.date)">
-
+        ]"
+        @click="$emit('add-event', day.date)"
+    >
         <!-- Date Header -->
         <div
-            class="flex md:justify-between items-center mb-0 md:mb-1 shrink-0 w-12 md:w-auto flex-col md:flex-row gap-1">
+            class="mb-0 flex w-12 shrink-0 flex-col items-center gap-1 md:mb-1 md:w-auto md:flex-row md:justify-between"
+        >
             <!-- Mobile Day Name -->
-            <span class="text-[10px] uppercase text-surface-500 font-bold md:hidden">
+            <span class="text-surface-500 text-[10px] font-bold uppercase md:hidden">
                 {{ dayName }}
             </span>
 
             <span
-                class="day-number text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-all duration-300"
+                class="day-number flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-all duration-300"
                 :class="{
                     'today-badge': day.isToday,
                     'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
                     'text-surface-700': !day.isCurrentMonth
-                }">
+                }"
+            >
                 {{ day.date.getDate() }}
             </span>
         </div>
 
         <!-- Events List -->
-        <div class="flex flex-col gap-1 z-10 flex-1 w-full overflow-y-auto min-h-0 pr-1">
+        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-1">
             <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
         </div>
 

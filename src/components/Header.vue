@@ -32,33 +32,52 @@ const items = ref([
 <template>
     <Menubar :model="isAuthenticated ? items : []">
         <template #start>
-            <router-link :to="{ name: 'calendar' }" class="flex items-center no-underline text-inherit cursor-pointer">
-                <h1 class="text-lg md:text-2xl font-bold ml-2">Legacy Calendar</h1>
+            <router-link :to="{ name: 'calendar' }" class="flex cursor-pointer items-center text-inherit no-underline">
+                <h1 class="ml-2 text-lg font-bold md:text-2xl">Legacy Calendar</h1>
             </router-link>
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
             <a v-ripple class="flex items-center" v-bind="props.action">
                 <span>{{ item.label }}</span>
                 <Badge v-if="item.badge" :class="{ 'ml-auto': !root, 'ml-2': root }" :value="item.badge" />
-                <span v-if="item.shortcut"
-                    class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
-                        item.shortcut }}</span>
-                <i v-if="hasSubmenu"
-                    :class="['pi pi-angle-down ml-auto', { 'pi-angle-down': root, 'pi-angle-right': !root }]"></i>
+                <span
+                    v-if="item.shortcut"
+                    class="border-surface bg-emphasis text-muted-color ml-auto rounded border p-1 text-xs"
+                    >{{ item.shortcut }}</span
+                >
+                <i
+                    v-if="hasSubmenu"
+                    :class="['pi pi-angle-down ml-auto', { 'pi-angle-down': root, 'pi-angle-right': !root }]"
+                ></i>
             </a>
         </template>
         <template #end>
             <div v-if="isAuthenticated" class="flex items-center">
-                <router-link :to="{ name: 'profile' }"
-                    class="no-underline flex items-center gap-2 bg-zinc-900 px-2 py-1 rounded-full hover:bg-zinc-800 transition-all">
-                    <Avatar :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
-                        :label="!currentUser?.profilePicture ? (currentUser?.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
+                <router-link
+                    :to="{ name: 'profile' }"
+                    class="flex items-center gap-2 rounded-full bg-zinc-900 px-2 py-1 no-underline transition-all hover:bg-zinc-800"
+                >
+                    <Avatar
+                        :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
+                        :label="
+                            !currentUser?.profilePicture
+                                ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'
+                                : undefined
+                        "
                         shape="circle"
-                        class="bg-primary text-primary-contrast cursor-pointer hover:brightness-110 transition-all" />
+                        class="bg-primary text-primary-contrast cursor-pointer transition-all hover:brightness-110"
+                    />
                     <span>{{ currentUser?.username }}</span>
                 </router-link>
-                <Button icon="pi pi-sign-out" severity="secondary" text rounded aria-label="Logout"
-                    @click="handleLogout" v-tooltip.bottom="'Logout'" />
+                <Button
+                    icon="pi pi-sign-out"
+                    severity="secondary"
+                    text
+                    rounded
+                    aria-label="Logout"
+                    @click="handleLogout"
+                    v-tooltip.bottom="'Logout'"
+                />
             </div>
         </template>
     </Menubar>

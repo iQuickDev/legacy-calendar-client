@@ -36,8 +36,13 @@ const handleToggleSetting = async () => {
         try {
             await notificationStorage.saveSettings(toRaw(notificationSettings.value));
         } catch (error) {
-            console.error(error)
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save notification settings', life: 3000 });
+            console.error(error);
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to save notification settings',
+                life: 3000
+            });
         }
     }
 };
@@ -68,7 +73,7 @@ const handlePasswordChange = async () => {
         currentPassword.value = '';
         newPassword.value = '';
         confirmPassword.value = '';
-    } catch (error) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to change password', life: 3000 });
     } finally {
         passwordLoading.value = false;
@@ -80,7 +85,7 @@ const onUpload = async (event: any) => {
         const file = event.files[0];
         await sessionStore.uploadProfilePicture(file);
         toast.add({ severity: 'success', summary: 'Success', detail: 'Profile picture updated', life: 3000 });
-    } catch (error) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload profile picture', life: 3000 });
     }
 };
@@ -89,49 +94,78 @@ const handleDeletePicture = async () => {
     try {
         await sessionStore.removeProfilePicture();
         toast.add({ severity: 'success', summary: 'Success', detail: 'Profile picture removed', life: 3000 });
-    } catch (error) {
+    } catch {
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to remove profile picture', life: 3000 });
     }
 };
-
 </script>
 
 <template>
-    <div class="p-6 max-w-2xl mx-auto">
+    <div class="mx-auto max-w-2xl p-6">
         <!-- Header Section -->
-        <div class="flex flex-col items-center mb-4">
-            <h1 class="text-4xl font-black tracking-tight mb-4">User Profile</h1>
+        <div class="mb-4 flex flex-col items-center">
+            <h1 class="mb-4 text-4xl font-black tracking-tight">User Profile</h1>
 
-            <div class="relative group cursor-pointer lg:hover:scale-105 transition-transform duration-300"
-                @click="triggerUpload">
-                <Avatar :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
-                    :label="!currentUser?.profilePicture ? (currentUser?.username?.charAt(0)?.toUpperCase() || 'U') : undefined"
+            <div
+                class="group relative cursor-pointer transition-transform duration-300 lg:hover:scale-105"
+                @click="triggerUpload"
+            >
+                <Avatar
+                    :image="currentUser?.profilePicture ? `${baseURL}${currentUser.profilePicture}` : undefined"
+                    :label="
+                        !currentUser?.profilePicture
+                            ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'
+                            : undefined
+                    "
                     class="bg-primary text-primary-contrast border-4 border-zinc-800 shadow-2xl"
-                    :style="{ width: '100px', height: '100px', fontSize: '3rem' }" shape="circle" />
+                    :style="{ width: '100px', height: '100px', fontSize: '3rem' }"
+                    shape="circle"
+                />
                 <div
-                    class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    class="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                >
                     <div class="flex flex-col items-center gap-1 p-2 text-center">
-                        <i class="pi pi-camera text-white text-xl"></i>
-                        <span class="text-white text-[10px] font-bold uppercase leading-tight">Change<br>Picture</span>
+                        <i class="pi pi-camera text-xl text-white"></i>
+                        <span class="text-[10px] leading-tight font-bold text-white uppercase"
+                            >Change<br />Picture</span
+                        >
                     </div>
                 </div>
             </div>
 
             <div class="mt-6 text-center">
                 <h2 class="text-2xl font-bold">{{ currentUser?.username }}</h2>
-                <div class="flex flex-col gap-2 mt-2 mb-2">
-                    <FileUpload ref="fileUpload" mode="basic" name="file" :customUpload="true" @uploader="onUpload"
-                        accept="image/*" :maxFileSize="10000000" :auto="true" style="display: none" />
-                    <Button v-if="currentUser?.profilePicture" label="Remove Profile Picture" icon="pi pi-trash"
-                        severity="danger" text @click="handleDeletePicture"
-                        class="p-button-sm opacity-60 hover:opacity-100 transition-opacity" />
+                <div class="mt-2 mb-2 flex flex-col gap-2">
+                    <FileUpload
+                        ref="fileUpload"
+                        mode="basic"
+                        name="file"
+                        :customUpload="true"
+                        @uploader="onUpload"
+                        accept="image/*"
+                        :maxFileSize="10000000"
+                        :auto="true"
+                        style="display: none"
+                    />
+                    <Button
+                        v-if="currentUser?.profilePicture"
+                        label="Remove Profile Picture"
+                        icon="pi pi-trash"
+                        severity="danger"
+                        text
+                        @click="handleDeletePicture"
+                        class="p-button-sm opacity-60 transition-opacity hover:opacity-100"
+                    />
                 </div>
             </div>
         </div>
 
         <div class="space-y-8">
             <!-- Information Section -->
-            <Card class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
+            <Card
+                class="border border-zinc-800/50 bg-zinc-950/40 shadow-2xl backdrop-blur-xl"
+                style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)"
+            >
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-user text-primary"></i>
@@ -141,10 +175,11 @@ const handleDeletePicture = async () => {
                 <template #content>
                     <div class="grid grid-cols-1 gap-6 pt-2">
                         <div class="flex flex-col gap-2">
-                            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Username</label>
+                            <label class="text-xs font-bold tracking-widest text-zinc-500 uppercase">Username</label>
                             <div
-                                class="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg text-lg">
-                                <i class="pi pi-at text-zinc-500 text-sm"></i>
+                                class="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-lg"
+                            >
+                                <i class="pi pi-at text-sm text-zinc-500"></i>
                                 <span>{{ currentUser?.username }}</span>
                             </div>
                         </div>
@@ -153,7 +188,10 @@ const handleDeletePicture = async () => {
             </Card>
 
             <!-- Security Section -->
-            <Card class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
+            <Card
+                class="border border-zinc-800/50 bg-zinc-950/40 shadow-2xl backdrop-blur-xl"
+                style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)"
+            >
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-lock text-primary"></i>
@@ -163,44 +201,79 @@ const handleDeletePicture = async () => {
                 <template #content>
                     <form @submit.prevent="handlePasswordChange" class="flex flex-col gap-6 pt-2">
                         <div class="flex flex-col gap-1.5">
-                            <label for="current-password"
-                                class="text-xs font-bold uppercase tracking-widest text-zinc-500">Current
-                                Password</label>
-                            <Password id="current-password" v-model="currentPassword" toggleMask :feedback="false"
-                                class="w-full" inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
-                                placeholder="••••••••" :inputProps="{ autocomplete: 'current-password' }" />
+                            <label
+                                for="current-password"
+                                class="text-xs font-bold tracking-widest text-zinc-500 uppercase"
+                                >Current Password</label
+                            >
+                            <Password
+                                id="current-password"
+                                v-model="currentPassword"
+                                toggleMask
+                                :feedback="false"
+                                class="w-full"
+                                inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
+                                placeholder="••••••••"
+                                :inputProps="{ autocomplete: 'current-password' }"
+                            />
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div class="flex flex-col gap-1.5">
-                                <label for="new-password"
-                                    class="text-xs font-bold uppercase tracking-widest text-zinc-500">New
-                                    Password</label>
-                                <Password id="new-password" v-model="newPassword" toggleMask class="w-full"
-                                    inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800" placeholder="••••••••" 
-                                    :inputProps="{ autocomplete: 'new-password' }" />
+                                <label
+                                    for="new-password"
+                                    class="text-xs font-bold tracking-widest text-zinc-500 uppercase"
+                                    >New Password</label
+                                >
+                                <Password
+                                    id="new-password"
+                                    v-model="newPassword"
+                                    toggleMask
+                                    class="w-full"
+                                    inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
+                                    placeholder="••••••••"
+                                    :inputProps="{ autocomplete: 'new-password' }"
+                                />
                             </div>
 
                             <div class="flex flex-col gap-1.5">
-                                <label for="confirm-password"
-                                    class="text-xs font-bold uppercase tracking-widest text-zinc-500">Confirm
-                                    Password</label>
-                                <Password id="confirm-password" v-model="confirmPassword" toggleMask :feedback="false"
-                                    class="w-full" inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
-                                    placeholder="••••••••" :inputProps="{ autocomplete: 'new-password' }" />
+                                <label
+                                    for="confirm-password"
+                                    class="text-xs font-bold tracking-widest text-zinc-500 uppercase"
+                                    >Confirm Password</label
+                                >
+                                <Password
+                                    id="confirm-password"
+                                    v-model="confirmPassword"
+                                    toggleMask
+                                    :feedback="false"
+                                    class="w-full"
+                                    inputClass="w-full p-3 bg-zinc-900/50 border-zinc-800"
+                                    placeholder="••••••••"
+                                    :inputProps="{ autocomplete: 'new-password' }"
+                                />
                             </div>
                         </div>
 
                         <div class="pt-2">
-                            <Button type="submit" label="Update Password" icon="pi pi-shield" :loading="passwordLoading"
-                                class="w-full py-3 font-bold" />
+                            <Button
+                                type="submit"
+                                label="Update Password"
+                                icon="pi pi-shield"
+                                :loading="passwordLoading"
+                                class="w-full py-3 font-bold"
+                            />
                         </div>
                     </form>
                 </template>
             </Card>
 
             <!-- Notification Preferences Section -->
-            <Card v-if="notificationSettings" class="border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl shadow-2xl" style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)">
+            <Card
+                v-if="notificationSettings"
+                class="border border-zinc-800/50 bg-zinc-950/40 shadow-2xl backdrop-blur-xl"
+                style="background: linear-gradient(145deg, rgba(9, 9, 11, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%)"
+            >
                 <template #title>
                     <div class="flex items-center gap-2 text-xl font-bold">
                         <i class="pi pi-bell text-primary"></i>
@@ -209,15 +282,21 @@ const handleDeletePicture = async () => {
                 </template>
                 <template #content>
                     <div class="flex flex-col gap-4 pt-2">
-                        <p class="text-sm text-zinc-400 mb-2">
-                            Choose which notifications you would like to receive. These filters are applied locally on this device.
+                        <p class="mb-2 text-sm text-zinc-400">
+                            Choose which notifications you would like to receive. These filters are applied locally on
+                            this device.
                         </p>
-                        
-                        <div v-for="(label, code) in NotificationLabel" :key="code" 
-                            class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800/50 rounded-xl hover:bg-zinc-900/50 transition-colors">
+
+                        <div
+                            v-for="(label, code) in NotificationLabel"
+                            :key="code"
+                            class="flex items-center justify-between rounded-xl border border-zinc-800/50 bg-zinc-900/30 p-4 transition-colors hover:bg-zinc-900/50"
+                        >
                             <div class="flex flex-col gap-0.5">
                                 <span class="font-medium">{{ label }}</span>
-                                <span class="text-xs text-zinc-500 font-mono uppercase tracking-tighter opacity-70">{{ code }}</span>
+                                <span class="font-mono text-xs tracking-tighter text-zinc-500 uppercase opacity-70">{{
+                                    code
+                                }}</span>
                             </div>
                             <ToggleSwitch v-model="notificationSettings[code]" @change="handleToggleSetting" />
                         </div>

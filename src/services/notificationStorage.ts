@@ -30,7 +30,7 @@ export const notificationStorage = {
             [NotificationCode.PARTICIPATION_ACCEPTED]: true,
             [NotificationCode.PARTICIPATION_UPDATED]: true,
             [NotificationCode.PARTICIPATION_CANCELLED]: true,
-            [NotificationCode.PARTICIPANT_JOINED]: true,
+            [NotificationCode.PARTICIPANT_JOINED]: true
         };
 
         try {

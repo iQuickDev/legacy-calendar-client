@@ -11,7 +11,8 @@ import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import type { Event, CreateEventDto } from '../types/Event';
 
 const toast = useToast();
-const { currentDate, days, events, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } = useCalendar();
+const { currentDate, days, events, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } =
+    useCalendar();
 
 const showDialog = ref(false);
 const selectedDate = ref(new Date());
@@ -59,7 +60,7 @@ const selectedEventId = ref<number | null>(null);
 
 const selectedEvent = computed(() => {
     if (selectedEventId.value === null) return null;
-    return events.value.find(e => e.id === selectedEventId.value) || null;
+    return events.value.find((e) => e.id === selectedEventId.value) || null;
 });
 
 const openViewEvent = (event: Event) => {
@@ -91,52 +92,87 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 </script>
 
 <template>
-    <div class="calendar-container flex flex-col p-4 md:px-6 md:py-4 gap-3 md:gap-4 w-full">
+    <div class="calendar-container flex w-full flex-col gap-3 p-4 md:gap-4 md:px-6 md:py-4">
         <!-- Loading Overlay -->
-        <div v-if="loading && !isSaving" class="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div v-if="loading && !isSaving" class="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
             <ProgressSpinner />
         </div>
 
         <!-- Header -->
         <div class="flex flex-row items-center justify-between gap-2">
             <div class="flex items-center gap-1 sm:gap-2">
-                <Button icon="pi pi-chevron-left" @click="prevMonth" text rounded aria-label="Previous Month"
-                    class="p-1! sm:p-2!" />
-                <Button icon="pi pi-chevron-right" @click="nextMonth" text rounded aria-label="Next Month"
-                    class="p-1! sm:p-2!" />
+                <Button
+                    icon="pi pi-chevron-left"
+                    @click="prevMonth"
+                    text
+                    rounded
+                    aria-label="Previous Month"
+                    class="p-1! sm:p-2!"
+                />
+                <Button
+                    icon="pi pi-chevron-right"
+                    @click="nextMonth"
+                    text
+                    rounded
+                    aria-label="Next Month"
+                    class="p-1! sm:p-2!"
+                />
             </div>
             <h1
-                class="text-lg sm:text-2xl md:text-3xl font-bold text-surface-900 dark:text-surface-0 whitespace-nowrap">
+                class="text-surface-900 dark:text-surface-0 text-lg font-bold whitespace-nowrap sm:text-2xl md:text-3xl"
+            >
                 {{ format(currentDate, 'MMMM yyyy') }}
             </h1>
-            <Button label="Today" @click="currentDate = new Date()" outlined size="small"
-                class="text-xs! sm:text-sm!" />
+            <Button
+                label="Today"
+                @click="currentDate = new Date()"
+                outlined
+                size="small"
+                class="text-xs! sm:text-sm!"
+            />
         </div>
 
         <!-- Calendar Grid -->
-        <div class="calendar-grid flex-1 overflow-hidden md:overflow-hidden flex flex-col">
+        <div class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden">
             <!-- Weekday Headers (Hidden on Mobile) -->
-            <div class="hidden md:grid grid-cols-7">
-                <div v-for="day in weekDays" :key="day"
-                    class="weekday-header p-3 text-sm font-medium text-center text-surface-500 uppercase tracking-wider">
+            <div class="hidden grid-cols-7 md:grid">
+                <div
+                    v-for="day in weekDays"
+                    :key="day"
+                    class="weekday-header text-surface-500 p-3 text-center text-sm font-medium tracking-wider uppercase"
+                >
                     {{ day }}
                 </div>
             </div>
 
             <!-- Days Grid -->
             <div class="days-grid flex-1">
-                <CalendarCell v-for="day in days" :key="day.date.toISOString()" :day="day" @add-event="openAddEvent"
-                    @view-event="openViewEvent" />
+                <CalendarCell
+                    v-for="day in days"
+                    :key="day.date.toISOString()"
+                    :day="day"
+                    @add-event="openAddEvent"
+                    @view-event="openViewEvent"
+                />
             </div>
         </div>
 
         <!-- Event Dialog -->
-        <EventDialog v-model:visible="showDialog" :initial-date="selectedDate" @save="handleSaveEvent"
-            :loading="isSaving" />
+        <EventDialog
+            v-model:visible="showDialog"
+            :initial-date="selectedDate"
+            @save="handleSaveEvent"
+            :loading="isSaving"
+        />
 
         <!-- Event View Dialog -->
-        <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent"
-            @joined="showViewDialog = false" @refresh="fetchEvents" />
+        <EventViewDialog
+            v-model:visible="showViewDialog"
+            :event="selectedEvent"
+            @delete="handleDeleteEvent"
+            @joined="showViewDialog = false"
+            @refresh="fetchEvents"
+        />
     </div>
 </template>
 

@@ -20,10 +20,10 @@ export interface CreateEventDto {
 }
 
 export const EVENT_FEATURES = ['FOOD', 'WEED', 'ALCOHOL', 'SLEEP', 'BEER'] as const;
-export type EventFeature = typeof EVENT_FEATURES[number];
+export type EventFeature = (typeof EVENT_FEATURES)[number];
 
 export const PARTICIPANT_STATUSES = ['ACCEPTED', 'DECLINED', 'PENDING'] as const;
-export type ParticipantStatus = typeof PARTICIPANT_STATUSES[number];
+export type ParticipantStatus = (typeof PARTICIPANT_STATUSES)[number];
 
 export interface EventPersonSummary {
     id: number;
@@ -80,4 +80,3 @@ export interface ParticipateDto {
     vehicleType?: string;
     vehicleSeats?: number;
 }
-

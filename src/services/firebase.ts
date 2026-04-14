@@ -1,16 +1,16 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import API from "./API";
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import API from './API';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCzD5NBdz225UzdI535-8PSVmK5ZFJNusM",
-    authDomain: "legacy-calendar-2cd17.firebaseapp.com",
-    projectId: "legacy-calendar-2cd17",
-    storageBucket: "legacy-calendar-2cd17.firebasestorage.app",
-    messagingSenderId: "226334477513",
-    appId: "1:226334477513:web:f6af99c44e7d874889d118",
-    measurementId: "G-E7T9QQW8ME"
+    apiKey: 'AIzaSyCzD5NBdz225UzdI535-8PSVmK5ZFJNusM',
+    authDomain: 'legacy-calendar-2cd17.firebaseapp.com',
+    projectId: 'legacy-calendar-2cd17',
+    storageBucket: 'legacy-calendar-2cd17.firebasestorage.app',
+    messagingSenderId: '226334477513',
+    appId: '1:226334477513:web:f6af99c44e7d874889d118',
+    measurementId: 'G-E7T9QQW8ME'
 };
 
 // Initialize Firebase
@@ -28,7 +28,7 @@ export const requestNotificationPermission = async () => {
 
             // Wait for the service worker to be ready
             const registration = await navigator.serviceWorker.ready;
-            
+
             // Get FCM Token
             const token = await getToken(messaging, {
                 vapidKey: 'BEbk5NqQ1cDk8sl8PQuudXigNlm7RVm7yNGL_D3-OyfZPu188-25jmFZrR30blUvRjdkp3s4oOHIlee_b6nSY1E',

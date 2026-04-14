@@ -1,112 +1,112 @@
 @import 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap';
-@import "primeicons/primeicons.css";
-@import "tailwindcss";
+@import 'primeicons/primeicons.css';
+@import 'tailwindcss';
 
 :root {
-  font-family: 'Inter', sans-serif;
-  color: #ffffff;
-  background-color: #000000;
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
+    background-color: #000000;
 }
 
 .p-menubar {
-  border: none !important;
-  background: #000000 !important;
+    border: none !important;
+    background: #000000 !important;
 }
 
 .p-toast {
-  opacity: 0.95;
+    opacity: 0.95;
 }
 
 .p-toast-message {
-  background: #0a0a0a !important;
-  border: 1px solid #262626 !important;
-  border-left: 4px solid var(--p-primary-color) !important;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(8px);
+    background: #0a0a0a !important;
+    border: 1px solid #262626 !important;
+    border-left: 4px solid var(--p-primary-color) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(8px);
 }
 
 .p-toast-message-content {
-  padding: 1rem !important;
+    padding: 1rem !important;
 }
 
 .p-toast-summary {
-  font-weight: 700 !important;
-  color: #ffffff !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
 }
 
 .p-toast-detail {
-  color: #a3a3a3 !important;
-  font-size: 0.875rem !important;
+    color: #a3a3a3 !important;
+    font-size: 0.875rem !important;
 }
 
 .p-toast-icon-wrapper {
-  color: var(--p-primary-color) !important;
+    color: var(--p-primary-color) !important;
 }
 
 .p-toast-message-icon {
-  font-size: 1.25rem !important;
+    font-size: 1.25rem !important;
 }
 
 /* Status Specific Borders */
 .p-toast-message-success {
-  border-left-color: #10b981 !important;
+    border-left-color: #10b981 !important;
 }
 
 .p-toast-message-info {
-  border-left-color: #3b82f6 !important;
+    border-left-color: #3b82f6 !important;
 }
 
 .p-toast-message-warn {
-  border-left-color: #f59e0b !important;
+    border-left-color: #f59e0b !important;
 }
 
 .p-toast-message-error {
-  border-left-color: #ef4444 !important;
+    border-left-color: #ef4444 !important;
 }
 
 /* Animation tweaks */
 .p-toast-message-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
+    transform: translateX(100%);
+    opacity: 0;
 }
 
 @media screen and (max-width: 640px) {
-  .p-toast {
-    width: calc(100% - 2rem) !important;
-    left: 1rem !important;
-    right: 1rem !important;
-    top: 1rem !important;
-  }
+    .p-toast {
+        width: calc(100% - 2rem) !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        top: 1rem !important;
+    }
 
-  .p-toast-message-enter-from {
-    transform: translateY(-100%) !important;
-    opacity: 0 !important;
-  }
+    .p-toast-message-enter-from {
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+    }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+    width: 10px;
+    height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #262626;
-  border-radius: 20px;
-  border: 3px solid transparent;
-  background-clip: content-box;
+    background: #262626;
+    border-radius: 20px;
+    border: 3px solid transparent;
+    background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+    background: #404040;
 }
 
 /* Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: #262626 transparent;
+    scrollbar-width: thin;
+    scrollbar-color: #262626 transparent;
 }

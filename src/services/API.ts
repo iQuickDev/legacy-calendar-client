@@ -1,6 +1,6 @@
-import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
 
-export const baseURL = import.meta.env.VITE_API_URL
+export const baseURL = import.meta.env.VITE_API_URL;
 
 import type { CreateUserDto, UpdateUserDto, User } from '../types/User';
 import type { AuthLoginDto, ChangePasswordDto } from '../types/Auth';
@@ -15,8 +15,8 @@ class API {
         this.client = axios.create({
             baseURL: baseURL,
             headers: {
-                'Content-Type': 'application/json',
-            },
+                'Content-Type': 'application/json'
+            }
         });
 
         this.client.interceptors.request.use(
@@ -140,8 +140,8 @@ class API {
         formData.append('file', file);
         return this.client.post('/users/profile-picture', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+                'Content-Type': 'multipart/form-data'
+            }
         });
     }
 

@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
-import { useAPIStore } from './api'
-import type { CreateEventDto, Event, ParticipateDto } from '../types/Event'
+import { defineStore } from 'pinia';
+import { useAPIStore } from './api';
+import type { CreateEventDto, Event, ParticipateDto } from '../types/Event';
 
 export interface EventsState {
     events: Event[];
@@ -30,7 +30,7 @@ export const useEventsStore = defineStore('events', {
     state: (): EventsState => ({
         events: [],
         loading: false,
-        error: null,
+        error: null
     }),
 
     getters: {
@@ -48,7 +48,7 @@ export const useEventsStore = defineStore('events', {
         },
         getEventById: (state) => {
             return (id: number) => state.events.find((event) => event.id === id);
-        },
+        }
     },
 
     actions: {
@@ -124,6 +124,6 @@ export const useEventsStore = defineStore('events', {
 
         clearError() {
             this.error = null;
-        },
-    },
+        }
+    }
 });

@@ -32,8 +32,8 @@ export function useCalendar() {
 
         const dates = eachDayOfInterval({ start: startDate, end: endDate });
 
-        return dates.map(date => {
-            const dayEvents = events.value.filter(e => {
+        return dates.map((date) => {
+            const dayEvents = events.value.filter((e) => {
                 const eventDate = parseISO(e.startTime);
                 return isSameDay(eventDate, date);
             });
@@ -82,7 +82,6 @@ export function useCalendar() {
         fetchEvents,
         addEvent,
         deleteEvent,
-        joinEvent,
+        joinEvent
     };
 }
-

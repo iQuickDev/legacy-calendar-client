@@ -19,7 +19,7 @@ import {
     combineDateAndTime,
     createNullFeatureRecord,
     featureFlagsFromSelection,
-    toggleFeature as toggleFeatureInSelection,
+    toggleFeature as toggleFeatureInSelection
 } from '../../utils/event';
 
 const props = defineProps<{
@@ -55,7 +55,7 @@ const allParticipants = ref<User[]>([]);
 const fetchUsers = async () => {
     try {
         const response = await useAPIStore().client.findAllUsers();
-        allParticipants.value = response.data.filter(user => user.id !== sessionStore.currentUser?.id);
+        allParticipants.value = response.data.filter((user) => user.id !== sessionStore.currentUser?.id);
     } catch (error) {
         console.error('Failed to fetch users:', error);
     }
@@ -73,26 +73,29 @@ watch(isPrivate, (newVal) => {
     if (newVal) isOpen.value = false;
 });
 
-watch(() => props.visible, (newVal) => {
-    if (newVal) {
-        title.value = '';
-        description.value = '';
-        location.value = '';
-        selectedParticipants.value = [];
-        isOpen.value = true;
-        isPrivate.value = false;
-        selectedFeatures.value = [];
-        featurePrices.value = createNullFeatureRecord();
+watch(
+    () => props.visible,
+    (newVal) => {
+        if (newVal) {
+            title.value = '';
+            description.value = '';
+            location.value = '';
+            selectedParticipants.value = [];
+            isOpen.value = true;
+            isPrivate.value = false;
+            selectedFeatures.value = [];
+            featurePrices.value = createNullFeatureRecord();
 
-        startDateOnly.value = new Date(props.initialDate);
-        startTimeOnly.value = new Date(props.initialDate);
+            startDateOnly.value = new Date(props.initialDate);
+            startTimeOnly.value = new Date(props.initialDate);
 
-        endDateOnly.value = null;
-        endTimeOnly.value = null;
+            endDateOnly.value = null;
+            endTimeOnly.value = null;
 
-        fetchUsers();
+            fetchUsers();
+        }
     }
-});
+);
 
 const onSave = () => {
     if (!title.value || !startDateOnly.value || !startTimeOnly.value) return;
@@ -118,15 +121,23 @@ const onSave = () => {
         weedPrice: featurePrices.value.WEED ?? undefined,
         sleepPrice: featurePrices.value.SLEEP ?? undefined,
         alcoholPrice: featurePrices.value.ALCOHOL ?? undefined,
-        beerPrice: featurePrices.value.BEER ?? undefined,
+        beerPrice: featurePrices.value.BEER ?? undefined
     });
 };
 </script>
 
 <template>
-    <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal header="Add New Event"
-        :style="{ width: '500px' }" :breakpoints="{ '640px': '95vw' }" class="p-fluid" dismissableMask
-        :draggable="false">
+    <Dialog
+        :visible="visible"
+        @update:visible="emit('update:visible', $event)"
+        modal
+        header="Add New Event"
+        :style="{ width: '500px' }"
+        :breakpoints="{ '640px': '95vw' }"
+        class="p-fluid"
+        dismissableMask
+        :draggable="false"
+    >
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
                 <label for="title" class="font-semibold">Title</label>
@@ -161,62 +172,132 @@ const onSave = () => {
 
             <div class="flex flex-col gap-2">
                 <label for="participants" class="font-semibold">Participants</label>
-                <MultiSelect id="participants" v-model="selectedParticipants" :options="allParticipants"
-                    optionLabel="username" optionValue="id" placeholder="Select Participants" display="chip" filter
-                    class="w-full">
+                <MultiSelect
+                    id="participants"
+                    v-model="selectedParticipants"
+                    :options="allParticipants"
+                    optionLabel="username"
+                    optionValue="id"
+                    placeholder="Select Participants"
+                    display="chip"
+                    filter
+                    class="w-full"
+                >
                     <template #option="slotProps">
                         <div class="flex items-center gap-2">
                             <Avatar
-                                :image="slotProps.option.profilePicture ? `${baseURL}${slotProps.option.profilePicture}` : undefined"
-                                :label="!slotProps.option.profilePicture ? slotProps.option.username.charAt(0) : undefined"
-                                shape="circle" size="small" />
+                                :image="
+                                    slotProps.option.profilePicture
+                                        ? `${baseURL}${slotProps.option.profilePicture}`
+                                        : undefined
+                                "
+                                :label="
+                                    !slotProps.option.profilePicture ? slotProps.option.username.charAt(0) : undefined
+                                "
+                                shape="circle"
+                                size="small"
+                            />
                             <span>{{ slotProps.option.username }}</span>
                         </div>
                     </template>
                     <template #chip="slotProps">
                         <div class="flex items-center gap-1 px-1">
                             <Avatar
-                                :image="allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? `${baseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}` : undefined"
-                                :label="!allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture ? allParticipants.find((p: User) => p.id === slotProps.value)?.username.charAt(0) : undefined"
-                                shape="circle" class="w-4! h-4! text-[10px]!" />
-                            <span>{{allParticipants.find((p: User) => p.id === slotProps.value)?.username}}</span>
+                                :image="
+                                    allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture
+                                        ? `${baseURL}${allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture}`
+                                        : undefined
+                                "
+                                :label="
+                                    !allParticipants.find((p: User) => p.id === slotProps.value)?.profilePicture
+                                        ? allParticipants
+                                              .find((p: User) => p.id === slotProps.value)
+                                              ?.username.charAt(0)
+                                        : undefined
+                                "
+                                shape="circle"
+                                class="h-4! w-4! text-[10px]!"
+                            />
+                            <span>{{ allParticipants.find((p: User) => p.id === slotProps.value)?.username }}</span>
                         </div>
                     </template>
                 </MultiSelect>
             </div>
             <div class="flex flex-col gap-3">
-                <label class="font-bold text-sm uppercase tracking-widest text-zinc-500">Event Features & Budgets</label>
+                <label class="text-sm font-bold tracking-widest text-zinc-500 uppercase"
+                    >Event Features & Budgets</label
+                >
                 <div class="space-y-3">
-                    <div v-for="feature in FEATURES" :key="feature.id"
-                        class="flex flex-col gap-3 p-4 rounded-2xl border transition-all duration-300"
-                        :class="[selectedFeatures.includes(feature.id) ? 'bg-zinc-50 dark:bg-zinc-900/50 border-emerald-500/30 ring-1 ring-emerald-500/10' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950']">
-                        
+                    <div
+                        v-for="feature in FEATURES"
+                        :key="feature.id"
+                        class="flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-300"
+                        :class="[
+                            selectedFeatures.includes(feature.id)
+                                ? 'border-emerald-500/30 bg-zinc-50 ring-1 ring-emerald-500/10 dark:bg-zinc-900/50'
+                                : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950'
+                        ]"
+                    >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <button @click="toggleFeature(feature.id)" type="button"
-                                    class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all duration-300 focus:outline-none shadow-inner"
-                                    :class="[selectedFeatures.includes(feature.id) ? feature.color : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-400 opacity-50']">
+                                <button
+                                    @click="toggleFeature(feature.id)"
+                                    type="button"
+                                    class="flex h-12 w-12 items-center justify-center rounded-xl text-2xl shadow-inner transition-all duration-300 focus:outline-none"
+                                    :class="[
+                                        selectedFeatures.includes(feature.id)
+                                            ? feature.color
+                                            : 'bg-zinc-100 text-zinc-400 opacity-50 dark:bg-zinc-900'
+                                    ]"
+                                >
                                     {{ feature.icon }}
                                 </button>
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-sm" :class="selectedFeatures.includes(feature.id) ? '' : 'text-zinc-500'">{{ feature.label }}</span>
-                                    <span v-if="selectedFeatures.includes(feature.id)" class="text-[9px] font-black uppercase tracking-widest text-emerald-500 animate-in fade-in duration-500">Feature Active</span>
-                                    <span v-else class="text-[9px] font-black uppercase tracking-widest text-zinc-400">Disabled</span>
+                                    <span
+                                        class="text-sm font-bold"
+                                        :class="selectedFeatures.includes(feature.id) ? '' : 'text-zinc-500'"
+                                        >{{ feature.label }}</span
+                                    >
+                                    <span
+                                        v-if="selectedFeatures.includes(feature.id)"
+                                        class="animate-in fade-in text-[9px] font-black tracking-widest text-emerald-500 uppercase duration-500"
+                                        >Feature Active</span
+                                    >
+                                    <span v-else class="text-[9px] font-black tracking-widest text-zinc-400 uppercase"
+                                        >Disabled</span
+                                    >
                                 </div>
                             </div>
-                            <ToggleSwitch :modelValue="selectedFeatures.includes(feature.id)" @update:modelValue="toggleFeature(feature.id)" />
+                            <ToggleSwitch
+                                :modelValue="selectedFeatures.includes(feature.id)"
+                                @update:modelValue="toggleFeature(feature.id)"
+                            />
                         </div>
-                        
-                        <div v-if="selectedFeatures.includes(feature.id)" class="animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div class="flex flex-col gap-1.5 pt-3 border-t border-zinc-200 dark:border-zinc-800/50">
+
+                        <div
+                            v-if="selectedFeatures.includes(feature.id)"
+                            class="animate-in fade-in slide-in-from-top-2 duration-300"
+                        >
+                            <div class="flex flex-col gap-1.5 border-t border-zinc-200 pt-3 dark:border-zinc-800/50">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Target Budget</label>
+                                    <label class="text-[10px] font-black tracking-widest text-zinc-400 uppercase"
+                                        >Target Budget</label
+                                    >
                                     <span class="text-[10px] font-bold text-zinc-400">Optional</span>
                                 </div>
-                                <div class="relative group">
-                                    <InputNumber v-model="featurePrices[feature.id]" mode="currency" currency="EUR" locale="de-DE" 
-                                        placeholder="0.00" class="w-full" :min="0" />
-                                    <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500 rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                                <div class="group relative">
+                                    <InputNumber
+                                        v-model="featurePrices[feature.id]"
+                                        mode="currency"
+                                        currency="EUR"
+                                        locale="de-DE"
+                                        placeholder="0.00"
+                                        class="w-full"
+                                        :min="0"
+                                    />
+                                    <div
+                                        class="absolute inset-y-0 left-0 w-1 rounded-full bg-emerald-500 opacity-0 transition-opacity group-focus-within:opacity-100"
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -225,7 +306,7 @@ const onSave = () => {
             </div>
             <div class="flex items-center justify-between p-3">
                 <div class="flex flex-col gap-1">
-                    <label for="isOpen" class="font-semibold cursor-pointer">Open Event</label>
+                    <label for="isOpen" class="cursor-pointer font-semibold">Open Event</label>
                     <small class="text-surface-500">Anyone can see and join this event</small>
                 </div>
                 <ToggleSwitch id="isOpen" v-model="isOpen" />
@@ -233,7 +314,7 @@ const onSave = () => {
 
             <div class="flex items-center justify-between p-3">
                 <div class="flex flex-col gap-1">
-                    <label for="isPrivate" class="font-semibold cursor-pointer text-rose-500">Private Event</label>
+                    <label for="isPrivate" class="cursor-pointer font-semibold text-rose-500">Private Event</label>
                     <small class="text-surface-500">Only invited participants can see this event</small>
                 </div>
                 <ToggleSwitch id="isPrivate" v-model="isPrivate" />
@@ -242,8 +323,13 @@ const onSave = () => {
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="emit('update:visible', false)" :disabled="loading" />
-            <Button :label="loading ? 'Saving...' : 'Save'" :icon="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-                @click="onSave" autofocus :disabled="loading" />
+            <Button
+                :label="loading ? 'Saving...' : 'Save'"
+                :icon="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+                @click="onSave"
+                autofocus
+                :disabled="loading"
+            />
         </template>
     </Dialog>
 </template>

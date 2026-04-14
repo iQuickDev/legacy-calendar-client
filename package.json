@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.ts,.js,.cjs,.mjs --ignore-path .gitignore",
+    "lint:fix": "eslint . --ext .vue,.ts,.js,.cjs,.mjs --ignore-path .gitignore --fix",
+    "format": "prettier --write \"src/**/*.{vue,ts,js,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{vue,ts,js,css,json}\""
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",
@@ -23,11 +27,21 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-vue": "^9.33.0",
+    "prettier": "^3.8.2",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.58.2",
     "vite": "^7.2.4",
     "vite-plugin-pwa": "^1.2.0",
+    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.1.4",
     "workbox-window": "^7.4.0"
   }

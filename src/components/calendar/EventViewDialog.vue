@@ -238,7 +238,8 @@ const getAssignedPassengers = (driverId: number) => {
 const getAvailableSeats = (driver: EventParticipant | undefined) => {
     if (!driver) return 0;
     const assigned = getAssignedPassengers(driver.id).length;
-    return Math.max(0, normalizeVehicleSeats(driver.vehicleSeats) - assigned);
+    const totalSeats = normalizeVehicleSeats(driver.vehicleSeats);
+    return Math.max(0, totalSeats - 1 - assigned);
 };
 
 const onDragStart = (event: DragEvent, passengerId: number) => {
@@ -298,7 +299,7 @@ const isAldoMoro = computed(() => {
     if (rideNeedingParticipants.length === 0) return false;
 
     const totalSeats = drivers.value.reduce(
-        (acc, participant) => acc + normalizeVehicleSeats(participant.vehicleSeats),
+        (acc, participant) => acc + Math.max(0, normalizeVehicleSeats(participant.vehicleSeats) - 1),
         0
     );
     return totalSeats < rideNeedingParticipants.length;

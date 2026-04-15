@@ -141,9 +141,10 @@ watch(
 
                 <div v-if="hasVehicle" class="animate-in fade-in slide-in-from-top-2 flex flex-col gap-4 duration-300">
                     <div class="flex flex-col items-start gap-2 px-2">
-                        <span class="text-xs font-bold tracking-wider text-zinc-400 uppercase">Available Seats</span>
+                        <span class="text-xs font-bold tracking-wider text-zinc-400 uppercase">Total Seats</span>
+                        <span class="text-xs text-zinc-500">Including yourself</span>
                         <div class="flex w-full items-center gap-4">
-                            <Slider v-model="vehicleSeats" :min="0" :max="8" class="flex-1" />
+                            <Slider v-model="vehicleSeats" :min="1" :max="9" class="flex-1" />
                             <span class="w-8 text-xl font-black text-emerald-500">{{ vehicleSeats }}</span>
                         </div>
                     </div>

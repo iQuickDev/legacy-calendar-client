@@ -186,11 +186,13 @@ const getParticipantFeatures = (userId: number): EventFeature[] => {
     return participantFeatures(resolvedInvitees.value.find((participant) => participant.id === userId));
 };
 
-const featuresListColumns = FEATURES.map((feature) => ({
-    field: feature.id,
-    header: feature.label,
-    icon: feature.icon
-}));
+const featuresListColumns = computed(() =>
+    FEATURES.filter((feature) => availableFeatureIds.value.includes(feature.id)).map((feature) => ({
+        field: feature.id,
+        header: feature.label,
+        icon: feature.icon
+    }))
+);
 
 const availableFeatureIds = computed(() => selectedFeaturesFromEvent(props.event));
 

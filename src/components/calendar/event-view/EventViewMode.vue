@@ -318,8 +318,9 @@ defineProps<{
                             <span
                                 :class="getFeatureCount(col.field) > 0 ? 'text-green-500' : 'text-zinc-400'"
                                 class="font-bold tracking-widest uppercase"
-                                >{{ getFeatureCount(col.field) }}</span
                             >
+                                {{ getFeatureCount(col.field) }}
+                            </span>
                             {{ col.header }}
                         </span>
                         <span class="w-full text-center font-bold whitespace-nowrap sm:hidden" :title="col.header">{{

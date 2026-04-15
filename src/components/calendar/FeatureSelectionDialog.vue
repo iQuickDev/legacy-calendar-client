@@ -43,11 +43,15 @@ const toggleFeature = (feature: EventFeature) => {
 };
 
 const onConfirm = () => {
+    const numericSeats = Number(vehicleSeats.value ?? 0);
+    const seats = Number.isFinite(numericSeats) ? Math.max(0, Math.trunc(numericSeats)) : 0;
+    const normalizedHasVehicle = hasVehicle.value;
+
     emit('confirm', {
         features: selectedFeatures.value,
         vehicle: {
-            hasVehicle: hasVehicle.value,
-            vehicleSeats: hasVehicle.value ? vehicleSeats.value : 0
+            hasVehicle: normalizedHasVehicle,
+            vehicleSeats: normalizedHasVehicle ? seats : 0
         }
     });
 };

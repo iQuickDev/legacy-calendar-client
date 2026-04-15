@@ -353,7 +353,7 @@ onMounted(() => {
                             "
                             size="xlarge"
                             shape="circle"
-                            class="bg-primary text-primary-contrast border-surface-800 !h-24 !w-24 border-2 shadow-lg"
+                            class="bg-primary text-primary-contrast border-surface-800 h-24! w-24! border-2 shadow-lg"
                         />
                         <div
                             class="bg-black/50 absolute inset-0 flex cursor-pointer items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
@@ -371,7 +371,7 @@ onMounted(() => {
                             rounded
                             @click="removePicture"
                             v-tooltip.bottom="'Remove Picture'"
-                            class="!h-10 !w-10"
+                            class="h-10! w-10!"
                         />
                         <Button
                             :label="previewUrl || existingPfp ? 'Change' : 'Upload Picture'"

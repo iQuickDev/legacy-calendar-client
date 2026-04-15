@@ -341,11 +341,9 @@ onMounted(() => {
         >
             <div class="flex flex-col gap-4 pt-4">
                 <div class="flex flex-col items-center gap-4 py-2">
-                    <div class="relative group">
+                    <div class="group relative">
                         <Avatar
-                            :image="
-                                previewUrl || (existingPfp ? `${uploadsBaseURL}${existingPfp}` : undefined)
-                            "
+                            :image="previewUrl || (existingPfp ? `${uploadsBaseURL}${existingPfp}` : undefined)"
                             :label="
                                 !previewUrl && !existingPfp
                                     ? userForm.username?.charAt(0)?.toUpperCase() || 'U'
@@ -356,7 +354,7 @@ onMounted(() => {
                             class="bg-primary text-primary-contrast border-surface-800 h-24! w-24! border-2 shadow-lg"
                         />
                         <div
-                            class="bg-black/50 absolute inset-0 flex cursor-pointer items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                            class="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                             @click="triggerFileInput"
                         >
                             <i class="pi pi-camera text-2xl text-white"></i>
@@ -381,13 +379,7 @@ onMounted(() => {
                             class="text-sm!"
                         />
                     </div>
-                    <input
-                        type="file"
-                        ref="fileInput"
-                        class="hidden"
-                        accept="image/*"
-                        @change="onFileSelect"
-                    />
+                    <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelect" />
                 </div>
 
                 <div class="flex flex-col gap-2">

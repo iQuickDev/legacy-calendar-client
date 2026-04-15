@@ -57,7 +57,9 @@ const props = defineProps<{
     assignRide: (passengerId: number, driverId: number | null) => void;
 }>();
 
-const canEditRides = computed(() => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id));
+const canEditRides = computed(
+    () => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id)
+);
 </script>
 
 <template>
@@ -467,10 +469,7 @@ const canEditRides = computed(() => props.isHost || props.drivers.some((driver) 
                 No drivers available for this event yet.
             </div>
 
-            <div
-                v-if="needsRide.length > 0"
-                class="mt-2 flex flex-col gap-2"
-            >
+            <div v-if="needsRide.length > 0" class="mt-2 flex flex-col gap-2">
                 <span class="px-1 text-[10px] font-black tracking-widest text-zinc-400 uppercase">
                     Unassigned Participants
                 </span>
@@ -493,18 +492,16 @@ const canEditRides = computed(() => props.isHost || props.drivers.some((driver) 
                                 shape="circle"
                                 size="small"
                             />
-                            <div class="relative flex flex-col my-auto">
+                            <div class="relative my-auto flex flex-col">
                                 <div
-                                    class="text-sm font-medium leading-none transition-transform duration-300"
+                                    class="text-sm leading-none font-medium transition-transform duration-300"
                                     :class="[canEditRides ? 'group-hover:-translate-y-1' : '']"
                                 >
                                     {{ passenger.username }}
                                 </div>
                                 <div
-                                    class="absolute top-2 left-0 whitespace-nowrap text-[9px] font-bold tracking-tighter text-zinc-500 uppercase opacity-0 transition-all duration-300"
-                                    :class="[
-                                        canEditRides ? 'group-hover:translate-y-1 group-hover:opacity-100' : ''
-                                    ]"
+                                    class="absolute top-2 left-0 text-[9px] font-bold tracking-tighter whitespace-nowrap text-zinc-500 uppercase opacity-0 transition-all duration-300"
+                                    :class="[canEditRides ? 'group-hover:translate-y-1 group-hover:opacity-100' : '']"
                                 >
                                     Drag to assign
                                 </div>
@@ -580,13 +577,13 @@ const canEditRides = computed(() => props.isHost || props.drivers.some((driver) 
 }
 
 @keyframes opacityAndDisplay {
-        from {
-            opacity: 0;
-            display: none;
-        }
-        to {
-            opacity: 1;
-            display: block;
-        }
+    from {
+        opacity: 0;
+        display: none;
     }
+    to {
+        opacity: 1;
+        display: block;
+    }
+}
 </style>

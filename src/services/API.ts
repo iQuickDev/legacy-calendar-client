@@ -42,10 +42,11 @@ class API {
         this.client.interceptors.response.use(
             (response) => response,
             (error) => {
-                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                if (error.response && error.response.status === 401) {
                     // Session is invalid or expired
                     localStorage.removeItem('token');
                     localStorage.removeItem('bypass_token');
+                    localStorage.setItem('session_expired', 'true');
 
                     // Force redirect to login if not already there
                     if (!window.location.pathname.startsWith('/login') && window.location.pathname !== '/') {

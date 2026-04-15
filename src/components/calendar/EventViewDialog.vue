@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { format, parseISO } from 'date-fns';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
+import { useToast } from 'primevue/usetoast';
 
 import type { Event, EventFeature, EventParticipant } from '../../types/Event';
 import type { User } from '../../types/User';
@@ -43,6 +44,7 @@ const emit = defineEmits<{
 const apiStore = useAPIStore();
 const sessionStore = useSessionStore();
 const eventsStore = useEventsStore();
+const toast = useToast();
 
 const allUsers = ref<User[]>([]);
 
@@ -126,6 +128,14 @@ const onDecline = async () => {
     try {
         const success = await eventsStore.leaveEvent(props.event.id);
         if (success) emit('joined');
+        else throw new Error();
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to decline invitation',
+            life: 5000
+        });
     } finally {
         cancelling.value = false;
     }
@@ -139,6 +149,14 @@ const confirmLeave = async () => {
     try {
         const success = await eventsStore.leaveEvent(props.event.id);
         if (success) emit('joined');
+        else throw new Error();
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to leave event',
+            life: 5000
+        });
     } finally {
         cancelling.value = false;
     }
@@ -161,6 +179,14 @@ const handleFeatureConfirm = async (data: {
 
         const success = await eventsStore.joinEvent(props.event.id, participateDto);
         if (success) emit('joined');
+        else throw new Error();
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to join event',
+            life: 5000
+        });
     } finally {
         joining.value = false;
     }
@@ -247,10 +273,16 @@ const assignRide = async (passengerId: number, driverId: number | null) => {
 
     assigningRide.value = true;
     try {
-        await eventsStore.assignRide(props.event.id, passengerId, driverId);
-        emit('refresh');
+        const success = await eventsStore.assignRide(props.event.id, passengerId, driverId);
+        if (success) emit('refresh');
+        else throw new Error();
     } catch (error) {
-        console.error('Failed to assign ride:', error);
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to assign ride',
+            life: 5000
+        });
     } finally {
         assigningRide.value = false;
     }
@@ -329,6 +361,13 @@ const handleEditSave = async (dto: CreateEventDto) => {
     if (success) {
         isEditing.value = false;
         emit('refresh');
+    } else {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to update event',
+            life: 5000
+        });
     }
 };
 </script>

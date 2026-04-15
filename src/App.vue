@@ -14,6 +14,17 @@ const sessionStore = useSessionStore();
 const showHeader = computed(() => route.name !== 'login');
 
 onMounted(async () => {
+    // Check for session expired flag
+    if (localStorage.getItem('session_expired') === 'true') {
+        localStorage.removeItem('session_expired');
+        toast.add({
+            severity: 'warn',
+            summary: 'Session Expired',
+            detail: 'Your session has expired. Please log in again.',
+            life: 5000
+        });
+    }
+
     const loaded = await sessionStore.load();
 
     if (loaded) {

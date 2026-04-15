@@ -136,9 +136,12 @@ class API {
 
     // --- Profile Picture ---
 
-    async uploadProfilePicture(file: File): Promise<AxiosResponse<User>> {
+    async uploadProfilePicture(file: File, userId?: number): Promise<AxiosResponse<User>> {
         const formData = new FormData();
         formData.append('file', file);
+        if (userId) {
+            formData.append('userId', userId.toString());
+        }
         return this.client.post('/users/profile-picture', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -146,8 +149,10 @@ class API {
         });
     }
 
-    async removeProfilePicture(): Promise<AxiosResponse<void>> {
-        return this.client.delete('/users/profile-picture');
+    async removeProfilePicture(userId?: number): Promise<AxiosResponse<void>> {
+        return this.client.delete('/users/profile-picture', {
+            data: { userId }
+        });
     }
 
     async assignRide(eventId: number, passengerId: number, driverId: number | null): Promise<AxiosResponse<void>> {

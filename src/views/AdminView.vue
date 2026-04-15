@@ -26,6 +26,50 @@ const userForm = ref<CreateUserDto>({
     password: ''
 });
 const editingUserId = ref<number | null>(null);
+const existingPfp = ref<string | null>(null);
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const selectedFile = ref<File | null>(null);
+const previewUrl = ref<string | null>(null);
+const shouldRemovePfp = ref(false);
+
+const triggerFileInput = () => {
+    fileInput.value?.click();
+};
+
+const onFileSelect = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        const file = target.files[0];
+
+        // Validation
+        if (!file.type.startsWith('image/')) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select an image file',
+                life: 3000
+            });
+            return;
+        }
+
+        selectedFile.value = file;
+        shouldRemovePfp.value = false;
+
+        // Preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewUrl.value = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const removePicture = () => {
+    selectedFile.value = null;
+    previewUrl.value = null;
+    shouldRemovePfp.value = true;
+};
 
 const isVerified = ref(false);
 
@@ -67,16 +111,24 @@ const handleBypassSubmit = async () => {
 const openAddUser = () => {
     isEditing.value = false;
     userForm.value = { username: '', password: '' };
+    existingPfp.value = null;
+    selectedFile.value = null;
+    previewUrl.value = null;
+    shouldRemovePfp.value = false;
     showUserDialog.value = true;
 };
 
 const editUser = (user: User) => {
     isEditing.value = true;
     editingUserId.value = user.id;
+    existingPfp.value = user.profilePicture ?? null;
     userForm.value = {
         username: user.username,
         password: ''
     };
+    selectedFile.value = null;
+    previewUrl.value = null;
+    shouldRemovePfp.value = false;
     showUserDialog.value = true;
 };
 
@@ -102,27 +154,38 @@ const deleteUser = async (id: number) => {
 
 const saveUser = async () => {
     try {
-        if (isEditing.value && editingUserId.value) {
+        let userId = editingUserId.value;
+        if (isEditing.value && userId) {
             const updateDto: UpdateUserDto = { username: userForm.value.username };
             if (userForm.value.password) {
                 updateDto.password = userForm.value.password;
             }
-            await api.updateUser(editingUserId.value, updateDto);
-            toast.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'User updated successfully',
-                life: 3000
-            });
+            await api.updateUser(userId, updateDto);
         } else {
             await api.createUser(userForm.value);
-            toast.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'User created successfully',
-                life: 3000
-            });
+            // Need to find the created user's ID for PFP upload
+            await fetchUsers();
+            const newUser = users.value.find((u) => u.username === userForm.value.username);
+            if (newUser) {
+                userId = newUser.id;
+            }
         }
+
+        // Handle profile picture
+        if (userId) {
+            if (shouldRemovePfp.value) {
+                await api.removeProfilePicture(userId);
+            } else if (selectedFile.value) {
+                await api.uploadProfilePicture(selectedFile.value, userId);
+            }
+        }
+
+        toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: isEditing.value ? 'User updated successfully' : 'User created successfully',
+            life: 3000
+        });
         showUserDialog.value = false;
         await fetchUsers();
     } catch (error: any) {
@@ -277,6 +340,56 @@ onMounted(() => {
             class="p-fluid"
         >
             <div class="flex flex-col gap-4 pt-4">
+                <div class="flex flex-col items-center gap-4 py-2">
+                    <div class="relative group">
+                        <Avatar
+                            :image="
+                                previewUrl || (existingPfp ? `${uploadsBaseURL}${existingPfp}` : undefined)
+                            "
+                            :label="
+                                !previewUrl && !existingPfp
+                                    ? userForm.username?.charAt(0)?.toUpperCase() || 'U'
+                                    : undefined
+                            "
+                            size="xlarge"
+                            shape="circle"
+                            class="bg-primary text-primary-contrast border-surface-800 !h-24 !w-24 border-2 shadow-lg"
+                        />
+                        <div
+                            class="bg-black/50 absolute inset-0 flex cursor-pointer items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                            @click="triggerFileInput"
+                        >
+                            <i class="pi pi-camera text-2xl text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <Button
+                            v-if="previewUrl || existingPfp"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            text
+                            rounded
+                            @click="removePicture"
+                            v-tooltip.bottom="'Remove Picture'"
+                            class="!h-10 !w-10"
+                        />
+                        <Button
+                            :label="previewUrl || existingPfp ? 'Change' : 'Upload Picture'"
+                            :icon="previewUrl || existingPfp ? 'pi pi-pencil' : 'pi pi-upload'"
+                            text
+                            @click="triggerFileInput"
+                            class="text-sm!"
+                        />
+                    </div>
+                    <input
+                        type="file"
+                        ref="fileInput"
+                        class="hidden"
+                        accept="image/*"
+                        @change="onFileSelect"
+                    />
+                </div>
+
                 <div class="flex flex-col gap-2">
                     <label for="username" class="text-surface-300 font-medium">Username</label>
                     <InputText

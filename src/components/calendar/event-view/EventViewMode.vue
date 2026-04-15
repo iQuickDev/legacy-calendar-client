@@ -9,6 +9,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { uploadsBaseURL } from '../../../services/API';
 import { FEATURES } from '../../../constants/features';
+import { computed } from 'vue';
 
 type FeatureColumn = {
     field: EventFeature;
@@ -16,7 +17,7 @@ type FeatureColumn = {
     icon: string;
 };
 
-defineProps<{
+const props = defineProps<{
     event: Event;
     eventHost: User | null;
     currentUser: User | null | undefined;
@@ -55,6 +56,8 @@ defineProps<{
     onDrop: (event: DragEvent, driverId: number) => void;
     assignRide: (passengerId: number, driverId: number | null) => void;
 }>();
+
+const canEditRides = computed(() => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id));
 </script>
 
 <template>
@@ -441,7 +444,7 @@ defineProps<{
                                 icon="pi pi-times"
                                 severity="danger"
                                 text
-                                class="h-4! w-4! p-0! opacity-0 transition-opacity group-hover:opacity-100"
+                                class="size-3.5! p-0!"
                                 @click="assignRide(passenger.id, null)"
                             />
                         </div>
@@ -465,17 +468,17 @@ defineProps<{
             </div>
 
             <div
-                v-if="(isHost || drivers.some((driver) => driver.id === currentUser?.id)) && needsRide.length > 0"
+                v-if="needsRide.length > 0"
                 class="mt-2 flex flex-col gap-2"
             >
-                <span class="px-1 text-[10px] font-black tracking-widest text-zinc-400 uppercase"
-                    >Unassigned Participants</span
-                >
+                <span class="px-1 text-[10px] font-black tracking-widest text-zinc-400 uppercase">
+                    Unassigned Participants
+                </span>
                 <div class="flex flex-col gap-1">
                     <div
                         v-for="passenger in needsRide"
                         :key="passenger.id"
-                        draggable="true"
+                        :draggable="canEditRides"
                         @dragstart="onDragStart($event, passenger.id)"
                         class="group flex cursor-grab items-center justify-between rounded-xl border border-zinc-100 bg-white p-3 transition-colors hover:border-emerald-500/50 active:cursor-grabbing dark:border-zinc-800/50 dark:bg-zinc-900/30"
                     >
@@ -490,12 +493,21 @@ defineProps<{
                                 shape="circle"
                                 size="small"
                             />
-                            <div class="flex flex-col">
-                                <span class="text-sm font-medium">{{ passenger.username }}</span>
-                                <span
-                                    class="text-[9px] font-bold tracking-tighter text-zinc-500 uppercase opacity-0 transition-opacity group-hover:opacity-100"
-                                    >Drag to assign</span
+                            <div class="relative flex flex-col my-auto">
+                                <div
+                                    class="text-sm font-medium leading-none transition-transform duration-300"
+                                    :class="[canEditRides ? 'group-hover:-translate-y-1' : '']"
                                 >
+                                    {{ passenger.username }}
+                                </div>
+                                <div
+                                    class="absolute top-2 left-0 whitespace-nowrap text-[9px] font-bold tracking-tighter text-zinc-500 uppercase opacity-0 transition-all duration-300"
+                                    :class="[
+                                        canEditRides ? 'group-hover:translate-y-1 group-hover:opacity-100' : ''
+                                    ]"
+                                >
+                                    Drag to assign
+                                </div>
                             </div>
                         </div>
                         <div class="flex gap-2">
@@ -566,4 +578,15 @@ defineProps<{
         padding: 0.5rem 0.25rem;
     }
 }
+
+@keyframes opacityAndDisplay {
+        from {
+            opacity: 0;
+            display: none;
+        }
+        to {
+            opacity: 1;
+            display: block;
+        }
+    }
 </style>

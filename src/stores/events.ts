@@ -62,6 +62,21 @@ export const useEventsStore = defineStore('events', {
             return result !== false;
         },
 
+        async fetchEventById(id: number) {
+            const result = await runEventsAction(this, `Failed to load event ${id}`, async () => {
+                const { client } = useAPIStore();
+                const response = await client.findOneEvent(id);
+                const index = this.events.findIndex((e) => e.id === id);
+                if (index !== -1) {
+                    this.events[index] = response.data;
+                } else {
+                    this.events.push(response.data);
+                }
+                return true;
+            });
+            return result !== false;
+        },
+
         async createEvent(dto: CreateEventDto) {
             const result = await runEventsAction(this, 'Failed to create event', async () => {
                 const { client } = useAPIStore();
@@ -96,7 +111,7 @@ export const useEventsStore = defineStore('events', {
             const result = await runEventsAction(this, 'Failed to join event', async () => {
                 const { client } = useAPIStore();
                 await client.joinEvent(id, dto);
-                await this.fetchEvents();
+                await this.fetchEventById(id);
                 return true;
             });
             return result !== false;
@@ -106,7 +121,7 @@ export const useEventsStore = defineStore('events', {
             const result = await runEventsAction(this, 'Failed to leave event', async () => {
                 const { client } = useAPIStore();
                 await client.leaveEvent(id);
-                await this.fetchEvents();
+                await this.fetchEventById(id);
                 return true;
             });
             return result !== false;
@@ -116,7 +131,7 @@ export const useEventsStore = defineStore('events', {
             const result = await runEventsAction(this, 'Failed to assign ride', async () => {
                 const { client } = useAPIStore();
                 await client.assignRide(eventId, passengerId, driverId);
-                await this.fetchEvents();
+                await this.fetchEventById(eventId);
                 return true;
             });
             return result !== false;

@@ -170,7 +170,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             v-model:visible="showViewDialog"
             :event="selectedEvent"
             @delete="handleDeleteEvent"
-            @joined="showViewDialog = false"
+            @joined="fetchEvents"
             @refresh="fetchEvents"
         />
     </div>

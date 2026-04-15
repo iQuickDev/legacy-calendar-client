@@ -23,12 +23,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
-    (e: 'confirm', data: { features: EventFeature[]; vehicle: { hasVehicle: boolean; vehicleSeats: number } }): void;
+    (e: 'confirm', data: { features: EventFeature[]; vehicle: { hasVehicle: boolean; vehicleSeats?: number } }): void;
 }>();
 
 const selectedFeatures = ref<EventFeature[]>([]);
 const hasVehicle = ref(false);
-const vehicleSeats = ref(0);
+const vehicleSeats = ref(5);
 
 const isFeatureAvailable = (id: EventFeature) => {
     // If availableFeatures is undefined, show all (backward compatibility)
@@ -43,15 +43,11 @@ const toggleFeature = (feature: EventFeature) => {
 };
 
 const onConfirm = () => {
-    const numericSeats = Number(vehicleSeats.value ?? 0);
-    const seats = Number.isFinite(numericSeats) ? Math.max(0, Math.trunc(numericSeats)) : 0;
-    const normalizedHasVehicle = hasVehicle.value;
-
     emit('confirm', {
         features: selectedFeatures.value,
         vehicle: {
-            hasVehicle: normalizedHasVehicle,
-            vehicleSeats: normalizedHasVehicle ? seats : 0
+            hasVehicle: hasVehicle.value,
+            vehicleSeats: hasVehicle.value ? vehicleSeats.value : undefined
         }
     });
 };

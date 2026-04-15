@@ -106,19 +106,6 @@ const assigningRide = ref(false);
 const dragOverDriverId = ref<number | null>(null);
 const isEditing = ref(false);
 
-const normalizeVehicleSeats = (seats: unknown) => {
-    const numeric = Number(seats);
-    if (!Number.isFinite(numeric)) return 0;
-    return Math.max(0, Math.trunc(numeric));
-};
-
-const participantHasVehicle = (participant: Pick<EventParticipant, 'hasVehicle' | 'vehicleSeats'> | undefined) => {
-    if (!participant) return false;
-    if (participant.hasVehicle === true) return true;
-    if (participant.hasVehicle === false) return false;
-    return normalizeVehicleSeats(participant.vehicleSeats) > 0;
-};
-
 const onAcceptClick = () => {
     showFeatureSelection.value = true;
 };
@@ -159,20 +146,17 @@ const confirmLeave = async () => {
 
 const handleFeatureConfirm = async (data: {
     features: EventFeature[];
-    vehicle: { hasVehicle: boolean; vehicleSeats: number };
+    vehicle: { hasVehicle: boolean; vehicleSeats?: number };
 }) => {
     showFeatureSelection.value = false;
     if (!props.event || !currentUser.value) return;
 
     joining.value = true;
     try {
-        const vehicleSeats = normalizeVehicleSeats(data.vehicle.vehicleSeats);
-        const hasVehicle = data.vehicle.hasVehicle;
-
         const participateDto: ParticipateDto = {
             ...participantWantsFromSelection(data.features),
-            hasVehicle,
-            vehicleSeats: hasVehicle ? vehicleSeats : 0
+            hasVehicle: data.vehicle.hasVehicle,
+            vehicleSeats: data.vehicle.vehicleSeats
         };
 
         const success = await eventsStore.joinEvent(props.event.id, participateDto);
@@ -217,16 +201,13 @@ const userTotalShare = computed(() => {
 
 const drivers = computed(() => {
     if (!props.event?.participants) return [];
-    return resolvedInvitees.value.filter(
-        (participant) => participant.status === 'ACCEPTED' && participantHasVehicle(participant)
-    );
+    return resolvedInvitees.value.filter((participant) => participant.status === 'ACCEPTED' && participant.hasVehicle);
 });
 
 const needsRide = computed(() => {
     if (!props.event?.participants) return [];
     return resolvedInvitees.value.filter(
-        (participant) =>
-            participant.status === 'ACCEPTED' && !participantHasVehicle(participant) && !participant.driverId
+        (participant) => participant.status === 'ACCEPTED' && !participant.hasVehicle && !participant.driverId
     );
 });
 
@@ -238,8 +219,8 @@ const getAssignedPassengers = (driverId: number) => {
 const getAvailableSeats = (driver: EventParticipant | undefined) => {
     if (!driver) return 0;
     const assigned = getAssignedPassengers(driver.id).length;
-    const totalSeats = normalizeVehicleSeats(driver.vehicleSeats);
-    return Math.max(0, totalSeats - 1 - assigned);
+    const totalSeats = driver.vehicleSeats;
+    return Math.max(0, totalSeats! - 1 - assigned);
 };
 
 const onDragStart = (event: DragEvent, passengerId: number) => {
@@ -298,10 +279,7 @@ const isAldoMoro = computed(() => {
     const rideNeedingParticipants = needsRide.value;
     if (rideNeedingParticipants.length === 0) return false;
 
-    const totalSeats = drivers.value.reduce(
-        (acc, participant) => acc + Math.max(0, normalizeVehicleSeats(participant.vehicleSeats) - 1),
-        0
-    );
+    const totalSeats = drivers.value.reduce((acc, participant) => acc + Math.max(0, participant.vehicleSeats! - 1), 0);
     return totalSeats < rideNeedingParticipants.length;
 });
 
@@ -465,10 +443,8 @@ const handleEditSave = async (dto: CreateEventDto) => {
         v-model:visible="showFeatureSelection"
         :availableFeatures="availableFeatureIds"
         :initialFeatures="currentUser ? getParticipantFeatures(currentUser.id) : []"
-        :initialHasVehicle="participantHasVehicle(props.event?.participants?.find((p) => p.id === currentUser?.id))"
-        :initialVehicleSeats="
-            normalizeVehicleSeats(props.event?.participants?.find((p) => p.id === currentUser?.id)?.vehicleSeats)
-        "
+        :initialHasVehicle="props.event?.participants?.find((p) => p.id === currentUser?.id)?.hasVehicle"
+        :initialVehicleSeats="props.event?.participants?.find((p) => p.id === currentUser?.id)?.vehicleSeats"
         :submitLabel="userParticipantStatus === 'ACCEPTED' ? 'Save Changes' : 'Join Event'"
         :featurePrices="eventPrices"
         :featureSplitPrices="eventSplitPrices"

@@ -406,9 +406,7 @@ defineProps<{
                             <div class="flex flex-col">
                                 <span class="text-sm font-bold">{{ driver.username }}</span>
                                 <div class="flex items-center gap-2 text-[10px] font-bold uppercase">
-                                    <span>
-                                        {{ driver.vehicleSeats }} total seats
-                                    </span>
+                                    <span> {{ driver.vehicleSeats }} total seats </span>
                                     <span class="font-black">·</span>
                                     <span :class="getAvailableSeats(driver) > 0 ? 'text-emerald-500' : 'text-red-500'">
                                         {{ getAvailableSeats(driver) > 0 ? getAvailableSeats(driver) : 'None' }} left

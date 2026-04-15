@@ -115,6 +115,7 @@ const normalizeVehicleSeats = (seats: unknown) => {
 const participantHasVehicle = (participant: Pick<EventParticipant, 'hasVehicle' | 'vehicleSeats'> | undefined) => {
     if (!participant) return false;
     if (participant.hasVehicle === true) return true;
+    if (participant.hasVehicle === false) return false;
     return normalizeVehicleSeats(participant.vehicleSeats) > 0;
 };
 
@@ -166,7 +167,7 @@ const handleFeatureConfirm = async (data: {
     joining.value = true;
     try {
         const vehicleSeats = normalizeVehicleSeats(data.vehicle.vehicleSeats);
-        const hasVehicle = data.vehicle.hasVehicle || vehicleSeats > 0;
+        const hasVehicle = data.vehicle.hasVehicle;
 
         const participateDto: ParticipateDto = {
             ...participantWantsFromSelection(data.features),

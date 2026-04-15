@@ -2,10 +2,13 @@
 @import 'primeicons/primeicons.css';
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
     font-family: 'Inter', sans-serif;
     color: #ffffff;
     background-color: #000000;
+    color-scheme: dark;
 }
 
 .p-menubar {

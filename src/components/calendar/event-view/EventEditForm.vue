@@ -48,7 +48,7 @@ const initialize = () => {
     title.value = props.event.title;
     description.value = props.event.description || '';
     location.value = props.event.location || '';
-    
+
     if (props.event.isPrivate) {
         eventVisibility.value = 'private';
     } else if (props.event.isOpen) {
@@ -128,9 +128,9 @@ const onSave = () => {
                 </div>
 
                 <div class="mt-2 flex flex-col gap-2">
-                    <label for="edit-participants" class="text-sm font-bold tracking-wider text-zinc-500 uppercase"
-                        >Participants ({{ selectedParticipants.length }})</label
-                    >
+                    <label for="edit-participants" class="text-sm font-bold tracking-wider text-zinc-500 uppercase">
+                        Participants ({{ selectedParticipants.length }})
+                    </label>
                     <MultiSelect
                         id="edit-participants"
                         v-model="selectedParticipants"

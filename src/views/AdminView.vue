@@ -293,12 +293,14 @@ onMounted(() => {
                     :loading="loading"
                     class="p-datatable-lg border-none"
                     responsiveLayout="scroll"
+                    sortField="username"
+                    :sortOrder="1"
                     :pt="{
                         header: { class: '!bg-transparent !border-b !border-gray-600' },
                         bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
                     }"
                 >
-                    <Column field="id" header="ID" class="text-surface-500 w-24 font-mono"></Column>
+                    <Column field="id" header="ID" class="text-surface-500 w-24 font-mono" sortable></Column>
                     <Column header="User" class="text-surface-0 font-semibold" sortable sortField="username">
                         <template #body="slotProps">
                             <div class="flex items-center gap-3">

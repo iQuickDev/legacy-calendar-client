@@ -255,14 +255,16 @@ const userTotalShare = computed(() => {
 
 const drivers = computed(() => {
     if (!props.event?.participants) return [];
-    return resolvedInvitees.value.filter((participant) => participant.status === 'ACCEPTED' && participant.hasVehicle);
+    return resolvedInvitees.value
+        .filter((participant) => participant.status === 'ACCEPTED' && participant.hasVehicle)
+        .sort((a, b) => a.username.localeCompare(b.username));
 });
 
 const needsRide = computed(() => {
     if (!props.event?.participants) return [];
-    return resolvedInvitees.value.filter(
-        (participant) => participant.status === 'ACCEPTED' && !participant.hasVehicle && !participant.driverId
-    );
+    return resolvedInvitees.value
+        .filter((participant) => participant.status === 'ACCEPTED' && !participant.hasVehicle && !participant.driverId)
+        .sort((a, b) => a.username.localeCompare(b.username));
 });
 
 const getAssignedPassengers = (driverId: number) => {

@@ -180,20 +180,20 @@ const onSave = () => {
                 <InputText id="location" v-model="location" placeholder="Meeting Room, Online, etc." />
             </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="font-semibold">Start</label>
-                    <div class="flex gap-2">
-                        <DatePicker
-                            v-model="startDateOnly"
-                            class="flex-1"
-                            placeholder="Date"
-                            :minDate="startDateBounds.minDate"
-                            :maxDate="startDateBounds.maxDate"
-                        />
-                        <DatePicker v-model="startTimeOnly" timeOnly class="w-24" placeholder="Time" />
-                    </div>
-                    <small v-if="showValidationError" class="text-red-500">{{ validationError }}</small>
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold">Start</label>
+                <div class="flex gap-2">
+                    <DatePicker
+                        v-model="startDateOnly"
+                        class="flex-1"
+                        placeholder="Date"
+                        :minDate="startDateBounds.minDate"
+                        :maxDate="startDateBounds.maxDate"
+                    />
+                    <DatePicker v-model="startTimeOnly" timeOnly class="w-24" placeholder="Time" />
                 </div>
+                <small v-if="showValidationError" class="text-red-500">{{ validationError }}</small>
+            </div>
 
             <div class="flex flex-col gap-2">
                 <label class="font-semibold">End (Optional)</label>

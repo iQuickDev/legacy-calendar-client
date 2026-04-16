@@ -300,11 +300,19 @@ const canEditRide = (driverId: number) => {
                 <span class="font-semibold">Participants ({{ resolvedInvitees.length }})</span>
             </div>
 
-            <DataTable :value="resolvedInvitees" scrollable>
+            <DataTable
+                :value="resolvedInvitees"
+                scrollable
+                sortMode="multiple"
+                :multiSortMeta="[
+                    { field: 'status', order: 1 },
+                    { field: 'username', order: 1 }
+                ]"
+            >
                 <template #empty>
                     <div class="text-surface-500 p-4 text-center">No invitees found</div>
                 </template>
-                <Column field="username" header="Name">
+                <Column field="username" header="Name" sortable>
                     <template #body="slotProps">
                         <div class="flex items-center gap-2">
                             <Avatar
@@ -349,7 +357,7 @@ const canEditRide = (driverId: number) => {
                         <div v-else class="text-surface-400 text-center">-</div>
                     </template>
                 </Column>
-                <Column field="status" header="Status" class="w-16 text-center sm:w-24">
+                <Column field="status" header="Status" class="w-16 text-center sm:w-24" sortable>
                     <template #body="slotProps">
                         <span class="hidden sm:inline">
                             <Tag
@@ -558,17 +566,6 @@ const canEditRide = (driverId: number) => {
 
     :deep(.p-datatable .p-datatable-tbody > tr > td) {
         padding: 0.5rem 0.25rem;
-    }
-}
-
-@keyframes opacityAndDisplay {
-    from {
-        opacity: 0;
-        display: none;
-    }
-    to {
-        opacity: 1;
-        display: block;
     }
 }
 </style>

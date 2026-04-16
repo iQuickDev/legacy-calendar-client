@@ -60,6 +60,11 @@ const props = defineProps<{
 const canEditRides = computed(
     () => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id)
 );
+
+// Determines if current user can edit a specific ride (host of event or driver)
+const canEditRide = (driverId: number) => {
+    return props.isHost || driverId === props.currentUser?.id;
+};
 </script>
 
 <template>
@@ -392,7 +397,7 @@ const canEditRides = computed(
                         dragOverDriverId === driver.id
                             ? 'scale-[1.02] border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
                             : 'border-zinc-200 bg-zinc-50/50 dark:border-zinc-800 dark:bg-zinc-900/50',
-                        getAvailableSeats(driver) === 0 && dragOverDriverId === driver.id
+                        dragOverDriverId === driver.id && (getAvailableSeats(driver) === 0 || !canEditRide(driver.id))
                             ? 'border-red-500 bg-red-500/10'
                             : ''
                     ]"

@@ -4,6 +4,7 @@ import { useSessionStore } from '../stores/session';
 import api, { uploadsBaseURL } from '../services/API';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
@@ -15,6 +16,7 @@ import Avatar from 'primevue/avatar';
 
 const sessionStore = useSessionStore();
 const toast = useToast();
+const confirm = useConfirm();
 
 const users = ref<User[]>([]);
 const loading = ref(false);
@@ -150,6 +152,26 @@ const deleteUser = async (id: number) => {
             life: 3000
         });
     }
+};
+
+const confirmDelete = (user: User) => {
+    confirm.require({
+        message: `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+        header: 'Confirm Deletion',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger'
+        },
+        accept: () => {
+            deleteUser(user.id);
+        }
+    });
 };
 
 const saveUser = async () => {
@@ -315,7 +337,7 @@ onMounted(() => {
                                     text
                                     rounded
                                     severity="danger"
-                                    @click="deleteUser(slotProps.data.id)"
+                                    @click="confirmDelete(slotProps.data)"
                                     v-tooltip.top="'Delete User'"
                                     class="text-surface-500! hover:text-danger-500! h-10! w-10!"
                                 />

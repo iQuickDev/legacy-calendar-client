@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 
 import type { Event, EventFeature, EventParticipant } from '../../types/Event';
 import type { User } from '../../types/User';
@@ -45,6 +46,7 @@ const apiStore = useAPIStore();
 const sessionStore = useSessionStore();
 const eventsStore = useEventsStore();
 const toast = useToast();
+const confirm = useConfirm();
 
 const allUsers = ref<User[]>([]);
 
@@ -102,8 +104,6 @@ const canAccept = computed(() => {
 const joining = ref(false);
 const cancelling = ref(false);
 const showFeatureSelection = ref(false);
-const showLeaveConfirmation = ref(false);
-const showDeleteConfirmation = ref(false);
 const assigningRide = ref(false);
 const dragOverDriverId = ref<number | null>(null);
 const isEditing = ref(false);
@@ -118,48 +118,76 @@ const onEditParticipation = () => {
 };
 
 const onCancelParticipation = () => {
-    showLeaveConfirmation.value = true;
+    confirm.require({
+        message:
+            'Are you sure you want to leave this event? If the event is private/invite only, you might not be able to join again.',
+        header: 'Confirm Leave',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            text: true
+        },
+        acceptProps: {
+            label: 'Yes, Leave',
+            severity: 'danger'
+        },
+        accept: async () => {
+            if (!props.event || !currentUser.value) return;
+
+            cancelling.value = true;
+            try {
+                const success = await eventsStore.leaveEvent(props.event.id);
+                if (success) emit('joined');
+                else throw new Error();
+            } catch {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: eventsStore.error || 'Failed to leave event',
+                    life: 5000
+                });
+            } finally {
+                cancelling.value = false;
+            }
+        }
+    });
 };
 
-const onDecline = async () => {
-    if (!props.event || !currentUser.value) return;
+const onDecline = () => {
+    confirm.require({
+        message: 'Are you sure you want to decline this invitation?',
+        header: 'Confirm Decline',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            text: true
+        },
+        acceptProps: {
+            label: 'Yes, Decline',
+            severity: 'danger'
+        },
+        accept: async () => {
+            if (!props.event || !currentUser.value) return;
 
-    cancelling.value = true;
-    try {
-        const success = await eventsStore.leaveEvent(props.event.id);
-        if (success) emit('joined');
-        else throw new Error();
-    } catch {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: eventsStore.error || 'Failed to decline invitation',
-            life: 5000
-        });
-    } finally {
-        cancelling.value = false;
-    }
-};
-
-const confirmLeave = async () => {
-    if (!props.event || !currentUser.value) return;
-
-    showLeaveConfirmation.value = false;
-    cancelling.value = true;
-    try {
-        const success = await eventsStore.leaveEvent(props.event.id);
-        if (success) emit('joined');
-        else throw new Error();
-    } catch {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: eventsStore.error || 'Failed to leave event',
-            life: 5000
-        });
-    } finally {
-        cancelling.value = false;
-    }
+            cancelling.value = true;
+            try {
+                const success = await eventsStore.leaveEvent(props.event.id);
+                if (success) emit('joined');
+                else throw new Error();
+            } catch {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: eventsStore.error || 'Failed to decline invitation',
+                    life: 5000
+                });
+            } finally {
+                cancelling.value = false;
+            }
+        }
+    });
 };
 
 const handleFeatureConfirm = async (data: {
@@ -337,13 +365,24 @@ watch(
 
 const onDelete = () => {
     if (!props.event) return;
-    showDeleteConfirmation.value = true;
-};
-
-const confirmDelete = () => {
-    if (!props.event) return;
-    showDeleteConfirmation.value = false;
-    emit('delete', props.event.id);
+    confirm.require({
+        message: 'Are you sure you want to delete this event? This action cannot be undone and all data will be lost.',
+        header: 'Confirm Deletion',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'No',
+            severity: 'secondary',
+            text: true
+        },
+        acceptProps: {
+            label: 'Yes, Delete',
+            severity: 'danger'
+        },
+        accept: () => {
+            if (!props.event) return;
+            emit('delete', props.event.id);
+        }
+    });
 };
 
 const onEdit = () => {
@@ -489,48 +528,4 @@ const handleEditSave = async (dto: CreateEventDto) => {
         :featureSplitPrices="eventSplitPrices"
         @confirm="handleFeatureConfirm"
     />
-
-    <Dialog
-        v-model:visible="showLeaveConfirmation"
-        modal
-        header="Confirm"
-        :style="{ width: '350px' }"
-        :breakpoints="{ '640px': '90vw' }"
-        dismissableMask
-        :draggable="false"
-    >
-        <div class="flex flex-col items-center gap-4 pt-2">
-            <p class="m-0 text-center">
-                Are you sure you want to leave this event? You will need to join again to participate.
-            </p>
-        </div>
-        <template #footer>
-            <div class="flex w-full justify-end gap-2">
-                <Button label="No" severity="secondary" text @click="showLeaveConfirmation = false" />
-                <Button label="Yes, Leave" severity="danger" @click="confirmLeave" />
-            </div>
-        </template>
-    </Dialog>
-
-    <Dialog
-        v-model:visible="showDeleteConfirmation"
-        modal
-        header="Confirm Deletion"
-        :style="{ width: '350px' }"
-        :breakpoints="{ '640px': '90vw' }"
-        dismissableMask
-        :draggable="false"
-    >
-        <div class="flex flex-col items-center gap-4 pt-2">
-            <p class="m-0 text-center">
-                Are you sure you want to delete this event? This action cannot be undone and all data will be lost.
-            </p>
-        </div>
-        <template #footer>
-            <div class="flex w-full justify-end gap-2">
-                <Button label="No" severity="secondary" text @click="showDeleteConfirmation = false" />
-                <Button label="Yes, Delete" severity="danger" @click="confirmDelete" />
-            </div>
-        </template>
-    </Dialog>
 </template>

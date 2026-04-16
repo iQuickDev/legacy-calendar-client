@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import { router } from './router/router';
 import Header from './components/Header.vue';
 import Toast from 'primevue/toast';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { useSessionStore } from './stores/session';
 import { onMessageListener, requestNotificationPermission } from './services/firebase';
 import { useToast } from 'primevue/usetoast';
@@ -57,6 +58,7 @@ onMounted(async () => {
 
 <template>
     <Toast position="top-right" />
+    <ConfirmDialog />
     <Header v-if="showHeader" />
     <router-view v-slot="{ Component }">
         <component :is="Component" />

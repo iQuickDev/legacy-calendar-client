@@ -8,6 +8,7 @@ import Avatar from 'primevue/avatar';
 import Card from 'primevue/card';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import { uploadsBaseURL } from '../services/API';
 import { onMounted } from 'vue';
 import { notificationStorage } from '../services/notificationStorage';
@@ -15,6 +16,7 @@ import { NotificationLabel, type NotificationSettings } from '../types/Notificat
 
 const sessionStore = useSessionStore();
 const toast = useToast();
+const confirm = useConfirm();
 
 const currentUser = computed(() => sessionStore.currentUser);
 
@@ -90,13 +92,34 @@ const onUpload = async (event: any) => {
     }
 };
 
-const handleDeletePicture = async () => {
-    try {
-        await sessionStore.removeProfilePicture();
-        toast.add({ severity: 'success', summary: 'Success', detail: 'Profile picture removed', life: 3000 });
-    } catch {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to remove profile picture', life: 3000 });
-    }
+const handleDeletePicture = () => {
+    confirm.require({
+        message: 'Are you sure you want to remove your profile picture?',
+        header: 'Confirm Removal',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            text: true
+        },
+        acceptProps: {
+            label: 'Remove',
+            severity: 'danger'
+        },
+        accept: async () => {
+            try {
+                await sessionStore.removeProfilePicture();
+                toast.add({ severity: 'success', summary: 'Success', detail: 'Profile picture removed', life: 3000 });
+            } catch {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to remove profile picture',
+                    life: 3000
+                });
+            }
+        }
+    });
 };
 </script>
 

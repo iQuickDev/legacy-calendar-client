@@ -1,6 +1,8 @@
 import type { CreateEventDto, Event, EventFeature, EventParticipant, ParticipantStatus } from '../types/Event';
 import { EVENT_FEATURES } from '../types/Event';
 
+const MAX_EVENT_START_TIME_YEARS_AHEAD = 1;
+
 export const FEATURE_FLAG_FIELD: Record<
     EventFeature,
     keyof Pick<CreateEventDto, 'hasFood' | 'hasWeed' | 'hasSleep' | 'hasAlcohol' | 'hasBeer'>
@@ -70,6 +72,34 @@ export function combineDateAndTime(datePart: Date, timePart: Date): Date {
     const combined = new Date(datePart);
     combined.setHours(timePart.getHours(), timePart.getMinutes(), 0, 0);
     return combined;
+}
+
+function startOfDay(date: Date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    return start;
+}
+
+function endOfDay(date: Date) {
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+    return end;
+}
+
+export function getEventStartDateBounds(referenceDate = new Date()) {
+    const minDate = startOfDay(referenceDate);
+    const maxDate = new Date(referenceDate);
+    maxDate.setFullYear(maxDate.getFullYear() + MAX_EVENT_START_TIME_YEARS_AHEAD);
+
+    return {
+        minDate,
+        maxDate: endOfDay(maxDate)
+    };
+}
+
+export function isEventStartTimeWithinAllowedRange(startTime: Date, referenceDate = new Date()) {
+    const { minDate, maxDate } = getEventStartDateBounds(referenceDate);
+    return startTime >= minDate && startTime <= maxDate;
 }
 
 export function selectedFeaturesFromEvent(

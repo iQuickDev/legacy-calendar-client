@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
@@ -20,6 +20,8 @@ import {
     combineDateAndTime,
     createNullFeatureRecord,
     featureFlagsFromSelection,
+    getEventStartDateBounds,
+    isEventStartTimeWithinAllowedRange,
     toggleFeature as toggleFeatureInSelection
 } from '../../utils/event';
 
@@ -56,6 +58,8 @@ const endTimeOnly = ref<Date | null>(null);
 
 const selectedParticipants = ref<number[]>([]);
 const allParticipants = ref<User[]>([]);
+const saveAttempted = ref(false);
+const startDateBounds = getEventStartDateBounds();
 
 const fetchUsers = async () => {
     try {
@@ -70,10 +74,25 @@ const toggleFeature = (feature: EventFeature) => {
     toggleFeatureInSelection(selectedFeatures.value, feature);
 };
 
+const validationError = computed(() => {
+    if (!title.value) return 'Title is required.';
+    if (!startDateOnly.value || !startTimeOnly.value) return 'Start date and time are required.';
+
+    const start = combineDateAndTime(startDateOnly.value, startTimeOnly.value);
+    if (!isEventStartTimeWithinAllowedRange(start)) {
+        return 'Start date must be today or within 1 year from today.';
+    }
+
+    return null;
+});
+
+const showValidationError = computed(() => saveAttempted.value && validationError.value !== null);
+
 watch(
     () => props.visible,
     (newVal) => {
         if (newVal) {
+            saveAttempted.value = false;
             title.value = '';
             description.value = '';
             location.value = '';
@@ -94,7 +113,11 @@ watch(
 );
 
 const onSave = () => {
-    if (!title.value || !startDateOnly.value || !startTimeOnly.value) return;
+    saveAttempted.value = true;
+
+    if (validationError.value) return;
+
+    if (!startDateOnly.value || !startTimeOnly.value) return;
 
     const start = combineDateAndTime(startDateOnly.value, startTimeOnly.value);
 
@@ -150,13 +173,20 @@ const onSave = () => {
                 <InputText id="location" v-model="location" placeholder="Meeting Room, Online, etc." />
             </div>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-semibold">Start</label>
-                <div class="flex gap-2">
-                    <DatePicker v-model="startDateOnly" class="flex-1" placeholder="Date" />
-                    <DatePicker v-model="startTimeOnly" timeOnly class="w-24" placeholder="Time" />
+                <div class="flex flex-col gap-2">
+                    <label class="font-semibold">Start</label>
+                    <div class="flex gap-2">
+                        <DatePicker
+                            v-model="startDateOnly"
+                            class="flex-1"
+                            placeholder="Date"
+                            :minDate="startDateBounds.minDate"
+                            :maxDate="startDateBounds.maxDate"
+                        />
+                        <DatePicker v-model="startTimeOnly" timeOnly class="w-24" placeholder="Time" />
+                    </div>
+                    <small v-if="showValidationError" class="text-red-500">{{ validationError }}</small>
                 </div>
-            </div>
 
             <div class="flex flex-col gap-2">
                 <label class="font-semibold">End (Optional)</label>

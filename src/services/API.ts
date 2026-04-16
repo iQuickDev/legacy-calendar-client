@@ -98,9 +98,7 @@ class API {
 
     // --- Events ---
 
-    async findCalendarEvents(
-        range: Pick<CalendarVisibleRange, 'start' | 'end'>
-    ): Promise<AxiosResponse<Event[]>> {
+    async findCalendarEvents(range: Pick<CalendarVisibleRange, 'start' | 'end'>): Promise<AxiosResponse<Event[]>> {
         return this.client.get('/events', {
             params: {
                 start: range.start.toISOString(),

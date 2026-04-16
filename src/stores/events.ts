@@ -181,7 +181,10 @@ export const useEventsStore = defineStore('events', {
             return this.refreshActiveRange();
         },
 
-        async fetchCalendarEvents(range: CalendarVisibleRange, options: { refresh?: boolean; applyToVisible?: boolean } = {}) {
+        async fetchCalendarEvents(
+            range: CalendarVisibleRange,
+            options: { refresh?: boolean; applyToVisible?: boolean } = {}
+        ) {
             const { refresh = true, applyToVisible = true } = options;
             const rangeKey = range.monthKey;
 

@@ -4,16 +4,15 @@ import type { Event, EventFeature, CreateEventDto } from '../../../types/Event';
 import type { User } from '../../../types/User';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import DatePicker from 'primevue/datepicker';
 import MultiSelect from 'primevue/multiselect';
 import ToggleSwitch from 'primevue/toggleswitch';
+import SelectButton from 'primevue/selectbutton';
 import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import { FEATURES } from '../../../constants/features';
 import { uploadsBaseURL } from '../../../services/API';
 import {
-    combineDateAndTime,
     createNullFeatureRecord,
     featureFlagsFromSelection,
     featurePricesFromEvent,
@@ -35,48 +34,34 @@ const emit = defineEmits<{
 const title = ref('');
 const description = ref('');
 const location = ref('');
-const isOpen = ref(true);
-const isPrivate = ref(false);
+const visibilityOptions = [
+    { label: 'Private', value: 'private', icon: 'pi pi-lock', color: 'text-red-500' },
+    { label: 'Standard', value: 'standard', icon: 'pi pi-users', color: 'text-zinc-500' },
+    { label: 'Open', value: 'open', icon: 'pi pi-globe', color: 'text-emerald-500' }
+];
+const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
-const startDateOnly = ref<Date | null>(null);
-const startTimeOnly = ref<Date | null>(null);
-const endDateOnly = ref<Date | null>(null);
-const endTimeOnly = ref<Date | null>(null);
 const selectedParticipants = ref<number[]>([]);
 
 const initialize = () => {
     title.value = props.event.title;
     description.value = props.event.description || '';
     location.value = props.event.location || '';
-    isOpen.value = props.event.isOpen;
-    isPrivate.value = props.event.isPrivate;
+    
+    if (props.event.isPrivate) {
+        eventVisibility.value = 'private';
+    } else if (props.event.isOpen) {
+        eventVisibility.value = 'open';
+    } else {
+        eventVisibility.value = 'standard';
+    }
+
     selectedFeatures.value = selectedFeaturesFromEvent(props.event);
     featurePrices.value = featurePricesFromEvent(props.event);
 
-    const start = new Date(props.event.startTime);
-    startDateOnly.value = start;
-    startTimeOnly.value = start;
-
-    if (props.event.endTime) {
-        const end = new Date(props.event.endTime);
-        endDateOnly.value = end;
-        endTimeOnly.value = end;
-    } else {
-        endDateOnly.value = null;
-        endTimeOnly.value = null;
-    }
-
     selectedParticipants.value = props.event.participants?.map((participant) => participant.id) || [];
 };
-
-watch(isOpen, (newVal) => {
-    if (newVal) isPrivate.value = false;
-});
-
-watch(isPrivate, (newVal) => {
-    if (newVal) isOpen.value = false;
-});
 
 watch(() => props.event, initialize, { immediate: true });
 
@@ -85,21 +70,17 @@ const toggleFeature = (feature: EventFeature) => {
 };
 
 const onSave = () => {
-    if (!title.value || !startDateOnly.value || !startTimeOnly.value) return;
-
-    const start = combineDateAndTime(startDateOnly.value, startTimeOnly.value);
-    const end =
-        endDateOnly.value && endTimeOnly.value ? combineDateAndTime(endDateOnly.value, endTimeOnly.value) : undefined;
+    if (!title.value) return;
 
     emit('save', {
         title: title.value,
         description: description.value || undefined,
         location: location.value || undefined,
-        startTime: start.toISOString(),
-        endTime: end?.toISOString(),
+        startTime: props.event.startTime,
+        endTime: props.event.endTime,
         participants: selectedParticipants.value,
-        isOpen: isOpen.value,
-        isPrivate: isPrivate.value,
+        isOpen: eventVisibility.value === 'open',
+        isPrivate: eventVisibility.value === 'private',
         ...featureFlagsFromSelection(selectedFeatures.value),
         foodPrice: featurePrices.value.FOOD ?? undefined,
         weedPrice: featurePrices.value.WEED ?? undefined,
@@ -146,25 +127,9 @@ const onSave = () => {
                     />
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Start Time</label>
-                    <div class="flex gap-2">
-                        <DatePicker v-model="startDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
-                        <DatePicker v-model="startTimeOnly" timeOnly class="w-32 rounded-xl!" placeholder="Time" />
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">End Time (Optional)</label>
-                    <div class="flex gap-2">
-                        <DatePicker v-model="endDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
-                        <DatePicker v-model="endTimeOnly" timeOnly class="w-32 rounded-xl!" placeholder="Time" />
-                    </div>
-                </div>
-
                 <div class="mt-2 flex flex-col gap-2">
                     <label for="edit-participants" class="text-sm font-bold tracking-wider text-zinc-500 uppercase"
-                        >Invite More People</label
+                        >Participants ({{ selectedParticipants.length }})</label
                     >
                     <MultiSelect
                         id="edit-participants"
@@ -199,32 +164,31 @@ const onSave = () => {
                     </MultiSelect>
                 </div>
 
-                <div
-                    class="mt-2 flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50"
-                >
-                    <div class="flex flex-col gap-1">
-                        <label
-                            for="edit-isOpen"
-                            class="cursor-pointer text-sm font-bold tracking-wider text-zinc-500 uppercase"
-                            >Open Event</label
-                        >
-                        <small class="text-zinc-400">Anyone can see and join this event</small>
-                    </div>
-                    <ToggleSwitch id="edit-isOpen" v-model="isOpen" />
-                </div>
-
-                <div
-                    class="mt-2 flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50"
-                >
-                    <div class="flex flex-col gap-1">
-                        <label
-                            for="edit-isPrivate"
-                            class="cursor-pointer text-sm font-bold tracking-wider text-rose-500 uppercase"
-                            >Private Event</label
-                        >
-                        <small class="text-zinc-400">Only invited participants can see this event</small>
-                    </div>
-                    <ToggleSwitch id="edit-isPrivate" v-model="isPrivate" />
+                <div class="mt-2 flex flex-col gap-2">
+                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Event Visibility</label>
+                    <SelectButton
+                        v-model="eventVisibility"
+                        :options="visibilityOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :allowEmpty="false"
+                        class="mt-2"
+                        fluid
+                    >
+                        <template #option="slotProps">
+                            <div class="flex items-center gap-2" :class="slotProps.option.color">
+                                <i :class="slotProps.option.icon"></i>
+                                <span>{{ slotProps.option.label }}</span>
+                            </div>
+                        </template>
+                    </SelectButton>
+                    <small class="text-surface-500">
+                        <template v-if="eventVisibility === 'open'">Anyone can see and join this event</template>
+                        <template v-else-if="eventVisibility === 'private'">
+                            Only invited participants can see this event
+                        </template>
+                        <template v-else>Everyone can see this event, only invited participants can join</template>
+                    </small>
                 </div>
             </div>
 

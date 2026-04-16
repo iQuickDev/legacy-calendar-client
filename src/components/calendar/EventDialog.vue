@@ -167,7 +167,7 @@ const onSave = () => {
             </div>
 
             <div class="flex flex-col gap-2">
-                <label for="participants" class="font-semibold">Participants</label>
+                <label for="participants" class="font-semibold">Participants ({{ selectedParticipants.length }})</label>
                 <MultiSelect
                     id="participants"
                     v-model="selectedParticipants"

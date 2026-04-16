@@ -297,7 +297,7 @@ const canEditRide = (driverId: number) => {
         <div class="flex flex-col gap-3">
             <div class="text-surface-600 dark:text-surface-400 flex items-center gap-2">
                 <i class="pi pi-users"></i>
-                <span class="font-semibold">Invitees</span>
+                <span class="font-semibold">Participants ({{ resolvedInvitees.length }})</span>
             </div>
 
             <DataTable :value="resolvedInvitees" scrollable>

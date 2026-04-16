@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import {
     startOfMonth,
     endOfMonth,
@@ -12,7 +12,7 @@ import {
     isToday,
     parseISO
 } from 'date-fns';
-import type { CalendarDay } from '../types/Calendar';
+import type { CalendarDay, CalendarVisibleRange } from '../types/Calendar';
 import type { CreateEventDto, Event, ParticipateDto } from '../types/Event';
 import { useEventsStore } from '../stores/events';
 
@@ -21,6 +21,63 @@ export function useCalendar() {
     const eventsStore = useEventsStore();
 
     const events = computed<Event[]>(() => eventsStore.events);
+
+    const buildMonthKey = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    };
+
+    const buildVisibleRange = (date: Date): CalendarVisibleRange => {
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(monthStart);
+
+        return {
+            monthKey: buildMonthKey(date),
+            start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+            end: endOfWeek(monthEnd, { weekStartsOn: 1 })
+        };
+    };
+
+    const visibleMonthKey = computed(() => {
+        return buildMonthKey(currentDate.value);
+    });
+
+    const visibleRange = computed<CalendarVisibleRange>(() => {
+        return buildVisibleRange(currentDate.value);
+    });
+
+    const prefetchRange = async (date: Date) => {
+        const range = buildVisibleRange(date);
+        await eventsStore.prefetchCalendarEvents(range);
+    };
+
+    const refreshVisibleRange = async () => {
+        await eventsStore.fetchCalendarEvents(visibleRange.value, { refresh: true, applyToVisible: true });
+    };
+
+    const prefetchNextMonth = async () => {
+        await prefetchRange(addMonths(currentDate.value, 1));
+    };
+
+    const prefetchPrevMonth = async () => {
+        await prefetchRange(subMonths(currentDate.value, 1));
+    };
+
+    const prefetchTodayMonth = async () => {
+        await prefetchRange(new Date());
+    };
+
+    const goToToday = async () => {
+        const today = new Date();
+        const isSameMonth = buildMonthKey(today) === visibleMonthKey.value;
+
+        currentDate.value = today;
+
+        if (isSameMonth) {
+            await refreshVisibleRange();
+        }
+    };
 
     const days = computed<CalendarDay[]>(() => {
         const monthStart = startOfMonth(currentDate.value);
@@ -47,6 +104,14 @@ export function useCalendar() {
         });
     });
 
+    watch(
+        visibleMonthKey,
+        async () => {
+            await refreshVisibleRange();
+        },
+        { immediate: true }
+    );
+
     const nextMonth = () => {
         currentDate.value = addMonths(currentDate.value, 1);
     };
@@ -56,7 +121,7 @@ export function useCalendar() {
     };
 
     const fetchEvents = async () => {
-        await eventsStore.fetchEvents();
+        await refreshVisibleRange();
     };
 
     const addEvent = async (dto: CreateEventDto) => {
@@ -79,6 +144,10 @@ export function useCalendar() {
         error: computed(() => eventsStore.error),
         nextMonth,
         prevMonth,
+        goToToday,
+        prefetchNextMonth,
+        prefetchPrevMonth,
+        prefetchTodayMonth,
         fetchEvents,
         addEvent,
         deleteEvent,

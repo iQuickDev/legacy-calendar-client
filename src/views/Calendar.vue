@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { format } from 'date-fns';
 import { useCalendar } from '../composables/useCalendar';
 import { useToast } from 'primevue/usetoast';
@@ -11,16 +11,24 @@ import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import type { Event, CreateEventDto } from '../types/Event';
 
 const toast = useToast();
-const { currentDate, days, events, nextMonth, prevMonth, addEvent, deleteEvent, fetchEvents, loading, error } =
-    useCalendar();
+const {
+    currentDate,
+    days,
+    events,
+    nextMonth,
+    prevMonth,
+    goToToday,
+    prefetchNextMonth,
+    prefetchPrevMonth,
+    prefetchTodayMonth,
+    addEvent,
+    deleteEvent,
+    loading,
+    error
+} = useCalendar();
 
 const showDialog = ref(false);
 const selectedDate = ref(new Date());
-
-// Fetch events on mount
-onMounted(async () => {
-    await fetchEvents();
-});
 
 const openAddEvent = (date: Date) => {
     selectedDate.value = date;
@@ -104,6 +112,8 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 <Button
                     icon="pi pi-chevron-left"
                     @click="prevMonth"
+                    @mouseenter="prefetchPrevMonth"
+                    @focus="prefetchPrevMonth"
                     text
                     rounded
                     aria-label="Previous Month"
@@ -112,6 +122,8 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 <Button
                     icon="pi pi-chevron-right"
                     @click="nextMonth"
+                    @mouseenter="prefetchNextMonth"
+                    @focus="prefetchNextMonth"
                     text
                     rounded
                     aria-label="Next Month"
@@ -125,7 +137,9 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             </h1>
             <Button
                 label="Today"
-                @click="currentDate = new Date()"
+                @click="goToToday"
+                @mouseenter="prefetchTodayMonth"
+                @focus="prefetchTodayMonth"
                 outlined
                 size="small"
                 class="text-xs! sm:text-sm!"
@@ -166,13 +180,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         />
 
         <!-- Event View Dialog -->
-        <EventViewDialog
-            v-model:visible="showViewDialog"
-            :event="selectedEvent"
-            @delete="handleDeleteEvent"
-            @joined="fetchEvents"
-            @refresh="fetchEvents"
-        />
+        <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent" />
     </div>
 </template>
 

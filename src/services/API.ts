@@ -5,6 +5,7 @@ export const uploadsBaseURL = import.meta.env.VITE_UPLOADS_API_URL ?? baseURL;
 
 import type { CreateUserDto, UpdateUserDto, User } from '../types/User';
 import type { AuthLoginDto, ChangePasswordDto } from '../types/Auth';
+import type { CalendarVisibleRange } from '../types/Calendar';
 import type { CreateEventDto, Event, ParticipateDto } from '../types/Event';
 
 // --- API Class ---
@@ -97,8 +98,15 @@ class API {
 
     // --- Events ---
 
-    async findAllEvents(): Promise<AxiosResponse<Event[]>> {
-        return this.client.get('/events');
+    async findCalendarEvents(
+        range: Pick<CalendarVisibleRange, 'start' | 'end'>
+    ): Promise<AxiosResponse<Event[]>> {
+        return this.client.get('/events', {
+            params: {
+                start: range.start.toISOString(),
+                end: range.end.toISOString()
+            }
+        });
     }
 
     async findOneEvent(id: number): Promise<AxiosResponse<Event>> {

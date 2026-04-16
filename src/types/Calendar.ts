@@ -6,3 +6,9 @@ export interface CalendarDay {
     isToday: boolean;
     events: Event[];
 }
+
+export interface CalendarVisibleRange {
+    monthKey: string;
+    start: Date;
+    end: Date;
+}

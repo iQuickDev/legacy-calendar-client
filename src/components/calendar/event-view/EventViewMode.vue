@@ -512,26 +512,6 @@ const canEditRide = (driverId: number) => {
                                 </div>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <Button
-                                v-for="driver in drivers.filter(
-                                    (candidate) =>
-                                        (isHost || candidate.id === currentUser?.id) && getAvailableSeats(candidate) > 0
-                                )"
-                                :key="driver.id"
-                                :label="
-                                    isHost && driver.id !== currentUser?.id
-                                        ? `Add to ${driver.username}`
-                                        : 'Add to my vehicle'
-                                "
-                                icon="pi pi-plus"
-                                size="small"
-                                severity="secondary"
-                                outlined
-                                class="py-1! text-[10px]!"
-                                @click="assignRide(passenger.id, driver.id)"
-                            />
-                        </div>
                     </div>
                 </div>
             </div>

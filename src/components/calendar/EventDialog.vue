@@ -83,6 +83,13 @@ const validationError = computed(() => {
         return 'Start date must be today or within 1 year from today.';
     }
 
+    if (endDateOnly.value && endTimeOnly.value) {
+        const end = combineDateAndTime(endDateOnly.value, endTimeOnly.value);
+        if (!isEventStartTimeWithinAllowedRange(end)) {
+            return 'End date must be today or within 1 year from today.';
+        }
+    }
+
     return null;
 });
 
@@ -191,7 +198,13 @@ const onSave = () => {
             <div class="flex flex-col gap-2">
                 <label class="font-semibold">End (Optional)</label>
                 <div class="flex gap-2">
-                    <DatePicker v-model="endDateOnly" class="flex-1" placeholder="Date" />
+                    <DatePicker
+                        v-model="endDateOnly"
+                        class="flex-1"
+                        placeholder="Date"
+                        :minDate="startDateBounds.minDate"
+                        :maxDate="startDateBounds.maxDate"
+                    />
                     <DatePicker v-model="endTimeOnly" timeOnly class="w-24" placeholder="Time" />
                 </div>
             </div>

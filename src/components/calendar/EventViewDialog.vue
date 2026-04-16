@@ -129,7 +129,7 @@ const onDecline = async () => {
         const success = await eventsStore.leaveEvent(props.event.id);
         if (success) emit('joined');
         else throw new Error();
-    } catch (error) {
+    } catch {
         toast.add({
             severity: 'error',
             summary: 'Error',
@@ -150,7 +150,7 @@ const confirmLeave = async () => {
         const success = await eventsStore.leaveEvent(props.event.id);
         if (success) emit('joined');
         else throw new Error();
-    } catch (error) {
+    } catch {
         toast.add({
             severity: 'error',
             summary: 'Error',
@@ -180,7 +180,7 @@ const handleFeatureConfirm = async (data: {
         const success = await eventsStore.joinEvent(props.event.id, participateDto);
         if (success) emit('joined');
         else throw new Error();
-    } catch (error) {
+    } catch {
         toast.add({
             severity: 'error',
             summary: 'Error',
@@ -276,7 +276,7 @@ const assignRide = async (passengerId: number, driverId: number | null) => {
         const success = await eventsStore.assignRide(props.event.id, passengerId, driverId);
         if (success) emit('refresh');
         else throw new Error();
-    } catch (error) {
+    } catch {
         toast.add({
             severity: 'error',
             summary: 'Error',

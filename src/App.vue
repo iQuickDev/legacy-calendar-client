@@ -40,7 +40,6 @@ onMounted(async () => {
 
     // Set up foreground notification listener
     onMessageListener((payload) => {
-        console.log('Foreground message received:', payload);
         toast.add({
             severity: 'info',
             summary: payload.notification?.title || 'New Notification',

@@ -35,16 +35,15 @@ export const requestNotificationPermission = async () => {
                 serviceWorkerRegistration: registration
             });
             if (token) {
-                console.log('FCM Token:', token);
                 localStorage.setItem('fcm_token', token);
                 // Send the token to your server if needed
                 await API.subscribeNotifications(token);
                 console.log('FCM Token registered on server.');
             } else {
-                console.log('No registration token available. Request permission to generate one.');
+                console.error('No registration token available. Request permission to generate one.');
             }
         } else {
-            console.log('Unable to get permission to notify.');
+            console.error('Unable to get permission to notify.');
         }
     } catch (error) {
         console.error('An error occurred while retrieving token. ', error);

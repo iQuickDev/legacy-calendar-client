@@ -318,6 +318,26 @@ const assignRide = async (passengerId: number, driverId: number | null) => {
     }
 };
 
+const assignRidesBatch = async (passengerIds: number[], driverId: number | null) => {
+    if (!props.event) return;
+
+    assigningRide.value = true;
+    try {
+        const success = await eventsStore.assignRidesBatch(props.event.id, passengerIds, driverId);
+        if (success) emit('refresh');
+        else throw new Error();
+    } catch {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: eventsStore.error || 'Failed to assign rides',
+            life: 5000
+        });
+    } finally {
+        assigningRide.value = false;
+    }
+};
+
 const onDrop = async (event: DragEvent, driverId: number) => {
     event.preventDefault();
     dragOverDriverId.value = null;
@@ -464,6 +484,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
             :on-drag-leave="onDragLeave"
             :on-drop="onDrop"
             :assign-ride="assignRide"
+            :assign-rides-batch="assignRidesBatch"
         />
 
         <EventEditForm

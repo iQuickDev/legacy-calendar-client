@@ -9,7 +9,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { uploadsBaseURL } from '../../../services/API';
 import { FEATURES } from '../../../constants/features';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 type FeatureColumn = {
     field: EventFeature;
@@ -55,7 +55,40 @@ const props = defineProps<{
     onDragLeave: () => void;
     onDrop: (event: DragEvent, driverId: number) => void;
     assignRide: (passengerId: number, driverId: number | null) => void;
+    assignRidesBatch: (passengerIds: number[], driverId: number | null) => void;
 }>();
+
+const selectedPassengerIds = ref<number[]>([]);
+
+const togglePassengerSelection = (passengerId: number) => {
+    if (!canEditRides.value) return;
+
+    const index = selectedPassengerIds.value.indexOf(passengerId);
+    if (index === -1) {
+        selectedPassengerIds.value.push(passengerId);
+    } else {
+        selectedPassengerIds.value.splice(index, 1);
+    }
+};
+
+const handleDriverClick = (driverId: number) => {
+    if (!canEditRides.value || !canEditRide(driverId)) return;
+    if (selectedPassengerIds.value.length === 0) return;
+
+    const driver = props.drivers.find((d) => d.id === driverId);
+    const availableSeats = props.getAvailableSeats(driver);
+
+    if (selectedPassengerIds.value.length <= availableSeats) {
+        props.assignRidesBatch(selectedPassengerIds.value, driverId);
+        selectedPassengerIds.value = [];
+    }
+};
+
+const canAssignToDriver = (driverId: number) => {
+    if (selectedPassengerIds.value.length === 0) return false;
+    const driver = props.drivers.find((d) => d.id === driverId);
+    return selectedPassengerIds.value.length <= props.getAvailableSeats(driver);
+};
 
 const canEditRides = computed(
     () => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id)
@@ -412,6 +445,7 @@ const canEditRide = (driverId: number) => {
                     @dragover="onDragOver($event, driver.id)"
                     @dragleave="onDragLeave"
                     @drop="onDrop($event, driver.id)"
+                    @click="handleDriverClick(driver.id)"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -431,6 +465,21 @@ const canEditRide = (driverId: number) => {
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                        <div
+                            v-if="selectedPassengerIds.length > 0 && canEditRide(driver.id)"
+                            class="animate-in fade-in zoom-in duration-300"
+                        >
+                            <Tag
+                                :severity="canAssignToDriver(driver.id) ? 'success' : 'danger'"
+                                :value="
+                                    canAssignToDriver(driver.id)
+                                        ? `Assign ${selectedPassengerIds.length}`
+                                        : 'Too many'
+                                "
+                                size="small"
+                                class="cursor-pointer"
+                            />
                         </div>
                     </div>
 
@@ -483,16 +532,31 @@ const canEditRide = (driverId: number) => {
             </div>
 
             <div v-if="needsRide.length > 0" class="mt-2 flex flex-col gap-2">
-                <span class="px-1 text-[10px] font-black tracking-widest text-zinc-400 uppercase">
-                    Unassigned Participants
-                </span>
+                <div class="flex items-center justify-between px-1">
+                    <span class="text-[10px] font-black tracking-widest text-zinc-400 uppercase">
+                        Unassigned Participants
+                    </span>
+                    <button
+                        v-if="selectedPassengerIds.length > 0"
+                        @click="selectedPassengerIds = []"
+                        class="text-[9px] font-bold tracking-widest text-zinc-500 underline uppercase focus:outline-none"
+                    >
+                        Clear Selection ({{ selectedPassengerIds.length }})
+                    </button>
+                </div>
                 <div class="flex flex-col gap-1">
                     <div
                         v-for="passenger in needsRide"
                         :key="passenger.id"
                         :draggable="canEditRides"
                         @dragstart="onDragStart($event, passenger.id)"
-                        class="group flex cursor-grab items-center justify-between rounded-xl border border-zinc-100 bg-white p-3 transition-colors hover:border-emerald-500/50 active:cursor-grabbing dark:border-zinc-800/50 dark:bg-zinc-900/30"
+                        @click="togglePassengerSelection(passenger.id)"
+                        class="group flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all duration-300"
+                        :class="[
+                            selectedPassengerIds.includes(passenger.id)
+                                ? 'border-emerald-500 bg-emerald-500/10 shadow-sm'
+                                : 'border-zinc-100 bg-white hover:border-emerald-500/50 dark:border-zinc-800/50 dark:bg-zinc-900/30'
+                        ]"
                     >
                         <div class="flex items-center gap-3">
                             <Avatar
@@ -504,6 +568,7 @@ const canEditRide = (driverId: number) => {
                                 :label="!passenger.profilePicture ? passenger.username.charAt(0) : undefined"
                                 shape="circle"
                                 size="small"
+                                :class="{ 'ring-2 ring-emerald-500': selectedPassengerIds.includes(passenger.id) }"
                             />
                             <div class="relative my-auto flex flex-col">
                                 <div
@@ -514,11 +579,24 @@ const canEditRide = (driverId: number) => {
                                 </div>
                                 <div
                                     class="absolute top-2 left-0 text-[9px] font-bold tracking-tighter whitespace-nowrap text-zinc-500 uppercase opacity-0 transition-all duration-300"
-                                    :class="[canEditRides ? 'group-hover:translate-y-1 group-hover:opacity-100' : '']"
+                                    :class="[
+                                        canEditRides && !selectedPassengerIds.includes(passenger.id)
+                                            ? 'group-hover:translate-y-1 group-hover:opacity-100'
+                                            : ''
+                                    ]"
                                 >
-                                    Drag to assign
+                                    Tap to select / Drag
+                                </div>
+                                <div
+                                    v-if="selectedPassengerIds.includes(passenger.id)"
+                                    class="text-[9px] font-black tracking-widest text-emerald-500 uppercase"
+                                >
+                                    Selected
                                 </div>
                             </div>
+                        </div>
+                        <div v-if="selectedPassengerIds.includes(passenger.id)" class="text-emerald-500">
+                            <i class="pi pi-check-circle text-lg"></i>
                         </div>
                     </div>
                 </div>

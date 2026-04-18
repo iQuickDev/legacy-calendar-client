@@ -320,6 +320,18 @@ export const useEventsStore = defineStore('events', {
             return result !== false;
         },
 
+        async assignRidesBatch(eventId: number, passengerIds: number[], driverId: number | null) {
+            const result = await runEventsAction(this, 'Failed to assign rides', async () => {
+                const { client } = useAPIStore();
+                await Promise.all(passengerIds.map((id) => client.assignRide(eventId, id, driverId)));
+                return true;
+            });
+            if (result !== false) {
+                await this.refreshActiveRange();
+            }
+            return result !== false;
+        },
+
         clearError() {
             this.error = null;
         }

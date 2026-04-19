@@ -45,6 +45,10 @@ const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 const selectedParticipants = ref<number[]>([]);
+const startDateOnly = ref<Date | null>(null);
+const startTimeOnly = ref<Date | null>(null);
+const endDateOnly = ref<Date | null>(null);
+const endTimeOnly = ref<Date | null>(null);
 const deadlineDateOnly = ref<Date | null>(null);
 const deadlineTimeOnly = ref<Date | null>(null);
 
@@ -65,6 +69,24 @@ const initialize = () => {
     featurePrices.value = featurePricesFromEvent(props.event);
 
     selectedParticipants.value = props.event.participants?.map((participant) => participant.id) || [];
+
+    if (props.event.startTime) {
+        const start = new Date(props.event.startTime);
+        startDateOnly.value = start;
+        startTimeOnly.value = start;
+    } else {
+        startDateOnly.value = null;
+        startTimeOnly.value = null;
+    }
+
+    if (props.event.endTime) {
+        const end = new Date(props.event.endTime);
+        endDateOnly.value = end;
+        endTimeOnly.value = end;
+    } else {
+        endDateOnly.value = null;
+        endTimeOnly.value = null;
+    }
 
     if (props.event.participationDeadline) {
         const deadline = new Date(props.event.participationDeadline);
@@ -89,8 +111,14 @@ const onSave = () => {
         title: title.value,
         description: description.value || undefined,
         location: location.value || undefined,
-        startTime: props.event.startTime,
-        endTime: props.event.endTime,
+        startTime:
+            startDateOnly.value && startTimeOnly.value
+                ? combineDateAndTime(startDateOnly.value, startTimeOnly.value).toISOString()
+                : props.event.startTime,
+        endTime:
+            endDateOnly.value && endTimeOnly.value
+                ? combineDateAndTime(endDateOnly.value, endTimeOnly.value).toISOString()
+                : undefined,
         participants: selectedParticipants.value,
         isOpen: eventVisibility.value === 'open',
         isPrivate: eventVisibility.value === 'private',
@@ -142,6 +170,22 @@ const onSave = () => {
                         placeholder="Meeting Room, Online, etc."
                         class="rounded-xl!"
                     />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Start Time</label>
+                    <div class="flex gap-2">
+                        <DatePicker v-model="startDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
+                        <DatePicker v-model="startTimeOnly" timeOnly class="w-24 rounded-xl!" placeholder="Time" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">End Time (Optional)</label>
+                    <div class="flex gap-2">
+                        <DatePicker v-model="endDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
+                        <DatePicker v-model="endTimeOnly" timeOnly class="w-24 rounded-xl!" placeholder="Time" />
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-2">

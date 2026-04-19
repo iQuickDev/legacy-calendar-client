@@ -6,7 +6,6 @@ import type { AuthLoginDto } from '../types/Auth';
 export const useSessionStore = defineStore('session', {
     state: () => ({
         session: {} as Session,
-        bypassToken: null as string | null,
         loading: false,
         error: null as string | null
     }),
@@ -17,17 +16,6 @@ export const useSessionStore = defineStore('session', {
     actions: {
         save() {
             localStorage.setItem('token', this.session.token);
-            if (this.bypassToken) {
-                localStorage.setItem('bypass_token', this.bypassToken);
-            }
-        },
-        setBypassToken(token: string) {
-            this.bypassToken = token;
-            localStorage.setItem('bypass_token', token);
-        },
-        clearBypassToken() {
-            this.bypassToken = null;
-            localStorage.removeItem('bypass_token');
         },
         async login(credentials: AuthLoginDto) {
             this.loading = true;
@@ -57,7 +45,6 @@ export const useSessionStore = defineStore('session', {
         },
         async load() {
             const token = localStorage.getItem('token') ?? null;
-            this.bypassToken = localStorage.getItem('bypass_token') ?? null;
 
             if (!token) {
                 return false;
@@ -96,9 +83,7 @@ export const useSessionStore = defineStore('session', {
                 }
             }
             this.session = {} as Session;
-            this.bypassToken = null;
             localStorage.removeItem('token');
-            localStorage.removeItem('bypass_token');
         },
         clearError() {
             this.error = null;

@@ -13,6 +13,8 @@ import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
 import Card from 'primevue/card';
 import Avatar from 'primevue/avatar';
+import Checkbox from 'primevue/checkbox';
+import Tag from 'primevue/tag';
 
 const sessionStore = useSessionStore();
 const toast = useToast();
@@ -20,12 +22,12 @@ const confirm = useConfirm();
 
 const users = ref<User[]>([]);
 const loading = ref(false);
-const bypassInput = ref('');
 const showUserDialog = ref(false);
 const isEditing = ref(false);
 const userForm = ref<CreateUserDto>({
     username: '',
-    password: ''
+    password: '',
+    isAdmin: false
 });
 const editingUserId = ref<number | null>(null);
 const existingPfp = ref<string | null>(null);
@@ -73,46 +75,29 @@ const removePicture = () => {
     shouldRemovePfp.value = true;
 };
 
-const isVerified = ref(false);
 
 const fetchUsers = async () => {
-    if (!sessionStore.bypassToken) return false;
     loading.value = true;
     try {
         const response = await api.findAllUsers();
         users.value = response.data;
-        isVerified.value = true;
         return true;
     } catch (error: any) {
         toast.add({
             severity: 'error',
-            summary: 'Invalid Password',
-            detail: error.response?.data?.message || 'The provided bypass password is incorrect.',
+            summary: 'Error',
+            detail: error.response?.data?.message || 'Failed to fetch users.',
             life: 3000
         });
-        sessionStore.clearBypassToken();
-        isVerified.value = false;
         return false;
     } finally {
         loading.value = false;
     }
 };
 
-const handleBypassSubmit = async () => {
-    if (!bypassInput.value || loading.value) return;
-
-    // Set the token temporarily to attempt fetch
-    sessionStore.setBypassToken(bypassInput.value);
-    const success = await fetchUsers();
-
-    if (success) {
-        bypassInput.value = ''; // Clear input on success
-    }
-};
-
 const openAddUser = () => {
     isEditing.value = false;
-    userForm.value = { username: '', password: '' };
+    userForm.value = { username: '', password: '', isAdmin: false };
     existingPfp.value = null;
     selectedFile.value = null;
     previewUrl.value = null;
@@ -126,7 +111,8 @@ const editUser = (user: User) => {
     existingPfp.value = user.profilePicture ?? null;
     userForm.value = {
         username: user.username,
-        password: ''
+        password: '',
+        isAdmin: user.isAdmin
     };
     selectedFile.value = null;
     previewUrl.value = null;
@@ -178,7 +164,10 @@ const saveUser = async () => {
     try {
         let userId = editingUserId.value;
         if (isEditing.value && userId) {
-            const updateDto: UpdateUserDto = { username: userForm.value.username };
+            const updateDto: UpdateUserDto = {
+                username: userForm.value.username,
+                isAdmin: userForm.value.isAdmin
+            };
             if (userForm.value.password) {
                 updateDto.password = userForm.value.password;
             }
@@ -221,68 +210,19 @@ const saveUser = async () => {
 };
 
 onMounted(() => {
-    if (sessionStore.bypassToken) {
-        fetchUsers();
-    }
+    fetchUsers();
 });
 </script>
 
 <template>
     <div class="admin-container mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 md:p-8">
-        <div v-if="!isVerified" class="flex min-h-[70vh] flex-col items-center justify-center">
-            <Card class="w-full max-w-sm border border-gray-500">
-                <template #title>
-                    <div class="mb-4 flex flex-col items-center gap-6 pt-4">
-                        <div
-                            class="bg-surface-900 border-surface-800 flex h-20 w-20 items-center justify-center rounded-2xl border shadow-inner"
-                        >
-                            <i class="pi pi-shield text-primary" style="font-size: 2.5rem"></i>
-                        </div>
-                        <h2 class="text-center text-2xl font-bold tracking-tight">Admin Dashboard</h2>
-                    </div>
-                </template>
-                <template #content>
-                    <div class="flex flex-col gap-6">
-                        <p class="text-center text-sm">Here you can manage users</p>
-                        <div class="flex flex-col gap-3">
-                            <Password
-                                v-model="bypassInput"
-                                placeholder="Password"
-                                :feedback="false"
-                                toggleMask
-                                fluid
-                                @keyup.enter="handleBypassSubmit"
-                                inputClass="!bg-surface-950 !border-surface-800 !py-3 w-full"
-                            />
-                            <Button
-                                label="Login"
-                                @click="handleBypassSubmit"
-                                :loading="loading"
-                                class="py-3! font-bold"
-                            />
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-        <div v-else class="animate-in fade-in flex flex-col gap-8 duration-500">
+        <div class="animate-in fade-in flex flex-col gap-8 duration-500">
             <div class="flex flex-col items-start justify-between gap-6 pb-6 md:flex-row md:items-center">
                 <div>
                     <h1 class="text-surface-0 mb-1 text-3xl font-black tracking-tight">User Management</h1>
                     <p class="text-surface-400">Manage system users, access levels, and credentials.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <Button
-                        label="Logout"
-                        icon="pi pi-power-off"
-                        severity="danger"
-                        @click="
-                            isVerified = false;
-                            sessionStore.clearBypassToken();
-                        "
-                        class="text-surface-400! hover:text-danger-400! transition-colors"
-                    />
                     <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
                 </div>
             </div>
@@ -320,6 +260,15 @@ onMounted(() => {
                                 />
                                 <span>{{ slotProps.data.username }}</span>
                             </div>
+                        </template>
+                    </Column>
+                    <Column header="Role" class="w-32">
+                        <template #body="slotProps">
+                            <Tag
+                                :value="slotProps.data.isAdmin ? 'ADMIN' : 'USER'"
+                                :severity="slotProps.data.isAdmin ? 'success' : 'secondary'"
+                                class="font-bold"
+                            />
                         </template>
                     </Column>
                     <Column header="Actions" class="w-32">
@@ -432,6 +381,10 @@ onMounted(() => {
                         fluid
                         @keyup.enter="saveUser"
                     />
+                </div>
+                <div class="mt-2 flex items-center gap-3">
+                    <Checkbox id="isAdmin" v-model="userForm.isAdmin" binary />
+                    <label for="isAdmin" class="text-surface-300 cursor-pointer font-medium">Administrator Access</label>
                 </div>
             </div>
             <template #footer>

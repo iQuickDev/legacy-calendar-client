@@ -28,11 +28,6 @@ class API {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
 
-                const bypassToken = localStorage.getItem('bypass_token');
-                if (bypassToken && config.headers) {
-                    config.headers['X-Bypass'] = bypassToken;
-                }
-
                 return config;
             },
             (error) => {
@@ -46,7 +41,6 @@ class API {
                 if (error.response && error.response.status === 401) {
                     // Session is invalid or expired
                     localStorage.removeItem('token');
-                    localStorage.removeItem('bypass_token');
                     localStorage.setItem('session_expired', 'true');
 
                     // Force redirect to login if not already there

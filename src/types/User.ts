@@ -1,15 +1,18 @@
 export interface CreateUserDto {
     username: string;
     password: string;
+    isAdmin?: boolean;
 }
 
 export interface UpdateUserDto {
-    [key: string]: any;
+    username?: string;
+    password?: string;
+    isAdmin?: boolean;
 }
 
 export interface User {
     id: number;
     username: string;
     profilePicture?: string;
-    [key: string]: any;
+    isAdmin: boolean;
 }

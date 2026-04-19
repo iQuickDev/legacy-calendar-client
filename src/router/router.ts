@@ -8,7 +8,7 @@ import Profile from '../views/Profile.vue';
 const routes = [
     { path: '/', name: 'login', component: Login, meta: { requiresGuest: true } },
     { path: '/calendar', name: 'calendar', component: Calendar, meta: { requiresAuth: true } },
-    { path: '/admin', name: 'admin', component: AdminView },
+    { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true } }
 ];
 
@@ -32,6 +32,18 @@ router.beforeEach(async (to, _from, next) => {
     if (to.meta.requiresGuest && isAuthenticated) {
         next({ name: 'calendar' });
         return;
+    }
+
+    // Redirect to calendar if route requires admin and user is not an admin
+    if (to.meta.requiresAdmin) {
+        const { useSessionStore } = await import('../stores/session');
+        const sessionStore = useSessionStore();
+
+        // If not loaded yet, or not admin
+        if (!sessionStore.currentUser?.isAdmin) {
+            next({ name: 'calendar' });
+            return;
+        }
     }
 
     next();

@@ -17,6 +17,7 @@ export interface CreateEventDto {
     sleepPrice?: number;
     alcoholPrice?: number;
     beerPrice?: number;
+    participationDeadline?: string;
 }
 
 export const EVENT_FEATURES = ['FOOD', 'WEED', 'ALCOHOL', 'SLEEP', 'BEER'] as const;
@@ -67,6 +68,7 @@ export interface Event {
     sleepPrice?: number;
     alcoholPrice?: number;
     beerPrice?: number;
+    participationDeadline?: string;
     [key: string]: any;
 }
 

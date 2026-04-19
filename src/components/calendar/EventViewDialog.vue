@@ -92,8 +92,14 @@ const userParticipantStatus = computed(() => {
     return props.event.participants.find((participant) => participant.id === currentUser.value?.id)?.status ?? null;
 });
 
+const isDeadlinePassed = computed(() => {
+    if (!props.event?.participationDeadline) return false;
+    return new Date() > new Date(props.event.participationDeadline);
+});
+
 const canAccept = computed(() => {
     if (!props.event || !currentUser.value) return false;
+    if (isDeadlinePassed.value && !isHost.value) return false;
     return canUserRespondToEvent({
         isHost: isHost.value,
         userParticipantStatus: userParticipantStatus.value,
@@ -114,6 +120,7 @@ const onAcceptClick = () => {
 
 const onEditParticipation = () => {
     if (!currentUser.value) return;
+    if (isDeadlinePassed.value && !isHost.value) return;
     showFeatureSelection.value = true;
 };
 
@@ -485,6 +492,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
             :on-drop="onDrop"
             :assign-ride="assignRide"
             :assign-rides-batch="assignRidesBatch"
+            :is-deadline-passed="isDeadlinePassed"
         />
 
         <EventEditForm
@@ -509,6 +517,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             @click="onCancelParticipation"
                         />
                         <Button
+                            v-if="!isDeadlinePassed || isHost"
                             label="Edit Participation"
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -531,7 +540,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             icon="pi pi-check"
                             severity="success"
                             :loading="joining"
-                            :disabled="userParticipantStatus === 'ACCEPTED'"
+                            :disabled="userParticipantStatus === 'ACCEPTED' || isDeadlinePassed"
                             @click="onAcceptClick"
                         />
                     </template>

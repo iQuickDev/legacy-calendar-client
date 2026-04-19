@@ -35,6 +35,7 @@ const props = defineProps<{
     needsRide: EventParticipant[];
     dragOverDriverId: number | null;
     isHost: boolean;
+    isDeadlinePassed: boolean;
     isAldoMoro: boolean;
     joining: boolean;
     cancelling: boolean;
@@ -91,7 +92,7 @@ const canAssignToDriver = (driverId: number) => {
 };
 
 const canEditRides = computed(
-    () => props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id)
+    () => props.isHost || (props.drivers.some((driver) => driver.id === props.currentUser?.id) && !props.isDeadlinePassed)
 );
 
 // Determines if current user can edit a specific ride (host of event or driver)
@@ -127,6 +128,13 @@ const canEditRide = (driverId: number) => {
                             value="Standard Event"
                             icon="pi pi-calendar"
                             class="text-[10px]!"
+                        />
+                        <Tag
+                            v-if="isDeadlinePassed"
+                            severity="warn"
+                            value="Participation Closed"
+                            icon="pi pi-lock"
+                            class="text-[10px]! bg-orange-500/10 text-orange-500 border-orange-500/20"
                         />
                     </div>
                 </div>

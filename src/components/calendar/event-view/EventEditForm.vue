@@ -8,6 +8,7 @@ import MultiSelect from 'primevue/multiselect';
 import ToggleSwitch from 'primevue/toggleswitch';
 import SelectButton from 'primevue/selectbutton';
 import InputNumber from 'primevue/inputnumber';
+import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import { FEATURES } from '../../../constants/features';
@@ -17,7 +18,8 @@ import {
     featureFlagsFromSelection,
     featurePricesFromEvent,
     selectedFeaturesFromEvent,
-    toggleFeature as toggleFeatureInSelection
+    toggleFeature as toggleFeatureInSelection,
+    combineDateAndTime
 } from '../../../utils/event';
 
 const props = defineProps<{
@@ -43,6 +45,8 @@ const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 const selectedParticipants = ref<number[]>([]);
+const deadlineDateOnly = ref<Date | null>(null);
+const deadlineTimeOnly = ref<Date | null>(null);
 
 const initialize = () => {
     title.value = props.event.title;
@@ -61,6 +65,15 @@ const initialize = () => {
     featurePrices.value = featurePricesFromEvent(props.event);
 
     selectedParticipants.value = props.event.participants?.map((participant) => participant.id) || [];
+
+    if (props.event.participationDeadline) {
+        const deadline = new Date(props.event.participationDeadline);
+        deadlineDateOnly.value = deadline;
+        deadlineTimeOnly.value = deadline;
+    } else {
+        deadlineDateOnly.value = null;
+        deadlineTimeOnly.value = null;
+    }
 };
 
 watch(() => props.event, initialize, { immediate: true });
@@ -86,7 +99,11 @@ const onSave = () => {
         weedPrice: featurePrices.value.WEED ?? undefined,
         sleepPrice: featurePrices.value.SLEEP ?? undefined,
         alcoholPrice: featurePrices.value.ALCOHOL ?? undefined,
-        beerPrice: featurePrices.value.BEER ?? undefined
+        beerPrice: featurePrices.value.BEER ?? undefined,
+        participationDeadline:
+            deadlineDateOnly.value && deadlineTimeOnly.value
+                ? combineDateAndTime(deadlineDateOnly.value, deadlineTimeOnly.value).toISOString()
+                : undefined
     });
 };
 </script>
@@ -125,6 +142,23 @@ const onSave = () => {
                         placeholder="Meeting Room, Online, etc."
                         class="rounded-xl!"
                     />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase"
+                        >Participation Deadline</label
+                    >
+                    <div class="flex gap-2">
+                        <DatePicker
+                            v-model="deadlineDateOnly"
+                            class="flex-1 rounded-xl!"
+                            placeholder="Date"
+                        />
+                        <DatePicker v-model="deadlineTimeOnly" timeOnly class="w-24 rounded-xl!" placeholder="Time" />
+                    </div>
+                    <small class="text-surface-500"
+                        >Users won't be able to join or edit participation after this time.</small
+                    >
                 </div>
 
                 <div class="mt-2 flex flex-col gap-2">

@@ -56,6 +56,9 @@ const startTimeOnly = ref<Date | null>(null);
 const endDateOnly = ref<Date | null>(null);
 const endTimeOnly = ref<Date | null>(null);
 
+const deadlineDateOnly = ref<Date | null>(null);
+const deadlineTimeOnly = ref<Date | null>(null);
+
 const selectedParticipants = ref<number[]>([]);
 const allParticipants = ref<User[]>([]);
 const saveAttempted = ref(false);
@@ -90,6 +93,14 @@ const validationError = computed(() => {
         }
     }
 
+    if (deadlineDateOnly.value && deadlineTimeOnly.value) {
+        const deadline = combineDateAndTime(deadlineDateOnly.value, deadlineTimeOnly.value);
+        const start = combineDateAndTime(startDateOnly.value!, startTimeOnly.value!);
+        if (deadline > start) {
+            return 'Participation deadline must be before the event start time.';
+        }
+    }
+
     return null;
 });
 
@@ -113,6 +124,9 @@ watch(
 
             endDateOnly.value = null;
             endTimeOnly.value = null;
+
+            deadlineDateOnly.value = null;
+            deadlineTimeOnly.value = null;
 
             fetchUsers();
         }
@@ -147,7 +161,11 @@ const onSave = () => {
         weedPrice: featurePrices.value.WEED ?? undefined,
         sleepPrice: featurePrices.value.SLEEP ?? undefined,
         alcoholPrice: featurePrices.value.ALCOHOL ?? undefined,
-        beerPrice: featurePrices.value.BEER ?? undefined
+        beerPrice: featurePrices.value.BEER ?? undefined,
+        participationDeadline:
+            deadlineDateOnly.value && deadlineTimeOnly.value
+                ? combineDateAndTime(deadlineDateOnly.value, deadlineTimeOnly.value).toISOString()
+                : undefined
     });
 };
 </script>
@@ -207,6 +225,21 @@ const onSave = () => {
                     />
                     <DatePicker v-model="endTimeOnly" timeOnly class="w-24" placeholder="Time" />
                 </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold">Participation Deadline (Optional)</label>
+                <div class="flex gap-2">
+                    <DatePicker
+                        v-model="deadlineDateOnly"
+                        class="flex-1"
+                        placeholder="Date"
+                        :minDate="startDateBounds.minDate"
+                        :maxDate="startDateBounds.maxDate"
+                    />
+                    <DatePicker v-model="deadlineTimeOnly" timeOnly class="w-24" placeholder="Time" />
+                </div>
+                <small class="text-zinc-500">Users won't be able to join or edit participation after this time.</small>
             </div>
 
             <div class="flex flex-col gap-2">

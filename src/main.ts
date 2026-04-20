@@ -9,6 +9,7 @@ import OledPreset from './theme/oled';
 import { createPinia } from 'pinia';
 import './services/firebase';
 import { registerSW } from 'virtual:pwa-register';
+import Tooltip from 'primevue/tooltip';
 
 registerSW({ immediate: true });
 
@@ -25,4 +26,5 @@ createApp(App)
     })
     .use(ToastService)
     .use(ConfirmationService)
+    .directive('tooltip', Tooltip)
     .mount('#app');

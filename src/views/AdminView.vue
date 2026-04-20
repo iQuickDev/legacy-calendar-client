@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useSessionStore } from '../stores/session';
 import api, { uploadsBaseURL } from '../services/API';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
@@ -11,12 +10,10 @@ import Password from 'primevue/password';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
-import Card from 'primevue/card';
 import Avatar from 'primevue/avatar';
 import Checkbox from 'primevue/checkbox';
 import Tag from 'primevue/tag';
 
-const sessionStore = useSessionStore();
 const toast = useToast();
 const confirm = useConfirm();
 

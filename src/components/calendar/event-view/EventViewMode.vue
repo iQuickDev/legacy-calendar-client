@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Event, EventFeature, EventParticipant } from '../../../types/Event';
+import type { Event, EventFeature, EventParticipant, EventPersonSummary } from '../../../types/Event';
 import type { User } from '../../../types/User';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
@@ -19,7 +19,7 @@ type FeatureColumn = {
 
 const props = defineProps<{
     event: Event;
-    eventHost: User | null;
+    eventHost: EventPersonSummary | null;
     currentUser: User | null | undefined;
     userParticipantStatus: string | null;
     userTotalShare: number;

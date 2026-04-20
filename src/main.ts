@@ -10,6 +10,7 @@ import { createPinia } from 'pinia';
 import './services/firebase';
 import { registerSW } from 'virtual:pwa-register';
 import Tooltip from 'primevue/tooltip';
+import Ripple from 'primevue/ripple';
 
 registerSW({ immediate: true });
 
@@ -17,6 +18,7 @@ createApp(App)
     .use(router)
     .use(createPinia())
     .use(PrimeVue, {
+        ripple: true,
         theme: {
             preset: OledPreset,
             options: {
@@ -27,4 +29,5 @@ createApp(App)
     .use(ToastService)
     .use(ConfirmationService)
     .directive('tooltip', Tooltip)
+    .directive('ripple', Ripple)
     .mount('#app');

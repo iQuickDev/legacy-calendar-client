@@ -52,7 +52,17 @@ const items = ref([
             </a>
         </template>
         <template #end>
-            <div v-if="isAuthenticated" class="flex items-center">
+            <div v-if="isAuthenticated" class="flex items-center gap-2">
+                <Button
+                    v-if="currentUser?.isAdmin"
+                    icon="pi pi-shield"
+                    severity="secondary"
+                    text
+                    rounded
+                    aria-label="Admin"
+                    @click="router.push({ name: 'admin' })"
+                    v-tooltip.bottom="'Admin Panel'"
+                />
                 <router-link
                     :to="{ name: 'profile' }"
                     class="flex items-center gap-2 rounded-full bg-zinc-900 px-2 py-1 no-underline transition-all hover:bg-zinc-800"

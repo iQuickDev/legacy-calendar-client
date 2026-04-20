@@ -39,7 +39,11 @@ router.beforeEach(async (to, _from, next) => {
         const { useSessionStore } = await import('../stores/session');
         const sessionStore = useSessionStore();
 
-        // If not loaded yet, or not admin
+        // Ensure session is loaded before checking admin status
+        if (!sessionStore.currentUser) {
+            await sessionStore.load();
+        }
+
         if (!sessionStore.currentUser?.isAdmin) {
             next({ name: 'calendar' });
             return;

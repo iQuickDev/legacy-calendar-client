@@ -92,7 +92,8 @@ const canAssignToDriver = (driverId: number) => {
 };
 
 const canEditRides = computed(
-    () => props.isHost || (props.drivers.some((driver) => driver.id === props.currentUser?.id) && !props.isDeadlinePassed)
+    () =>
+        props.isHost || (props.drivers.some((driver) => driver.id === props.currentUser?.id) && !props.isDeadlinePassed)
 );
 
 // Determines if current user can edit a specific ride (host of event or driver)
@@ -134,7 +135,7 @@ const canEditRide = (driverId: number) => {
                             severity="warn"
                             value="Participation Closed"
                             icon="pi pi-lock"
-                            class="text-[10px]! bg-orange-500/10 text-orange-500 border-orange-500/20"
+                            class="border-orange-500/20 bg-orange-500/10 text-[10px]! text-orange-500"
                         />
                     </div>
                 </div>
@@ -481,9 +482,7 @@ const canEditRide = (driverId: number) => {
                             <Tag
                                 :severity="canAssignToDriver(driver.id) ? 'success' : 'danger'"
                                 :value="
-                                    canAssignToDriver(driver.id)
-                                        ? `Assign ${selectedPassengerIds.length}`
-                                        : 'Too many'
+                                    canAssignToDriver(driver.id) ? `Assign ${selectedPassengerIds.length}` : 'Too many'
                                 "
                                 size="small"
                                 class="cursor-pointer"
@@ -547,7 +546,7 @@ const canEditRide = (driverId: number) => {
                     <button
                         v-if="selectedPassengerIds.length > 0"
                         @click="selectedPassengerIds = []"
-                        class="text-[9px] font-bold tracking-widest text-zinc-500 underline uppercase focus:outline-none"
+                        class="text-[9px] font-bold tracking-widest text-zinc-500 uppercase underline focus:outline-none"
                     >
                         Clear Selection ({{ selectedPassengerIds.length }})
                     </button>

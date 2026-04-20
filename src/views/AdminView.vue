@@ -72,7 +72,6 @@ const removePicture = () => {
     shouldRemovePfp.value = true;
 };
 
-
 const fetchUsers = async () => {
     loading.value = true;
     try {
@@ -381,7 +380,9 @@ onMounted(() => {
                 </div>
                 <div class="mt-2 flex items-center gap-3">
                     <Checkbox id="isAdmin" v-model="userForm.isAdmin" binary />
-                    <label for="isAdmin" class="text-surface-300 cursor-pointer font-medium">Administrator Access</label>
+                    <label for="isAdmin" class="text-surface-300 cursor-pointer font-medium"
+                        >Administrator Access</label
+                    >
                 </div>
             </div>
             <template #footer>

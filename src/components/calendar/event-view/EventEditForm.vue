@@ -193,11 +193,7 @@ const onSave = () => {
                         >Participation Deadline</label
                     >
                     <div class="flex gap-2">
-                        <DatePicker
-                            v-model="deadlineDateOnly"
-                            class="flex-1 rounded-xl!"
-                            placeholder="Date"
-                        />
+                        <DatePicker v-model="deadlineDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
                         <DatePicker v-model="deadlineTimeOnly" timeOnly class="w-24 rounded-xl!" placeholder="Time" />
                     </div>
                     <small class="text-surface-500"

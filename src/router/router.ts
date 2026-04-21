@@ -18,20 +18,19 @@ export const router = createRouter({
 });
 
 // Navigation guards
-router.beforeEach(async (to, _from, next) => {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+router.beforeEach(async (to, _from) => {
     const token = localStorage.getItem('token');
     const isAuthenticated = !!token;
 
     // Redirect to login if route requires auth and user is not authenticated
     if (to.meta.requiresAuth && !isAuthenticated) {
-        next({ name: 'login' });
-        return;
+        return { name: 'login' };
     }
 
     // Redirect to calendar if user is already authenticated and tries to access login
     if (to.meta.requiresGuest && isAuthenticated) {
-        next({ name: 'calendar' });
-        return;
+        return { name: 'calendar' };
     }
 
     // Redirect to calendar if route requires admin and user is not an admin
@@ -45,10 +44,9 @@ router.beforeEach(async (to, _from, next) => {
         }
 
         if (!sessionStore.currentUser?.isAdmin) {
-            next({ name: 'calendar' });
-            return;
+            return { name: 'calendar' };
         }
     }
 
-    next();
+    return;
 });

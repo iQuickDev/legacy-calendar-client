@@ -97,8 +97,13 @@ const isDeadlinePassed = computed(() => {
     return new Date() > new Date(props.event.participationDeadline);
 });
 
+const isEnded = computed(() => {
+    if (!props.event?.endTime) return false;
+    return new Date() > new Date(props.event.endTime);
+});
+
 const canAccept = computed(() => {
-    if (!props.event || !currentUser.value) return false;
+    if (!props.event || !currentUser.value || isEnded.value) return false;
     if (isDeadlinePassed.value && !isHost.value) return false;
     return canUserRespondToEvent({
         isHost: isHost.value,
@@ -498,6 +503,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
             :assign-ride="assignRide"
             :assign-rides-batch="assignRidesBatch"
             :is-deadline-passed="isDeadlinePassed"
+            :is-ended="isEnded"
         />
 
         <EventEditForm
@@ -519,10 +525,11 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             severity="danger"
                             text
                             :loading="cancelling"
+                            v-if="!isEnded"
                             @click="onCancelParticipation"
                         />
                         <Button
-                            v-if="!isDeadlinePassed || isHost"
+                            v-if="(!isDeadlinePassed || isHost) && !isEnded"
                             label="Edit Participation"
                             icon="pi pi-pencil"
                             severity="secondary"
@@ -537,6 +544,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             severity="danger"
                             text
                             :loading="cancelling"
+                            :disabled="isEnded"
                             @click="onDecline"
                         />
                         <Button
@@ -545,7 +553,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             icon="pi pi-check"
                             severity="success"
                             :loading="joining"
-                            :disabled="userParticipantStatus === 'ACCEPTED' || isDeadlinePassed"
+                            :disabled="userParticipantStatus === 'ACCEPTED' || isDeadlinePassed || isEnded"
                             @click="onAcceptClick"
                         />
                     </template>

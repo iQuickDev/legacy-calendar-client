@@ -36,6 +36,7 @@ const props = defineProps<{
     dragOverDriverId: number | null;
     isHost: boolean;
     isDeadlinePassed: boolean;
+    isEnded: boolean;
     isAldoMoro: boolean;
     joining: boolean;
     cancelling: boolean;
@@ -93,12 +94,14 @@ const canAssignToDriver = (driverId: number) => {
 
 const canEditRides = computed(
     () =>
-        props.isHost || (props.drivers.some((driver) => driver.id === props.currentUser?.id) && !props.isDeadlinePassed)
+        (props.isHost || props.drivers.some((driver) => driver.id === props.currentUser?.id)) &&
+        !props.isDeadlinePassed &&
+        !props.isEnded
 );
 
 // Determines if current user can edit a specific ride (host of event or driver)
 const canEditRide = (driverId: number) => {
-    return props.isHost || driverId === props.currentUser?.id;
+    return (props.isHost || driverId === props.currentUser?.id) && !props.isEnded;
 };
 </script>
 
@@ -136,6 +139,13 @@ const canEditRide = (driverId: number) => {
                             value="Participation Closed"
                             icon="pi pi-lock"
                             class="border-orange-500/20 bg-orange-500/10 text-[10px]! text-orange-500"
+                        />
+                        <Tag
+                            v-if="isEnded"
+                            severity="danger"
+                            value="Event Ended"
+                            icon="pi pi-history"
+                            class="border-red-500/20 bg-red-500/10 text-[10px]! text-red-500"
                         />
                     </div>
                 </div>
@@ -467,10 +477,14 @@ const canEditRide = (driverId: number) => {
                             <div class="flex flex-col">
                                 <span class="text-sm font-bold">{{ driver.username }}</span>
                                 <div class="flex items-center gap-2 text-[10px] font-bold uppercase">
-                                    <span> {{ driver.vehicleSeats }} total seats </span>
+                                    <span>
+                                        {{ driver.vehicleSeats }} total seat{{ driver.vehicleSeats !== 1 ? 's' : '' }}
+                                    </span>
                                     <span class="font-black">·</span>
                                     <span :class="getAvailableSeats(driver) > 0 ? 'text-emerald-500' : 'text-red-500'">
-                                        {{ getAvailableSeats(driver) > 0 ? getAvailableSeats(driver) : 'None' }} left
+                                        {{
+                                            getAvailableSeats(driver) > 0 ? getAvailableSeats(driver) + ' left' : 'Full'
+                                        }}
                                     </span>
                                 </div>
                             </div>
@@ -511,7 +525,7 @@ const canEditRide = (driverId: number) => {
                             />
                             <span class="text-[10px] font-medium">{{ passenger.username }}</span>
                             <Button
-                                v-if="isHost || driver.id === currentUser?.id"
+                                v-if="canEditRide(driver.id)"
                                 icon="pi pi-times"
                                 severity="danger"
                                 text
@@ -618,7 +632,7 @@ const canEditRide = (driverId: number) => {
             </div>
         </div>
 
-        <template v-if="isHost">
+        <template v-if="isHost && !isEnded">
             <Divider class="my-2!" />
 
             <div class="flex flex-col gap-3 pb-4">

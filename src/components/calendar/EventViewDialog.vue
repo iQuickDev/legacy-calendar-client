@@ -388,7 +388,12 @@ const formattedEnd = computed(() => {
 watch(
     () => props.visible,
     (isVisible) => {
-        if (isVisible) fetchUsers();
+        if (isVisible) {
+            fetchUsers();
+        } else {
+            isEditing.value = false;
+            showFeatureSelection.value = false;
+        }
     }
 );
 

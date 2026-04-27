@@ -1,8 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
-import API from './API';
-
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -37,6 +35,7 @@ export const requestNotificationPermission = async () => {
             if (token) {
                 localStorage.setItem('fcm_token', token);
                 // Send the token to your server if needed
+                const { default: API } = await import('./API');
                 await API.subscribeNotifications(token);
                 console.log('FCM Token registered on server.');
             } else {

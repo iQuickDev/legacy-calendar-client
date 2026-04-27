@@ -184,9 +184,9 @@ const onSave = () => {
                         <DatePicker v-model="deadlineDateOnly" class="flex-1 rounded-xl!" placeholder="Date" />
                         <DatePicker v-model="deadlineTimeOnly" timeOnly class="w-24 rounded-xl!" placeholder="Time" />
                     </div>
-                    <small class="text-surface-500"
-                        >Users won't be able to join or edit participation after this time.</small
-                    >
+                    <small class="text-center text-zinc-500">
+                        Users won't be able to join or edit participation after this time.
+                    </small>
                 </div>
 
                 <div class="mt-2 flex flex-col gap-2">
@@ -226,7 +226,7 @@ const onSave = () => {
                     </MultiSelect>
                 </div>
 
-                <div class="mt-2 flex flex-col gap-2">
+                <div class="flex flex-col">
                     <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Event Visibility</label>
                     <SelectButton
                         v-model="eventVisibility"
@@ -244,12 +244,8 @@ const onSave = () => {
                             </div>
                         </template>
                     </SelectButton>
-                    <small class="text-surface-500">
-                        <template v-if="eventVisibility === 'open'">Anyone can see and join this event</template>
-                        <template v-else-if="eventVisibility === 'private'">
-                            Only invited participants can see this event
-                        </template>
-                        <template v-else>Everyone can see this event, only invited participants can join</template>
+                    <small class="mt-2 text-center text-zinc-500">
+                        {{ VISIBILITY_OPTIONS.find((option) => option.value === eventVisibility)?.description }}
                     </small>
                 </div>
             </div>

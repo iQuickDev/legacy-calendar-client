@@ -251,9 +251,9 @@ const onSave = () => {
                         inputClass="rounded-xl!"
                     />
                 </div>
-                <small class="text-surface-500"
-                    >Users won't be able to join or edit participation after this time.</small
-                >
+                <small class="text-center text-zinc-500">
+                    Users won't be able to join or edit participation after this time.
+                </small>
             </div>
 
             <div class="flex flex-col gap-2">
@@ -302,6 +302,7 @@ const onSave = () => {
                     optionValue="value"
                     :allowEmpty="false"
                     class="rounded-xl!"
+                    fluid
                 >
                     <template #option="slotProps">
                         <div class="flex items-center gap-2" :class="slotProps.option.color">
@@ -310,13 +311,16 @@ const onSave = () => {
                         </div>
                     </template>
                 </SelectButton>
+                <small class="text-center text-zinc-500">
+                    {{ VISIBILITY_OPTIONS.find((option) => option.value === eventVisibility)?.description }}
+                </small>
             </div>
 
             <FeatureBudgetForm v-model:selectedFeatures="selectedFeatures" v-model:featurePrices="featurePrices" />
         </div>
 
         <template #footer>
-            <div class="flex gap-2">
+            <div class="flex gap-2 pt-2">
                 <Button
                     label="Cancel"
                     text

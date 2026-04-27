@@ -4,18 +4,18 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import API from './API';
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyCzD5NBdz225UzdI535-8PSVmK5ZFJNusM',
-    authDomain: 'legacy-calendar-2cd17.firebaseapp.com',
-    projectId: 'legacy-calendar-2cd17',
-    storageBucket: 'legacy-calendar-2cd17.firebasestorage.app',
-    messagingSenderId: '226334477513',
-    appId: '1:226334477513:web:f6af99c44e7d874889d118',
-    measurementId: 'G-E7T9QQW8ME'
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+const analytics = typeof window !== 'undefined' && firebaseConfig.measurementId ? getAnalytics(app) : null;
 const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
 export const requestNotificationPermission = async () => {
@@ -31,7 +31,7 @@ export const requestNotificationPermission = async () => {
 
             // Get FCM Token
             const token = await getToken(messaging, {
-                vapidKey: 'BEbk5NqQ1cDk8sl8PQuudXigNlm7RVm7yNGL_D3-OyfZPu188-25jmFZrR30blUvRjdkp3s4oOHIlee_b6nSY1E',
+                vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
                 serviceWorkerRegistration: registration
             });
             if (token) {

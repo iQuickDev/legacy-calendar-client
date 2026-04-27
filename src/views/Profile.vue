@@ -4,12 +4,11 @@ import { useSessionStore } from '../stores/session';
 import Button from 'primevue/button';
 import Password from 'primevue/password';
 import FileUpload from 'primevue/fileupload';
-import Avatar from 'primevue/avatar';
+import UserAvatar from '../components/UserAvatar.vue';
 import Card from 'primevue/card';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { uploadsBaseURL } from '../services/API';
 import { onMounted } from 'vue';
 import { notificationStorage } from '../services/notificationStorage';
 import { NotificationLabel, type NotificationSettings } from '../types/Notification';
@@ -133,16 +132,10 @@ const handleDeletePicture = () => {
                 class="group relative cursor-pointer transition-transform duration-300 lg:hover:scale-105"
                 @click="triggerUpload"
             >
-                <Avatar
-                    :image="currentUser?.profilePicture ? `${uploadsBaseURL}${currentUser.profilePicture}` : undefined"
-                    :label="
-                        !currentUser?.profilePicture
-                            ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'
-                            : undefined
-                    "
-                    class="bg-primary text-primary-contrast border-4 border-zinc-800 shadow-2xl"
-                    :style="{ width: '100px', height: '100px', fontSize: '3rem' }"
-                    shape="circle"
+                <UserAvatar
+                    :profilePicture="currentUser?.profilePicture"
+                    :username="currentUser?.username"
+                    class="h-[100px]! w-[100px]! border-4 border-zinc-800 text-3xl shadow-2xl"
                 />
                 <div
                     class="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100"

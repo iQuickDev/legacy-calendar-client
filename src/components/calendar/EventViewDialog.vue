@@ -8,7 +8,7 @@ import { useConfirm } from 'primevue/useconfirm';
 
 import type { Event, EventFeature, EventParticipant } from '../../types/Event';
 import type { User } from '../../types/User';
-import { useAPIStore } from '../../stores/api';
+import api from '../../services/API';
 import { useSessionStore } from '../../stores/session';
 import { useEventsStore } from '../../stores/events';
 import FeatureSelectionDialog from './FeatureSelectionDialog.vue';
@@ -42,7 +42,6 @@ const emit = defineEmits<{
     (e: 'refresh'): void;
 }>();
 
-const apiStore = useAPIStore();
 const sessionStore = useSessionStore();
 const eventsStore = useEventsStore();
 const toast = useToast();
@@ -52,7 +51,7 @@ const allUsers = ref<User[]>([]);
 
 const fetchUsers = async () => {
     try {
-        const response = await apiStore.client.findAllUsers();
+        const response = await api.findAllUsers();
         allUsers.value = response.data;
     } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -515,7 +514,7 @@ const handleEditSave = async (dto: CreateEventDto) => {
             @cancel="onCancelEdit"
         />
 
-        <template #footer>
+        <template #footer v-if="!isEnded">
             <div class="flex w-full justify-end gap-2 pt-2">
                 <template v-if="!isEditing">
                     <template v-if="userParticipantStatus === 'ACCEPTED'">
@@ -525,11 +524,10 @@ const handleEditSave = async (dto: CreateEventDto) => {
                             severity="danger"
                             text
                             :loading="cancelling"
-                            v-if="!isEnded"
                             @click="onCancelParticipation"
                         />
                         <Button
-                            v-if="(!isDeadlinePassed || isHost) && !isEnded"
+                            v-if="!isDeadlinePassed || isHost"
                             label="Edit Participation"
                             icon="pi pi-pencil"
                             severity="secondary"

@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import api, { uploadsBaseURL } from '../services/API';
 import type { User, CreateUserDto, UpdateUserDto } from '../types/User';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useUsers } from '../composables/useUsers';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Dialog from 'primevue/dialog';
-import Avatar from 'primevue/avatar';
 import Checkbox from 'primevue/checkbox';
 import Tag from 'primevue/tag';
+import UserAvatar from '../components/UserAvatar.vue';
 
 const toast = useToast();
 const confirm = useConfirm();
+const { users, loading, fetchUsers, createUser, updateUser, removeUser, uploadProfilePicture, removeProfilePicture } =
+    useUsers();
 
-const users = ref<User[]>([]);
-const loading = ref(false);
 const showUserDialog = ref(false);
 const isEditing = ref(false);
 const userForm = ref<CreateUserDto>({
@@ -43,7 +43,6 @@ const onFileSelect = (event: Event) => {
     if (target.files && target.files[0]) {
         const file = target.files[0];
 
-        // Validation
         if (!file.type.startsWith('image/')) {
             toast.add({
                 severity: 'error',
@@ -57,7 +56,6 @@ const onFileSelect = (event: Event) => {
         selectedFile.value = file;
         shouldRemovePfp.value = false;
 
-        // Preview
         const reader = new FileReader();
         reader.onload = (e) => {
             previewUrl.value = e.target?.result as string;
@@ -70,25 +68,6 @@ const removePicture = () => {
     selectedFile.value = null;
     previewUrl.value = null;
     shouldRemovePfp.value = true;
-};
-
-const fetchUsers = async () => {
-    loading.value = true;
-    try {
-        const response = await api.findAllUsers();
-        users.value = response.data;
-        return true;
-    } catch (error: any) {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.response?.data?.message || 'Failed to fetch users.',
-            life: 3000
-        });
-        return false;
-    } finally {
-        loading.value = false;
-    }
 };
 
 const openAddUser = () => {
@@ -116,21 +95,20 @@ const editUser = (user: User) => {
     showUserDialog.value = true;
 };
 
-const deleteUser = async (id: number) => {
+const handleDeleteUser = async (id: number) => {
     try {
-        await api.removeUser(id);
+        await removeUser(id);
         toast.add({
             severity: 'success',
             summary: 'Success',
             detail: 'User deleted successfully',
             life: 3000
         });
-        await fetchUsers();
-    } catch (error: any) {
+    } catch (err: any) {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.response?.data?.message || 'Failed to delete user',
+            detail: err.message || 'Failed to delete user',
             life: 3000
         });
     }
@@ -151,7 +129,7 @@ const confirmDelete = (user: User) => {
             severity: 'danger'
         },
         accept: () => {
-            deleteUser(user.id);
+            handleDeleteUser(user.id);
         }
     });
 };
@@ -167,23 +145,18 @@ const saveUser = async () => {
             if (userForm.value.password) {
                 updateDto.password = userForm.value.password;
             }
-            await api.updateUser(userId, updateDto);
+            await updateUser(userId, updateDto);
         } else {
-            await api.createUser(userForm.value);
-            // Need to find the created user's ID for PFP upload
-            await fetchUsers();
-            const newUser = users.value.find((u) => u.username === userForm.value.username);
-            if (newUser) {
-                userId = newUser.id;
-            }
+            const newUser = await createUser(userForm.value);
+            userId = newUser.id;
         }
 
         // Handle profile picture
         if (userId) {
             if (shouldRemovePfp.value) {
-                await api.removeProfilePicture(userId);
+                await removeProfilePicture(userId);
             } else if (selectedFile.value) {
-                await api.uploadProfilePicture(selectedFile.value, userId);
+                await uploadProfilePicture(selectedFile.value, userId);
             }
         }
 
@@ -194,12 +167,11 @@ const saveUser = async () => {
             life: 3000
         });
         showUserDialog.value = false;
-        await fetchUsers();
-    } catch (error: any) {
+    } catch (err: any) {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.response?.data?.message || 'Failed to save user',
+            detail: err.message || 'Failed to save user',
             life: 3000
         });
     }
@@ -211,19 +183,19 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="admin-container mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 md:p-8">
+    <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 p-4 md:p-8">
         <div class="animate-in fade-in flex flex-col gap-8 duration-500">
             <div class="flex flex-col items-start justify-between gap-6 pb-6 md:flex-row md:items-center">
                 <div>
-                    <h1 class="text-surface-0 mb-1 text-3xl font-black tracking-tight">User Management</h1>
+                    <h1 class="text-surface-0 mb-1 text-3xl font-black tracking-tight uppercase">User Management</h1>
                     <p class="text-surface-400">Manage system users, access levels, and credentials.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised />
+                    <Button label="Add New User" icon="pi pi-plus" @click="openAddUser" raised class="rounded-xl!" />
                 </div>
             </div>
 
-            <div class="bg-surface-950/50 overflow-hidden rounded-lg border border-gray-400 shadow-sm">
+            <div class="bg-surface-950/50 overflow-hidden rounded-2xl border border-zinc-800 shadow-sm">
                 <DataTable
                     :value="users"
                     :loading="loading"
@@ -232,27 +204,18 @@ onMounted(() => {
                     sortField="username"
                     :sortOrder="1"
                     :pt="{
-                        header: { class: '!bg-transparent !border-b !border-gray-600' },
-                        bodyRow: { class: 'hover:!bg-surface-900/40 transition-colors' }
+                        header: { class: '!bg-transparent !border-b !border-zinc-800' },
+                        bodyRow: { class: 'hover:!bg-zinc-900/40 transition-colors' }
                     }"
                 >
                     <Column field="id" header="ID" class="text-surface-500 w-24 font-mono" sortable></Column>
                     <Column header="User" class="text-surface-0 font-semibold" sortable sortField="username">
                         <template #body="slotProps">
                             <div class="flex items-center gap-3">
-                                <Avatar
-                                    :image="
-                                        slotProps.data.profilePicture
-                                            ? `${uploadsBaseURL}${slotProps.data.profilePicture}`
-                                            : undefined
-                                    "
-                                    :label="
-                                        !slotProps.data.profilePicture
-                                            ? slotProps.data.username?.charAt(0)?.toUpperCase() || 'U'
-                                            : undefined
-                                    "
-                                    shape="circle"
-                                    class="bg-primary text-primary-contrast"
+                                <UserAvatar
+                                    :profilePicture="slotProps.data.profilePicture"
+                                    :username="slotProps.data.username"
+                                    size="normal"
                                 />
                                 <span>{{ slotProps.data.username }}</span>
                             </div>
@@ -263,11 +226,11 @@ onMounted(() => {
                             <Tag
                                 :value="slotProps.data.isAdmin ? 'ADMIN' : 'USER'"
                                 :severity="slotProps.data.isAdmin ? 'success' : 'secondary'"
-                                class="font-bold"
+                                class="font-bold tracking-widest"
                             />
                         </template>
                     </Column>
-                    <Column header="Actions" class="w-32">
+                    <Column header="Actions" class="w-32 text-right">
                         <template #body="slotProps">
                             <div class="flex items-center justify-end gap-1">
                                 <Button
@@ -277,7 +240,7 @@ onMounted(() => {
                                     severity="secondary"
                                     @click="editUser(slotProps.data)"
                                     v-tooltip.top="'Edit User'"
-                                    class="text-surface-400! hover:text-primary-400! h-10! w-10!"
+                                    class="h-10! w-10!"
                                 />
                                 <Button
                                     icon="pi pi-trash"
@@ -286,7 +249,7 @@ onMounted(() => {
                                     severity="danger"
                                     @click="confirmDelete(slotProps.data)"
                                     v-tooltip.top="'Delete User'"
-                                    class="text-surface-500! hover:text-danger-500! h-10! w-10!"
+                                    class="h-10! w-10!"
                                 />
                             </div>
                         </template>
@@ -307,20 +270,16 @@ onMounted(() => {
             :style="{ width: '400px' }"
             modal
             class="p-fluid"
+            :draggable="false"
         >
             <div class="flex flex-col gap-4 pt-4">
                 <div class="flex flex-col items-center gap-4 py-2">
                     <div class="group relative">
-                        <Avatar
-                            :image="previewUrl || (existingPfp ? `${uploadsBaseURL}${existingPfp}` : undefined)"
-                            :label="
-                                !previewUrl && !existingPfp
-                                    ? userForm.username?.charAt(0)?.toUpperCase() || 'U'
-                                    : undefined
-                            "
+                        <UserAvatar
+                            :profilePicture="previewUrl || (existingPfp ? existingPfp : undefined)"
+                            :username="userForm.username"
                             size="xlarge"
-                            shape="circle"
-                            class="bg-primary text-primary-contrast border-surface-800 h-24! w-24! border-2 shadow-lg"
+                            class="h-24! w-24! border-2 border-zinc-800 shadow-lg"
                         />
                         <div
                             class="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
@@ -345,7 +304,7 @@ onMounted(() => {
                             :icon="previewUrl || existingPfp ? 'pi pi-pencil' : 'pi pi-upload'"
                             text
                             @click="triggerFileInput"
-                            class="text-sm!"
+                            class="rounded-xl! text-sm!"
                         />
                     </div>
                     <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="onFileSelect" />
@@ -359,7 +318,7 @@ onMounted(() => {
                         required
                         autofocus
                         placeholder="Enter username"
-                        class="border-surface-800! bg-black!"
+                        class="rounded-xl!"
                         @keyup.enter="saveUser"
                     />
                 </div>
@@ -373,7 +332,7 @@ onMounted(() => {
                         :feedback="!isEditing"
                         toggleMask
                         placeholder="Enter password"
-                        inputClass="!bg-black !border-surface-800 w-full"
+                        inputClass="w-full rounded-xl!"
                         fluid
                         @keyup.enter="saveUser"
                     />
@@ -386,9 +345,9 @@ onMounted(() => {
                 </div>
             </div>
             <template #footer>
-                <div class="flex justify-end gap-2">
-                    <Button label="Cancel" text @click="showUserDialog = false" class="text-surface-400!" />
-                    <Button label="Save" @click="saveUser" />
+                <div class="flex justify-end gap-2 pt-4">
+                    <Button label="Cancel" text @click="showUserDialog = false" class="text-surface-400! rounded-xl!" />
+                    <Button label="Save" @click="saveUser" class="rounded-xl!" />
                 </div>
             </template>
         </Dialog>

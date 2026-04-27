@@ -24,6 +24,36 @@ createApp(App)
             options: {
                 darkModeSelector: '.dark'
             }
+        },
+        pt: {
+            Button: {
+                root: { class: 'rounded-xl! font-bold' }
+            },
+            Dialog: {
+                root: { class: 'rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl' },
+                header: { class: 'rounded-t-2xl bg-transparent border-none!' },
+                content: { class: 'bg-transparent' },
+                footer: { class: 'rounded-b-2xl bg-transparent border-none!' }
+            },
+            DataTable: {
+                root: { class: 'rounded-xl! overflow-hidden border border-zinc-800' },
+                header: { class: 'bg-zinc-900/50' }
+            },
+            InputText: {
+                root: { class: 'rounded-xl!' }
+            },
+            Textarea: {
+                root: { class: 'rounded-xl!' }
+            },
+            Password: {
+                pcInputText: {
+                    root: { class: 'rounded-xl!' }
+                }
+            }
+        },
+        ptOptions: {
+            mergeSections: true,
+            mergeProps: true
         }
     })
     .use(ToastService)

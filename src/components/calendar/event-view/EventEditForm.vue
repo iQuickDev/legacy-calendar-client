@@ -5,20 +5,17 @@ import type { User } from '../../../types/User';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import MultiSelect from 'primevue/multiselect';
-import ToggleSwitch from 'primevue/toggleswitch';
 import SelectButton from 'primevue/selectbutton';
-import InputNumber from 'primevue/inputnumber';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import Avatar from 'primevue/avatar';
-import { FEATURES } from '../../../constants/features';
-import { uploadsBaseURL } from '../../../services/API';
+import { VISIBILITY_OPTIONS } from '../../../constants/visibility';
+import UserAvatar from '../../UserAvatar.vue';
+import FeatureBudgetForm from '../FeatureBudgetForm.vue';
 import {
     createNullFeatureRecord,
     featureFlagsFromSelection,
     featurePricesFromEvent,
     selectedFeaturesFromEvent,
-    toggleFeature as toggleFeatureInSelection,
     combineDateAndTime
 } from '../../../utils/event';
 
@@ -36,11 +33,6 @@ const emit = defineEmits<{
 const title = ref('');
 const description = ref('');
 const location = ref('');
-const visibilityOptions = [
-    { label: 'Private', value: 'private', icon: 'pi pi-lock', color: 'text-red-500' },
-    { label: 'Standard', value: 'standard', icon: 'pi pi-users', color: 'text-zinc-500' },
-    { label: 'Open', value: 'open', icon: 'pi pi-globe', color: 'text-emerald-500' }
-];
 const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
@@ -100,10 +92,6 @@ const initialize = () => {
 
 watch(() => props.event, initialize, { immediate: true });
 
-const toggleFeature = (feature: EventFeature) => {
-    toggleFeatureInSelection(selectedFeatures.value, feature);
-};
-
 const onSave = () => {
     if (!title.value) return;
 
@@ -141,9 +129,9 @@ const onSave = () => {
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
-                    <label for="edit-title" class="text-sm font-bold tracking-wider text-zinc-500 uppercase"
-                        >Title</label
-                    >
+                    <label for="edit-title" class="text-sm font-bold tracking-wider text-zinc-500 uppercase">
+                        Title
+                    </label>
                     <InputText id="edit-title" v-model="title" placeholder="Event Title" class="rounded-xl!" />
                 </div>
 
@@ -218,21 +206,21 @@ const onSave = () => {
                     >
                         <template #option="slotProps">
                             <div class="flex items-center gap-2">
-                                <Avatar
-                                    :image="
-                                        slotProps.option.profilePicture
-                                            ? `${uploadsBaseURL}${slotProps.option.profilePicture}`
-                                            : undefined
-                                    "
-                                    :label="
-                                        !slotProps.option.profilePicture
-                                            ? slotProps.option.username.charAt(0)
-                                            : undefined
-                                    "
-                                    shape="circle"
-                                    size="small"
+                                <UserAvatar
+                                    :profilePicture="slotProps.option.profilePicture"
+                                    :username="slotProps.option.username"
                                 />
                                 <span>{{ slotProps.option.username }}</span>
+                            </div>
+                        </template>
+                        <template #chip="slotProps">
+                            <div class="flex items-center gap-1 px-1">
+                                <UserAvatar
+                                    :profilePicture="users.find((p) => p.id === slotProps.value)?.profilePicture"
+                                    :username="users.find((p) => p.id === slotProps.value)?.username"
+                                    class="h-4! w-4! text-[10px]!"
+                                />
+                                <span>{{ users.find((p) => p.id === slotProps.value)?.username }}</span>
                             </div>
                         </template>
                     </MultiSelect>
@@ -242,7 +230,7 @@ const onSave = () => {
                     <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Event Visibility</label>
                     <SelectButton
                         v-model="eventVisibility"
-                        :options="visibilityOptions"
+                        :options="VISIBILITY_OPTIONS"
                         optionLabel="label"
                         optionValue="value"
                         :allowEmpty="false"
@@ -267,67 +255,11 @@ const onSave = () => {
             </div>
 
             <div class="flex flex-col gap-4">
-                <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Event Features & Budgets</label>
-                <div class="space-y-3">
-                    <div
-                        v-for="feature in FEATURES"
-                        :key="feature.id"
-                        class="flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-200"
-                        :class="[
-                            selectedFeatures.includes(feature.id)
-                                ? 'border-emerald-500/30 bg-zinc-50 dark:bg-zinc-900/50'
-                                : 'border-zinc-200 dark:border-zinc-800'
-                        ]"
-                    >
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-xl text-xl"
-                                    :class="
-                                        selectedFeatures.includes(feature.id)
-                                            ? feature.color
-                                            : 'bg-zinc-100 opacity-50 dark:bg-zinc-800'
-                                    "
-                                >
-                                    {{ feature.icon }}
-                                </div>
-                                <span
-                                    class="font-bold"
-                                    :class="selectedFeatures.includes(feature.id) ? '' : 'text-zinc-500'"
-                                    >{{ feature.label }}</span
-                                >
-                            </div>
-                            <ToggleSwitch
-                                :modelValue="selectedFeatures.includes(feature.id)"
-                                @update:modelValue="toggleFeature(feature.id)"
-                            />
-                        </div>
-
-                        <div
-                            v-if="selectedFeatures.includes(feature.id)"
-                            class="animate-in fade-in slide-in-from-top-2 duration-300"
-                        >
-                            <div class="flex flex-col gap-1.5 border-t border-zinc-200 pt-2 dark:border-zinc-800">
-                                <label class="text-[10px] font-black tracking-widest text-zinc-400 uppercase"
-                                    >Total Budget for {{ feature.label }}</label
-                                >
-                                <InputNumber
-                                    v-model="featurePrices[feature.id]"
-                                    mode="currency"
-                                    currency="EUR"
-                                    locale="de-DE"
-                                    placeholder="0.00"
-                                    class="w-full"
-                                    :min="0"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <FeatureBudgetForm v-model:selectedFeatures="selectedFeatures" v-model:featurePrices="featurePrices" />
             </div>
         </div>
 
-        <div class="flex w-full justify-end gap-2 pt-2">
+        <div class="flex w-full justify-end gap-2">
             <Button
                 label="Cancel"
                 icon="pi pi-times"
@@ -335,8 +267,18 @@ const onSave = () => {
                 text
                 @click="emit('cancel')"
                 :disabled="saving"
+                class="rounded-xl!"
             />
-            <Button label="Save Changes" icon="pi pi-check" severity="success" @click="onSave" :loading="saving" />
+            <Button
+                label="Save Changes"
+                icon="pi pi-check"
+                severity="success"
+                @click="onSave"
+                :loading="saving"
+                class="rounded-xl!"
+            />
         </div>
     </div>
 </template>
+
+<style scoped></style>

@@ -2,11 +2,10 @@
 import { ref, computed } from 'vue';
 import Badge from 'primevue/badge';
 import Button from 'primevue/button';
-import Avatar from 'primevue/avatar';
+import UserAvatar from './UserAvatar.vue';
 import Menubar from 'primevue/menubar';
 import { useSessionStore } from '../stores/session';
 import { router } from '../router/router';
-import { uploadsBaseURL } from '../services/API';
 
 const sessionStore = useSessionStore();
 
@@ -67,17 +66,10 @@ const items = ref([
                     :to="{ name: 'profile' }"
                     class="flex items-center gap-2 rounded-full bg-zinc-900 px-2 py-1 no-underline transition-all hover:bg-zinc-800"
                 >
-                    <Avatar
-                        :image="
-                            currentUser?.profilePicture ? `${uploadsBaseURL}${currentUser.profilePicture}` : undefined
-                        "
-                        :label="
-                            !currentUser?.profilePicture
-                                ? currentUser?.username?.charAt(0)?.toUpperCase() || 'U'
-                                : undefined
-                        "
-                        shape="circle"
-                        class="bg-primary text-primary-contrast cursor-pointer transition-all hover:brightness-110"
+                    <UserAvatar
+                        :profilePicture="currentUser?.profilePicture"
+                        :username="currentUser?.username"
+                        class="cursor-pointer transition-all hover:brightness-110"
                     />
                     <span>{{ currentUser?.username }}</span>
                 </router-link>

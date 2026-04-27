@@ -1,11 +1,20 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 
-import Calendar from '../views/Calendar.vue';
-import Login from '../views/Login.vue';
-import AdminView from '../views/AdminView.vue';
-import Profile from '../views/Profile.vue';
+// Lazy load views
+const Calendar = () => import('../views/Calendar.vue');
+const Login = () => import('../views/Login.vue');
+const AdminView = () => import('../views/AdminView.vue');
+const Profile = () => import('../views/Profile.vue');
 
-const routes = [
+declare module 'vue-router' {
+    interface RouteMeta {
+        requiresAuth?: boolean;
+        requiresGuest?: boolean;
+        requiresAdmin?: boolean;
+    }
+}
+
+const routes: RouteRecordRaw[] = [
     { path: '/', name: 'login', component: Login, meta: { requiresGuest: true } },
     { path: '/calendar', name: 'calendar', component: Calendar, meta: { requiresAuth: true } },
     { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
@@ -18,8 +27,7 @@ export const router = createRouter({
 });
 
 // Navigation guards
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-router.beforeEach(async (to, _from) => {
+router.beforeEach(async (to) => {
     const token = localStorage.getItem('token');
     const isAuthenticated = !!token;
 

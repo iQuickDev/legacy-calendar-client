@@ -69,7 +69,6 @@ export interface Event {
     alcoholPrice?: number;
     beerPrice?: number;
     participationDeadline?: string;
-    [key: string]: any;
 }
 
 export interface ParticipateDto {

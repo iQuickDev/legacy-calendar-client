@@ -78,11 +78,11 @@ class API {
         return this.client.get(`/users/${id}`);
     }
 
-    async createUser(dto: CreateUserDto): Promise<AxiosResponse<void>> {
+    async createUser(dto: CreateUserDto): Promise<AxiosResponse<User>> {
         return this.client.post('/users', dto);
     }
 
-    async updateUser(id: number, dto: UpdateUserDto): Promise<AxiosResponse<void>> {
+    async updateUser(id: number, dto: UpdateUserDto): Promise<AxiosResponse<User>> {
         return this.client.patch(`/users/${id}`, dto);
     }
 
@@ -105,7 +105,7 @@ class API {
         return this.client.get(`/events/${id}`);
     }
 
-    async createEvent(dto: CreateEventDto): Promise<AxiosResponse<void>> {
+    async createEvent(dto: CreateEventDto): Promise<AxiosResponse<Event>> {
         return this.client.post('/events', dto);
     }
 

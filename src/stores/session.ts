@@ -1,145 +1,159 @@
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import type { Session } from '../types/Session';
-import { useAPIStore } from './api';
+import api from '../services/API';
 import type { AuthLoginDto } from '../types/Auth';
+import type { User } from '../types/User';
 
-export const useSessionStore = defineStore('session', {
-    state: () => ({
-        session: {} as Session,
-        loading: false,
-        error: null as string | null
-    }),
-    getters: {
-        isAuthenticated: (state) => !!state.session.token,
-        currentUser: (state) => state.session.user
-    },
-    actions: {
-        save() {
-            localStorage.setItem('token', this.session.token);
-        },
-        async login(credentials: AuthLoginDto) {
-            this.loading = true;
-            this.error = null;
-            try {
-                const { client } = useAPIStore();
-                const loginResponse = await client.login(credentials);
-                const token = loginResponse.data.access_token;
+export const useSessionStore = defineStore('session', () => {
+    const session = ref<Session>({} as Session);
+    const loading = ref(false);
+    const error = ref<string | null>(null);
 
-                // Store token
-                localStorage.setItem('token', token);
-                this.session.token = token;
+    const isAuthenticated = computed(() => !!session.value.token);
+    const currentUser = computed(() => session.value.user);
 
-                // Fetch user profile
-                const profileResponse = await client.getProfile();
-                this.session.user = profileResponse.data;
+    function save() {
+        localStorage.setItem('token', session.value.token);
+    }
 
-                return true;
-            } catch (err: any) {
-                this.error = err.response?.data?.message || 'Login failed. Please check your credentials.';
-                localStorage.removeItem('token');
-                this.session = {} as Session;
-                return false;
-            } finally {
-                this.loading = false;
-            }
-        },
-        async load() {
-            const token = localStorage.getItem('token') ?? null;
+    async function login(credentials: AuthLoginDto) {
+        loading.value = true;
+        error.value = null;
+        try {
+            const loginResponse = await api.login(credentials);
+            const token = loginResponse.data.access_token;
 
-            if (!token) {
-                return false;
-            }
-            this.loading = true;
-            this.error = null;
-            try {
-                this.session.token = token;
-                const { client } = useAPIStore();
-                const response = await client.getProfile();
-                this.session = {
-                    token,
-                    user: response.data
-                };
-                return true;
-            } catch {
-                // Token is invalid or expired
-                this.error = 'Session expired. Please log in again.';
-                localStorage.removeItem('token');
-                this.session = {} as Session;
-                return false;
-            } finally {
-                this.loading = false;
-            }
-        },
-        async logout() {
-            const fcmToken = localStorage.getItem('fcm_token');
-            if (fcmToken) {
-                try {
-                    const { client } = useAPIStore();
-                    await client.unsubscribeNotifications(fcmToken);
-                } catch (err) {
-                    console.warn('Failed to unsubscribe from notifications on logout:', err);
-                } finally {
-                    localStorage.removeItem('fcm_token');
-                }
-            }
-            this.session = {} as Session;
+            // Store token
+            localStorage.setItem('token', token);
+            session.value.token = token;
+
+            // Fetch user profile
+            const profileResponse = await api.getProfile();
+            session.value.user = profileResponse.data;
+
+            return true;
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Login failed. Please check your credentials.';
             localStorage.removeItem('token');
-        },
-        clearError() {
-            this.error = null;
-        },
-        async updateProfile(updates: any) {
-            if (this.session.user) {
-                this.session.user = { ...this.session.user, ...updates };
-                // In a real app, this would make an API call
-            }
-        },
-        async changePassword(currentPassword: string, newPassword: string) {
-            try {
-                this.loading = true;
-                const { client } = useAPIStore();
-                await client.changePassword({ currentPassword, newPassword });
-                return true;
-            } catch (error: any) {
-                console.error('Failed to change password:', error);
-                throw error; // Re-throw to let the component handle the error toast
-            } finally {
-                this.loading = false;
-            }
-        },
-        async uploadProfilePicture(file: File) {
-            try {
-                const { client } = useAPIStore();
-                const response = await client.uploadProfilePicture(file);
-                // Update local session with a new object to ensure reactivity
-                if (this.session.user) {
-                    this.session.user = {
-                        ...this.session.user,
-                        profilePicture: `${response.data.profilePicture}?t=${Date.now()}`
-                    };
-                }
-                return true;
-            } catch (error) {
-                console.error('Failed to upload profile picture:', error);
-                throw error;
-            }
-        },
-        async removeProfilePicture() {
-            try {
-                const { client } = useAPIStore();
-                await client.removeProfilePicture();
-                // Update local session explicitly for reactivity
-                if (this.session.user) {
-                    this.session.user = {
-                        ...this.session.user,
-                        profilePicture: undefined
-                    };
-                }
-                return true;
-            } catch (error) {
-                console.error('Failed to remove profile picture:', error);
-                throw error;
-            }
+            session.value = {} as Session;
+            return false;
+        } finally {
+            loading.value = false;
         }
     }
+
+    async function load() {
+        const token = localStorage.getItem('token') ?? null;
+
+        if (!token) {
+            return false;
+        }
+        loading.value = true;
+        error.value = null;
+        try {
+            session.value.token = token;
+            const response = await api.getProfile();
+            session.value = {
+                token,
+                user: response.data
+            };
+            return true;
+        } catch {
+            // Token is invalid or expired
+            error.value = 'Session expired. Please log in again.';
+            localStorage.removeItem('token');
+            session.value = {} as Session;
+            return false;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function logout() {
+        const fcmToken = localStorage.getItem('fcm_token');
+        if (fcmToken) {
+            try {
+                await api.unsubscribeNotifications(fcmToken);
+            } catch (err) {
+                console.warn('Failed to unsubscribe from notifications on logout:', err);
+            } finally {
+                localStorage.removeItem('fcm_token');
+            }
+        }
+        session.value = {} as Session;
+        localStorage.removeItem('token');
+    }
+
+    function clearError() {
+        error.value = null;
+    }
+
+    async function updateProfile(updates: Partial<User>) {
+        if (session.value.user) {
+            session.value.user = { ...session.value.user, ...updates };
+        }
+    }
+
+    async function changePassword(currentPassword: string, newPassword: string) {
+        try {
+            loading.value = true;
+            await api.changePassword({ currentPassword, newPassword });
+            return true;
+        } catch (error: any) {
+            console.error('Failed to change password:', error);
+            throw error;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function uploadProfilePicture(file: File) {
+        try {
+            const response = await api.uploadProfilePicture(file);
+            if (session.value.user) {
+                session.value.user = {
+                    ...session.value.user,
+                    profilePicture: `${response.data.profilePicture}?t=${Date.now()}`
+                };
+            }
+            return true;
+        } catch (error) {
+            console.error('Failed to upload profile picture:', error);
+            throw error;
+        }
+    }
+
+    async function removeProfilePicture() {
+        try {
+            await api.removeProfilePicture();
+            if (session.value.user) {
+                session.value.user = {
+                    ...session.value.user,
+                    profilePicture: undefined
+                };
+            }
+            return true;
+        } catch (error) {
+            console.error('Failed to remove profile picture:', error);
+            throw error;
+        }
+    }
+
+    return {
+        session,
+        loading,
+        error,
+        isAuthenticated,
+        currentUser,
+        save,
+        login,
+        load,
+        logout,
+        clearError,
+        updateProfile,
+        changePassword,
+        uploadProfilePicture,
+        removeProfilePicture
+    };
 });

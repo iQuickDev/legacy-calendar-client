@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import Avatar from 'primevue/avatar';
+import UserAvatar from '../UserAvatar.vue';
 import Badge from 'primevue/badge';
 import Chip from 'primevue/chip';
 import type { Event } from '../../types/Event';
-import { uploadsBaseURL } from '../../services/API';
 import { useMagicCard } from '../../composables/useMagicCard';
 
 defineProps<{
@@ -14,7 +13,7 @@ const emit = defineEmits<{
     (e: 'click', event: Event): void;
 }>();
 
-// @ts-expect-error - cardRef is used as a template ref
+// @ts-expect-error - used in template
 const { cardRef, backgroundStyle } = useMagicCard({
     gradientSize: 150,
     gradientColor: '#ffffff',
@@ -38,13 +37,9 @@ const { cardRef, backgroundStyle } = useMagicCard({
         >
             <template #icon>
                 <div class="z-10 ml-auto flex shrink-0 items-center gap-1">
-                    <Avatar
-                        :image="
-                            event.host?.profilePicture ? `${uploadsBaseURL}${event.host.profilePicture}` : undefined
-                        "
-                        :icon="!event.host?.profilePicture ? 'pi pi-user' : undefined"
-                        shape="circle"
-                        size="small"
+                    <UserAvatar
+                        :profilePicture="event.host?.profilePicture"
+                        :username="event.host?.username"
                         class="bg-surface-0/50 dark:bg-surface-900/50 h-6! w-6! text-[10px]! shadow-sm backdrop-blur-sm"
                     />
 

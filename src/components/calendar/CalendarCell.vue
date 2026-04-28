@@ -32,6 +32,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
     <div
         ref="cardRef"
         class="calendar-cell group relative flex min-h-[60px] shrink-0 cursor-pointer flex-row items-center gap-3 p-3 md:min-h-0 md:shrink md:flex-col md:items-stretch md:gap-1 md:p-2"
+        :data-today="day.isToday || undefined"
         :class="[
             {
                 'cell-active': day.isCurrentMonth,

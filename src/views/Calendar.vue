@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { format } from 'date-fns';
 import { useCalendar } from '../composables/useCalendar';
 import { useToast } from 'primevue/usetoast';
@@ -97,6 +97,20 @@ const handleDeleteEvent = async (id: number) => {
 };
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// Auto-scroll to today on mobile
+const daysGridRef = ref<HTMLElement | null>(null);
+
+const scrollToToday = () => {
+    if (window.innerWidth >= 768) return;
+    nextTick(() => {
+        const todayEl = daysGridRef.value?.querySelector('[data-today]') as HTMLElement | null;
+        todayEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+};
+
+onMounted(scrollToToday);
+watch(days, scrollToToday);
 </script>
 
 <template>
@@ -160,7 +174,7 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             </div>
 
             <!-- Days Grid -->
-            <div class="days-grid flex-1">
+            <div ref="daysGridRef" class="days-grid flex-1">
                 <CalendarCell
                     v-for="day in days"
                     :key="day.date.toISOString()"

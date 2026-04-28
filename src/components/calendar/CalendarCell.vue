@@ -102,7 +102,11 @@ const { cardRef, backgroundStyle } = useMagicCard({
 }
 
 .cell-inactive .day-number {
-    color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.today-glow .day-number {
+    color: white !important;
 }
 
 /* Today cell - gentle green tint (opaque equivalents over #000) */

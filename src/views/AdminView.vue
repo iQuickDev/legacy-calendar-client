@@ -208,14 +208,14 @@ onMounted(() => {
                         bodyRow: { class: 'hover:!bg-zinc-900/40 transition-colors' }
                     }"
                 >
-                    <Column field="id" header="ID" class="text-surface-500 w-24 font-mono" sortable></Column>
+                    <Column field="id" header="ID" class="text-surface-500 w-24" sortable></Column>
                     <Column header="User" class="text-surface-0 font-semibold" sortable sortField="username">
                         <template #body="slotProps">
                             <div class="flex items-center gap-3">
                                 <UserAvatar
                                     :profilePicture="slotProps.data.profilePicture"
                                     :username="slotProps.data.username"
-                                    size="normal"
+                                    size="large"
                                 />
                                 <span>{{ slotProps.data.username }}</span>
                             </div>

@@ -40,7 +40,7 @@ defineProps<{
                         <UserAvatar
                             :profilePicture="slotProps.data.profilePicture"
                             :username="slotProps.data.username"
-                            class="h-6! w-6!"
+                            class="h-8! w-8! lg:h-10! lg:w-10!"
                         />
                         <span>{{ slotProps.data.username }}</span>
                     </div>

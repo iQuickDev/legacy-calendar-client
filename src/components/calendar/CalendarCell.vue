@@ -77,42 +77,41 @@ const { cardRef, backgroundStyle } = useMagicCard({
 </template>
 
 <style scoped>
-/* Base cell styling */
+/* Base cell styling — no borders, opaque bg for grid-gap approach */
 .calendar-cell {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #000000;
 }
 
 /* Active (current month) cells */
 .cell-active {
-    background: transparent;
+    background: #000000;
 }
 
 .cell-active:hover {
     z-index: 10;
 }
 
-/* Inactive (other months) cells - more obvious disabled look */
+/* Inactive (other months) cells — muted bg + text, no opacity */
 .cell-inactive {
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0.35;
+    background: #050505;
     pointer-events: none;
 }
 
 .cell-inactive .day-number {
-    color: rgba(255, 255, 255, 0.25) !important;
+    color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Today cell - gentle green overlay */
+/* Today cell - gentle green tint (opaque equivalents over #000) */
 .cell-today {
-    background: rgba(34, 197, 94, 0.06);
+    background: #020c06;
     box-shadow: inset 0 0 30px rgba(34, 197, 94, 0.05);
 }
 
 .cell-today:hover {
-    background: rgba(34, 197, 94, 0.1);
+    background: #041a0b;
 }
 
 /* Today badge styling */

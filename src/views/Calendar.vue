@@ -192,16 +192,12 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     position: relative;
 }
 
-/* Weekday headers - subtle dividers */
-.weekday-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
 /* Days grid - mobile: scrollable list, desktop: fixed grid */
 .days-grid {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    gap: 1px;
     /* Hide scrollbar but keep functionality */
     scrollbar-width: none;
     /* Firefox */
@@ -214,17 +210,27 @@ const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     /* Chrome, Safari, Opera */
 }
 
-/* Desktop: fixed 7-column grid */
+/* Desktop: fixed 7-column grid — gap + background = uniform grid lines */
 @media (min-width: 768px) {
     .days-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        /* Use auto-rows to handle months with 4, 5, or 6 weeks */
         grid-auto-rows: 1fr;
+        gap: 1px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.001);
         overflow: hidden;
-        /* Add outer border on the grid to complete the box */
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
-        border-left: 1px solid rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Mobile borders */
+@media (max-width: 768px) {
+    .calendar-cell {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .calendar-cell:first-child {
+        border-top: none;
     }
 }
 </style>

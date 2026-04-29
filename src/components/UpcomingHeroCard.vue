@@ -6,6 +6,9 @@ import Avatar from 'primevue/avatar';
 import AvatarGroup from 'primevue/avatargroup';
 import type { Event } from '../types/Event';
 import { useMagicCard } from '../composables/useMagicCard';
+import UserAvatar from './UserAvatar.vue';
+
+const AVATAR_GROUP_SHOWN_LIMIT = 4;
 
 const props = defineProps<{
     event: Event;
@@ -148,7 +151,7 @@ const recommendation = computed(() => {
     return null;
 });
 
-const { cardRef, backgroundStyle } = useMagicCard({
+const { backgroundStyle } = useMagicCard({
     gradientSize: 400,
     gradientColor: computed(() => {
         switch (state.value) {
@@ -240,20 +243,17 @@ const duration = computed(() => {
 
                     <!-- Participants -->
                     <div v-if="activeParticipants.length > 0" class="flex items-center gap-3">
-                        <AvatarGroup class="-space-x-2">
-                            <Avatar
-                                v-for="p in activeParticipants.slice(0, 4)"
+                        <AvatarGroup>
+                            <UserAvatar
+                                v-for="p in activeParticipants.slice(0, AVATAR_GROUP_SHOWN_LIMIT)"
                                 :key="p.id"
-                                :image="p.profilePicture"
-                                :label="!p.profilePicture ? p.username?.charAt(0).toUpperCase() : undefined"
-                                shape="circle"
-                                class="h-8 w-8 border-2 border-zinc-950 bg-zinc-800 text-xs font-bold ring-0!"
+                                :profile-picture="p.profilePicture"
+                                :username="p.username"
                             />
                             <Avatar
-                                v-if="activeParticipants.length > 4"
-                                :label="`+${activeParticipants.length - 4}`"
+                                v-if="activeParticipants.length > AVATAR_GROUP_SHOWN_LIMIT"
+                                :label="`+${activeParticipants.length - AVATAR_GROUP_SHOWN_LIMIT}`"
                                 shape="circle"
-                                class="h-8 w-8 border-2 border-zinc-950 bg-zinc-900 text-[10px] font-bold"
                             />
                         </AvatarGroup>
                         <span class="text-xs font-medium text-zinc-500">

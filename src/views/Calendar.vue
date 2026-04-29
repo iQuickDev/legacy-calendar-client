@@ -15,6 +15,7 @@ const {
     currentDate,
     days,
     events,
+    isTodayMonth,
     nextMonth,
     prevMonth,
     goToToday,
@@ -171,15 +172,22 @@ watch(days, scrollToToday);
             >
                 {{ format(currentDate, 'MMMM yyyy') }}
             </h1>
-            <Button
-                label="Today"
-                @click="goToToday"
-                @mouseenter="prefetchTodayMonth"
-                @focus="prefetchTodayMonth"
-                outlined
-                size="small"
-                class="text-xs! sm:text-sm!"
-            />
+            <div class="flex min-w-[60px] justify-end sm:min-w-[100px]">
+                <Transition name="fade-scale">
+                    <Button
+                        v-if="!isTodayMonth"
+                        label="Today"
+                        icon="pi pi-calendar"
+                        @click="goToToday"
+                        @mouseenter="prefetchTodayMonth"
+                        @focus="prefetchTodayMonth"
+                        outlined
+                        severity="secondary"
+                        size="small"
+                        class="rounded-xl! text-xs! sm:text-sm!"
+                    />
+                </Transition>
+            </div>
         </div>
 
         <!-- Calendar Grid -->
@@ -255,5 +263,16 @@ watch(days, scrollToToday);
         grid-auto-rows: 1fr;
         overflow: hidden;
     }
+}
+
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
 }
 </style>

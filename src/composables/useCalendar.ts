@@ -89,11 +89,15 @@ export function useCalendar() {
 
         const dates = eachDayOfInterval({ start: startDate, end: endDate });
 
+        const parsedEvents = events.value.map((e) => ({
+            event: e,
+            parsedDate: parseISO(e.startTime)
+        }));
+
         return dates.map((date) => {
-            const dayEvents = events.value.filter((e) => {
-                const eventDate = parseISO(e.startTime);
-                return isSameDay(eventDate, date);
-            });
+            const dayEvents = parsedEvents
+                .filter((e) => isSameDay(e.parsedDate, date))
+                .map((e) => e.event);
 
             return {
                 date,
@@ -136,10 +140,13 @@ export function useCalendar() {
         return await eventsStore.joinEvent(id, dto);
     };
 
+    const isTodayMonth = computed(() => isSameMonth(currentDate.value, new Date()));
+
     return {
         currentDate,
         days,
         events,
+        isTodayMonth,
         loading: computed(() => eventsStore.loading),
         error: computed(() => eventsStore.error),
         nextMonth,

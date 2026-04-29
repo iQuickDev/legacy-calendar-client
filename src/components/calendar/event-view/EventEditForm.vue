@@ -166,7 +166,7 @@ const onSave = () => {
 
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-bold tracking-wider text-zinc-500 uppercase">Event Color</label>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="mx-auto mt-1 grid grid-cols-5 gap-2">
                         <button
                             v-for="color in PREDEFINED_COLORS"
                             :key="color"

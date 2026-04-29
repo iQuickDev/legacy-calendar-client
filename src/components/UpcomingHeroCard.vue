@@ -318,7 +318,7 @@ const duration = computed(() => {
 
 .hero-button:hover {
     filter: brightness(1.1);
-    box-shadow: 0 15px 30px -10px var(--p-primary-500/30);
+    box-shadow: 0 15px 30px -10px color-mix(in srgb, var(--p-primary-500) 30%, transparent);
 }
 
 .magic-spotlight {

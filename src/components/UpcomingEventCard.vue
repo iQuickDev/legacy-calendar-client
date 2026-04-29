@@ -52,13 +52,14 @@ const extraParticipantsCount = computed(() => {
             <div class="flex items-start justify-between gap-3">
                 <div class="flex flex-col gap-0.5">
                     <span class="text-primary-500 text-[10px] font-bold tracking-wider uppercase">
-                        {{ isSameDay(startDate, new Date()) ? 'Today' : format(startDate, 'EEE, MMM d') }} • {{ format(startDate, 'h:mm a') }}
+                        {{ isSameDay(startDate, new Date()) ? 'Today' : format(startDate, 'EEE, MMM d') }} •
+                        {{ format(startDate, 'h:mm a') }}
                     </span>
                     <h3 class="text-surface-0 m-0 line-clamp-1 text-base font-bold">
                         {{ event.title }}
                     </h3>
                 </div>
-                <i v-if="isPrivate" class="pi pi-lock text-surface-500 text-xs mt-1" title="Private Event"></i>
+                <i v-if="isPrivate" class="pi pi-lock text-surface-500 mt-1 text-xs" title="Private Event"></i>
             </div>
 
             <p class="text-surface-400 m-0 line-clamp-2 text-xs leading-relaxed" v-if="event.description">
@@ -76,9 +77,11 @@ const extraParticipantsCount = computed(() => {
                 <UserAvatar
                     :profilePicture="event.host?.profilePicture"
                     :username="event.host?.username"
-                    class="h-6! w-6! border-zinc-800 border"
+                    class="h-6! w-6! border border-zinc-800"
                 />
-                <span class="text-surface-400 text-[10px] font-medium hidden sm:inline">{{ event.host?.username }}</span>
+                <span class="text-surface-400 hidden text-[10px] font-medium sm:inline">{{
+                    event.host?.username
+                }}</span>
             </div>
 
             <div class="flex items-center gap-2">
@@ -98,8 +101,8 @@ const extraParticipantsCount = computed(() => {
                         class="text-surface-400 h-6! w-6! border border-[#1a1a1a] bg-[#1a1a1a] text-[8px] font-bold"
                     />
                 </AvatarGroup>
-                
-                <i class="pi pi-chevron-right text-zinc-600 text-[10px]"></i>
+
+                <i class="pi pi-chevron-right text-[10px] text-zinc-600"></i>
             </div>
         </div>
         <div class="magic-spotlight" :style="backgroundStyle"></div>

@@ -53,38 +53,32 @@ const handleViewEvent = (event: Event) => {
             content: { class: 'p-0' }
         }"
     >
-        <div v-if="day" class="flex flex-col h-full max-h-[80vh]">
+        <div v-if="day" class="flex h-full max-h-[80vh] flex-col">
             <!-- Custom Header -->
-            <div class="relative p-6 pb-4 border-b border-zinc-800">
-                <Button 
-                    icon="pi pi-times" 
-                    text 
-                    rounded 
-                    class="absolute top-4 right-4 text-zinc-500!" 
-                    @click="close"
-                />
-                <h2 class="text-zinc-400 text-xs font-bold tracking-widest uppercase mb-1">Day Overview</h2>
+            <div class="relative border-b border-zinc-800 p-6 pb-4">
+                <Button icon="pi pi-times" text rounded class="absolute top-4 right-4 text-zinc-500!" @click="close" />
+                <h2 class="mb-1 text-xs font-bold tracking-widest text-zinc-400 uppercase">Day Overview</h2>
                 <h1 class="text-2xl font-black text-white">{{ dateTitle }}</h1>
             </div>
 
             <!-- Events List -->
-            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 min-h-[200px]">
+            <div class="flex min-h-[200px] flex-1 flex-col gap-4 overflow-y-auto p-4">
                 <div v-if="day.events.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
-                    <i class="pi pi-calendar-times text-zinc-800 text-4xl mb-4"></i>
-                    <p class="text-zinc-500 font-medium">No events scheduled for this day.</p>
+                    <i class="pi pi-calendar-times mb-4 text-4xl text-zinc-800"></i>
+                    <p class="font-medium text-zinc-500">No events scheduled for this day.</p>
                 </div>
-                
+
                 <UpcomingEventCard
                     v-for="event in day.events"
                     :key="event.id"
                     :event="event"
-                    class="bg-zinc-900/50! border-zinc-800! hover:border-zinc-700!"
+                    class="border-zinc-800! bg-zinc-900/50! hover:border-zinc-700!"
                     @view="handleViewEvent"
                 />
             </div>
 
             <!-- Footer Action -->
-            <div class="p-4 border-t border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+            <div class="border-t border-zinc-800 bg-zinc-950/80 p-4 backdrop-blur-md">
                 <Button
                     label="Add New Event"
                     icon="pi pi-plus"

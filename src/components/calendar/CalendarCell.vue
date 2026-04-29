@@ -47,7 +47,6 @@ const { cardRef, backgroundStyle } = useMagicCard({
 });
 </script>
 
-
 <template>
     <div
         ref="cardRef"
@@ -62,14 +61,10 @@ const { cardRef, backgroundStyle } = useMagicCard({
         ]"
     >
         <!-- Background Click Area (Z-0) -->
-        <div 
-            v-if="day.isCurrentMonth"
-            class="absolute inset-0 z-0 cursor-pointer" 
-            @click="handleClick"
-        ></div>
+        <div v-if="day.isCurrentMonth" class="absolute inset-0 z-0 cursor-pointer" @click="handleClick"></div>
 
         <!-- Content Layer (Z-10) - Pointer events disabled so background catches empty clicks -->
-        <div class="relative z-10 flex flex-col h-full pointer-events-none">
+        <div class="pointer-events-none relative z-10 flex h-full flex-col">
             <!-- Date Header -->
             <div class="mb-0.5 flex w-full justify-center md:mb-1 md:justify-end">
                 <span
@@ -85,13 +80,13 @@ const { cardRef, backgroundStyle } = useMagicCard({
             </div>
 
             <!-- Events List - Re-enable pointer events ONLY for the cards -->
-            <div class="flex-1 flex flex-col gap-1 overflow-y-auto pr-0 pb-0 md:pr-1 md:pb-1">
-                <EventCard 
-                    v-for="event in day.events" 
-                    :key="event.id" 
-                    :event="event" 
+            <div class="flex flex-1 flex-col gap-1 overflow-y-auto pr-0 pb-0 md:pr-1 md:pb-1">
+                <EventCard
+                    v-for="event in day.events"
+                    :key="event.id"
+                    :event="event"
                     class="pointer-events-auto"
-                    @click="emit('view-event', event)" 
+                    @click="emit('view-event', event)"
                 />
             </div>
         </div>
@@ -103,10 +98,6 @@ const { cardRef, backgroundStyle } = useMagicCard({
         <div v-if="day.isToday" class="today-glow"></div>
     </div>
 </template>
-
-
-
-
 
 <style scoped>
 /* Base cell styling — no borders, opaque bg for grid-gap approach */

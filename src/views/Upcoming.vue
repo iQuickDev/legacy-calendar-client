@@ -85,7 +85,9 @@ const handleDeleteEvent = async (id: number) => {
         <!-- Header -->
         <div class="flex flex-row items-end justify-between gap-2">
             <div>
-                <h1 class="text-surface-900 dark:text-surface-0 text-2xl font-black tracking-tight sm:text-3xl md:text-4xl">
+                <h1
+                    class="text-surface-900 dark:text-surface-0 text-2xl font-black tracking-tight sm:text-3xl md:text-4xl"
+                >
                     Upcoming
                 </h1>
                 <p class="text-surface-400 mt-1 text-sm font-medium">Your schedule for the near future.</p>
@@ -106,12 +108,7 @@ const handleDeleteEvent = async (id: number) => {
             </div>
             <h3 class="text-surface-0 text-xl font-bold">Something went wrong</h3>
             <p class="text-surface-400 mt-2 max-w-xs text-sm">{{ error }}</p>
-            <Button
-                label="Reload Events"
-                icon="pi pi-refresh"
-                class="mt-6 rounded-xl!"
-                @click="fetchUpcomingEvents"
-            />
+            <Button label="Reload Events" icon="pi pi-refresh" class="mt-6 rounded-xl!" @click="fetchUpcomingEvents" />
         </div>
 
         <div
@@ -119,8 +116,10 @@ const handleDeleteEvent = async (id: number) => {
             class="flex min-h-[500px] flex-1 flex-col items-center justify-center p-6 text-center"
         >
             <div class="relative mb-8">
-                <div class="absolute inset-0 animate-pulse rounded-full bg-primary-500/10 blur-3xl"></div>
-                <div class="bg-surface-900/50 relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/5 backdrop-blur-sm">
+                <div class="bg-primary-500/10 absolute inset-0 animate-pulse rounded-full blur-3xl"></div>
+                <div
+                    class="bg-surface-900/50 relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/5 backdrop-blur-sm"
+                >
                     <i class="pi pi-calendar-plus text-surface-400 text-4xl"></i>
                 </div>
             </div>
@@ -159,7 +158,6 @@ const handleDeleteEvent = async (id: number) => {
         <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent" />
     </div>
 </template>
-
 
 <style scoped>
 .upcoming-container {

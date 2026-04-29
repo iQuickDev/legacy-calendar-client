@@ -59,36 +59,46 @@ const state = computed(() => {
 
 const stateLabel = computed(() => {
     switch (state.value) {
-        case 'missed': return 'Missed';
-        case 'starting': return 'Starting Now';
-        case 'ongoing': return 'Happening Now';
-        case 'soon': return 'Soon • قريب';
-        default: return 'Upcoming';
+        case 'missed':
+            return 'Missed';
+        case 'starting':
+            return 'Starting Now';
+        case 'ongoing':
+            return 'Happening Now';
+        case 'soon':
+            return 'Soon • قريب';
+        default:
+            return 'Upcoming';
     }
 });
 
 const stateColor = computed(() => {
     switch (state.value) {
-        case 'missed': return 'text-red-400 border-red-500/20 bg-red-500/5';
-        case 'starting': return 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10 shadow-[0_0_15px_rgba(52,211,153,0.15)]';
-        case 'ongoing': return 'text-blue-400 border-blue-500/20 bg-blue-500/5';
-        case 'soon': return 'text-amber-400 border-amber-500/20 bg-amber-500/5';
-        default: return 'text-zinc-400 border-zinc-500/20 bg-zinc-500/5';
+        case 'missed':
+            return 'text-red-400 border-red-500/20 bg-red-500/5';
+        case 'starting':
+            return 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10 shadow-[0_0_15px_rgba(52,211,153,0.15)]';
+        case 'ongoing':
+            return 'text-blue-400 border-blue-500/20 bg-blue-500/5';
+        case 'soon':
+            return 'text-amber-400 border-amber-500/20 bg-amber-500/5';
+        default:
+            return 'text-zinc-400 border-zinc-500/20 bg-zinc-500/5';
     }
 });
 
 const countdownText = computed(() => {
     if (isMissed.value) return `Ended ${formatDistanceToNow(endDate.value)} ago`;
     if (isStartedAlready.value) return `Started ${formatDistanceToNow(startDate.value)} ago`;
-    
+
     const diffMin = differenceInMinutes(startDate.value, now.value);
     if (diffMin < 1) return 'Starting any second...';
     if (diffMin < 60) return `Starts in ${diffMin}m`;
-    
+
     const diffHours = Math.floor(diffMin / 60);
     const remainingMin = diffMin % 60;
     if (diffHours < 24) return `Starts in ${diffHours}h ${remainingMin}m`;
-    
+
     return formatDistanceToNow(startDate.value, { addSuffix: true });
 });
 
@@ -117,7 +127,10 @@ const handleAction = () => {
     if (isLocationUrl.value) {
         window.open(props.event.location, '_blank');
     } else if (props.event.location) {
-        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(props.event.location)}`, '_blank');
+        window.open(
+            `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(props.event.location)}`,
+            '_blank'
+        );
     } else {
         emit('view', props.event);
     }
@@ -139,10 +152,14 @@ const { cardRef, backgroundStyle } = useMagicCard({
     gradientSize: 400,
     gradientColor: computed(() => {
         switch (state.value) {
-            case 'starting': return '#10b981';
-            case 'soon': return '#f59e0b';
-            case 'ongoing': return '#3b82f6';
-            default: return '#ffffff';
+            case 'starting':
+                return '#10b981';
+            case 'soon':
+                return '#f59e0b';
+            case 'ongoing':
+                return '#3b82f6';
+            default:
+                return '#ffffff';
         }
     }),
     gradientOpacity: 0.08
@@ -172,17 +189,19 @@ const duration = computed(() => {
             <div class="flex flex-1 flex-col gap-4">
                 <!-- State Badge -->
                 <div class="flex items-center gap-2">
-                    <div 
+                    <div
                         class="flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-bold tracking-widest uppercase transition-colors duration-500"
                         :class="stateColor"
                     >
                         <span v-if="isStartingNow || isStartedAlready" class="relative flex h-2 w-2">
-                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75"></span>
+                            <span
+                                class="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75"
+                            ></span>
                             <span class="relative inline-flex h-2 w-2 rounded-full bg-current"></span>
                         </span>
                         {{ stateLabel }}
                     </div>
-                    <span class="text-zinc-500 text-xs font-medium">• {{ duration }}</span>
+                    <span class="text-xs font-medium text-zinc-500">• {{ duration }}</span>
                 </div>
 
                 <!-- Title & Countdown -->
@@ -203,7 +222,7 @@ const duration = computed(() => {
                 </p>
 
                 <!-- Description Snippet -->
-                <p v-if="event.description" class="line-clamp-2 max-w-2xl text-zinc-400 text-sm md:text-base">
+                <p v-if="event.description" class="line-clamp-2 max-w-2xl text-sm text-zinc-400 md:text-base">
                     {{ event.description }}
                 </p>
 
@@ -211,7 +230,9 @@ const duration = computed(() => {
                 <div class="mt-2 flex flex-wrap items-center gap-6">
                     <!-- Location -->
                     <div v-if="event.location" class="flex items-center gap-2 text-sm text-zinc-300">
-                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 border border-zinc-800">
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900"
+                        >
                             <i :class="isLocationUrl ? 'pi pi-external-link' : 'pi pi-map-marker'"></i>
                         </div>
                         <span class="max-w-[200px] truncate font-medium">{{ event.location }}</span>
@@ -254,7 +275,7 @@ const duration = computed(() => {
                 <Button
                     label="Event Details"
                     text
-                    class="text-zinc-500! hover:text-white! text-sm!"
+                    class="text-sm! text-zinc-500! hover:text-white!"
                     @click="emit('view', event)"
                 />
             </div>
@@ -262,7 +283,9 @@ const duration = computed(() => {
 
         <!-- Background Effects -->
         <div class="magic-spotlight" :style="backgroundStyle"></div>
-        <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary-500/5 blur-[100px] pointer-events-none"></div>
+        <div
+            class="bg-primary-500/5 pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full blur-[100px]"
+        ></div>
     </div>
 </template>
 
@@ -276,7 +299,7 @@ const duration = computed(() => {
     content: '';
     position: absolute;
     inset: -1px;
-    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.05), transparent);
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     border-radius: inherit;
     z-index: 0;
     pointer-events: none;
@@ -307,8 +330,15 @@ const duration = computed(() => {
 }
 
 @keyframes pulse-subtle {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.95; transform: scale(1.005); }
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.95;
+        transform: scale(1.005);
+    }
 }
 
 .soon-pulse {

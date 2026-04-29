@@ -202,7 +202,7 @@ watch(days, scrollToToday);
         </div>
 
         <!-- Calendar Grid -->
-        <div 
+        <div
             class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"

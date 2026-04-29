@@ -29,7 +29,6 @@ const dateDisplay = computed(() => {
     return `${format(startDate.value, 'MMM d, h:mm a')} - ${format(endDate.value, 'MMM d, h:mm a')}`;
 });
 
-
 const isPrivate = computed(() => props.event.isPrivate);
 
 const { cardRef, backgroundStyle } = useMagicCard({
@@ -111,7 +110,7 @@ const extraParticipantsCount = computed(() => {
                         :username="event.host?.username"
                         class="border-surface-800 h-8! w-8! border"
                     />
-                    <div class="flex hidden flex-col sm:flex">
+                    <div class="hidden flex-col sm:flex">
                         <span class="text-surface-400 text-xs">Hosted by</span>
                         <span class="text-surface-100 text-sm font-medium">{{ event.host?.username }}</span>
                     </div>
@@ -119,22 +118,16 @@ const extraParticipantsCount = computed(() => {
             </div>
 
             <div class="flex items-center gap-3">
-                <AvatarGroup v-if="activeParticipants.length > 0" class="-space-x-2">
-                    <Avatar
+                <AvatarGroup v-if="activeParticipants.length > 0">
+                    <UserAvatar
                         v-for="p in displayParticipants"
                         :key="p.id"
-                        :image="p.profilePicture"
-                        :label="!p.profilePicture ? p.username?.charAt(0).toUpperCase() : undefined"
-                        shape="circle"
+                        :profilePicture="p.profilePicture"
+                        :username="p.username"
                         class="text-surface-200 h-7! w-7! border border-[#262626] bg-[#0a0a0a] text-xs font-bold"
                         :title="p.username"
                     />
-                    <Avatar
-                        v-if="extraParticipantsCount > 0"
-                        :label="`+${extraParticipantsCount}`"
-                        shape="circle"
-                        class="text-surface-300 h-7! w-7! border border-[#262626] bg-[#1a1a1a] text-[10px] font-bold"
-                    />
+                    <Avatar v-if="extraParticipantsCount > 0" :label="`+${extraParticipantsCount}`" shape="circle" />
                 </AvatarGroup>
                 <div v-else class="text-surface-400 flex items-center gap-1" title="Participants">
                     <i class="pi pi-users text-sm"></i>

@@ -18,13 +18,20 @@ const handleLogout = async () => {
 };
 
 const items = ref([
-    // {
-    //     label: 'Calendar',
-    //     icon: 'pi pi-calendar',
-    //     command: () => {
-    //         router.push({ name: 'calendar' });
-    //     }
-    // }
+    {
+        label: 'Calendar',
+        icon: 'pi pi-calendar',
+        command: () => {
+            router.push({ name: 'calendar' });
+        }
+    },
+    {
+        label: 'Upcoming',
+        icon: 'pi pi-list',
+        command: () => {
+            router.push({ name: 'upcoming' });
+        }
+    }
 ]);
 </script>
 

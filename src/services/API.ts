@@ -101,6 +101,10 @@ class API {
         });
     }
 
+    async findUpcomingEvents(): Promise<AxiosResponse<Event[]>> {
+        return this.client.get('/events/upcoming');
+    }
+
     async findOneEvent(id: number): Promise<AxiosResponse<Event>> {
         return this.client.get(`/events/${id}`);
     }

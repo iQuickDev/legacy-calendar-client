@@ -5,6 +5,7 @@ const Calendar = () => import('../views/Calendar.vue');
 const Login = () => import('../views/Login.vue');
 const AdminView = () => import('../views/AdminView.vue');
 const Profile = () => import('../views/Profile.vue');
+const Upcoming = () => import('../views/Upcoming.vue');
 
 declare module 'vue-router' {
     interface RouteMeta {
@@ -17,6 +18,7 @@ declare module 'vue-router' {
 const routes: RouteRecordRaw[] = [
     { path: '/', name: 'login', component: Login, meta: { requiresGuest: true } },
     { path: '/calendar', name: 'calendar', component: Calendar, meta: { requiresAuth: true } },
+    { path: '/upcoming', name: 'upcoming', component: Upcoming, meta: { requiresAuth: true } },
     { path: '/admin', name: 'admin', component: AdminView, meta: { requiresAuth: true, requiresAdmin: true } },
     { path: '/profile', name: 'profile', component: Profile, meta: { requiresAuth: true } }
 ];

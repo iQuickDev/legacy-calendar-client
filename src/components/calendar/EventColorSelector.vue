@@ -11,7 +11,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <div class="mx-auto mt-1 grid grid-cols-5 gap-2">
+    <div class="mx-auto mt-1 flex flex-wrap gap-2">
         <button
             v-for="color in PREDEFINED_COLORS"
             :key="color"

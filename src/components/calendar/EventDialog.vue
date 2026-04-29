@@ -52,8 +52,7 @@ const PREDEFINED_COLORS = [
     '#06b6d4', // Cyan
     '#3b82f6', // Blue
     '#8b5cf6', // Violet
-    '#d946ef', // Fuchsia
-    '#f43f5e' // Rose
+    '#d946ef' // Fuchsia
 ];
 const eventColor = ref(PREDEFINED_COLORS[0]);
 

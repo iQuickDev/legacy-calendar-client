@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { format, isSameDay } from 'date-fns';
-import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import AvatarGroup from 'primevue/avatargroup';
 import UserAvatar from './UserAvatar.vue';
@@ -17,17 +16,6 @@ const emit = defineEmits<{
 }>();
 
 const startDate = computed(() => new Date(props.event.startTime));
-const endDate = computed(() => (props.event.endTime ? new Date(props.event.endTime) : null));
-
-const dateDisplay = computed(() => {
-    if (!endDate.value) {
-        return format(startDate.value, 'MMM d, yyyy • h:mm a');
-    }
-    if (isSameDay(startDate.value, endDate.value)) {
-        return `${format(startDate.value, 'MMM d, yyyy • h:mm a')} - ${format(endDate.value, 'h:mm a')}`;
-    }
-    return `${format(startDate.value, 'MMM d, h:mm a')} - ${format(endDate.value, 'MMM d, h:mm a')}`;
-});
 
 const isPrivate = computed(() => props.event.isPrivate);
 
@@ -57,95 +45,63 @@ const extraParticipantsCount = computed(() => {
 <template>
     <div
         ref="cardRef"
-        class="upcoming-event-card relative flex flex-col justify-between overflow-hidden rounded-xl p-5 transition-all duration-300"
+        class="upcoming-event-card relative flex flex-col justify-between overflow-hidden rounded-xl p-4 transition-all duration-300"
         @click="emit('view', event)"
     >
-        <div class="z-10 flex flex-col gap-3">
+        <div class="z-10 flex flex-col gap-2">
             <div class="flex items-start justify-between gap-3">
-                <div class="flex flex-col gap-1">
-                    <span class="text-surface-400 text-xs font-semibold tracking-wider uppercase">
-                        {{ dateDisplay }}
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-primary-500 text-[10px] font-bold tracking-wider uppercase">
+                        {{ isSameDay(startDate, new Date()) ? 'Today' : format(startDate, 'EEE, MMM d') }} • {{ format(startDate, 'h:mm a') }}
                     </span>
-                    <h3 class="text-surface-0 m-0 line-clamp-2 text-xl font-bold">
+                    <h3 class="text-surface-0 m-0 line-clamp-1 text-base font-bold">
                         {{ event.title }}
                     </h3>
                 </div>
-                <div class="flex shrink-0 items-center gap-2">
-                    <i v-if="isPrivate" class="pi pi-lock text-surface-400" title="Private Event"></i>
-                </div>
+                <i v-if="isPrivate" class="pi pi-lock text-surface-500 text-xs mt-1" title="Private Event"></i>
             </div>
 
-            <p class="text-surface-300 m-0 line-clamp-3 text-sm" v-if="event.description">
+            <p class="text-surface-400 m-0 line-clamp-2 text-xs leading-relaxed" v-if="event.description">
                 {{ event.description }}
             </p>
 
-            <div v-if="event.location" class="text-surface-400 mt-2 flex items-center gap-2 text-sm">
-                <i class="pi pi-map-marker"></i>
+            <div v-if="event.location" class="text-surface-500 flex items-center gap-1.5 text-[11px]">
+                <i class="pi pi-map-marker text-[10px]"></i>
                 <span class="truncate">{{ event.location }}</span>
             </div>
-
-            <div class="mt-1 flex flex-wrap items-center gap-2">
-                <div
-                    v-if="event.hasFood"
-                    class="text-surface-400 flex items-center gap-1 rounded border border-white/10 px-2 py-0.5 text-xs"
-                    title="Food available"
-                >
-                    <i class="pi pi-shopping-cart text-[10px]"></i> Food
-                </div>
-                <div
-                    v-if="event.hasAlcohol || event.hasBeer"
-                    class="text-surface-400 flex items-center gap-1 rounded border border-white/10 px-2 py-0.5 text-xs"
-                    title="Drinks available"
-                >
-                    <i class="pi pi-shop text-[10px]"></i> Drinks
-                </div>
-            </div>
         </div>
 
-        <div class="z-10 mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <UserAvatar
-                        :profilePicture="event.host?.profilePicture"
-                        :username="event.host?.username"
-                        class="border-surface-800 h-8! w-8! border"
-                    />
-                    <div class="hidden flex-col sm:flex">
-                        <span class="text-surface-400 text-xs">Hosted by</span>
-                        <span class="text-surface-100 text-sm font-medium">{{ event.host?.username }}</span>
-                    </div>
-                </div>
+        <div class="z-10 mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+            <div class="flex items-center gap-2">
+                <UserAvatar
+                    :profilePicture="event.host?.profilePicture"
+                    :username="event.host?.username"
+                    class="h-6! w-6! border-zinc-800 border"
+                />
+                <span class="text-surface-400 text-[10px] font-medium hidden sm:inline">{{ event.host?.username }}</span>
             </div>
 
-            <div class="flex items-center gap-3">
-                <AvatarGroup v-if="activeParticipants.length > 0">
-                    <UserAvatar
+            <div class="flex items-center gap-2">
+                <AvatarGroup v-if="activeParticipants.length > 0" class="-space-x-1.5">
+                    <Avatar
                         v-for="p in displayParticipants"
                         :key="p.id"
-                        :profilePicture="p.profilePicture"
-                        :username="p.username"
-                        class="text-surface-200 h-7! w-7! border border-[#262626] bg-[#0a0a0a] text-xs font-bold"
-                        :title="p.username"
+                        :image="p.profilePicture"
+                        :label="!p.profilePicture ? p.username?.charAt(0).toUpperCase() : undefined"
+                        shape="circle"
+                        class="text-surface-200 h-6! w-6! border border-[#1a1a1a] bg-[#0a0a0a] text-[9px] font-bold"
                     />
-                    <Avatar v-if="extraParticipantsCount > 0" :label="`+${extraParticipantsCount}`" shape="circle" />
+                    <Avatar
+                        v-if="extraParticipantsCount > 0"
+                        :label="`+${extraParticipantsCount}`"
+                        shape="circle"
+                        class="text-surface-400 h-6! w-6! border border-[#1a1a1a] bg-[#1a1a1a] text-[8px] font-bold"
+                    />
                 </AvatarGroup>
-                <div v-else class="text-surface-400 flex items-center gap-1" title="Participants">
-                    <i class="pi pi-users text-sm"></i>
-                    <span class="text-sm font-semibold">0</span>
-                </div>
-
-                <Button
-                    label="View"
-                    icon="pi pi-arrow-right"
-                    iconPos="right"
-                    size="small"
-                    outlined
-                    class="p-button-rounded hidden text-xs! sm:flex"
-                    @click.stop="emit('view', event)"
-                />
+                
+                <i class="pi pi-chevron-right text-zinc-600 text-[10px]"></i>
             </div>
         </div>
-
         <div class="magic-spotlight" :style="backgroundStyle"></div>
     </div>
 </template>

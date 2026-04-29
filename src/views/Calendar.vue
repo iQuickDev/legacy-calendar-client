@@ -114,7 +114,7 @@ watch(days, scrollToToday);
 </script>
 
 <template>
-    <div class="calendar-container flex w-full flex-col gap-3 p-4 md:gap-4 md:px-6 md:py-4">
+    <div class="calendar-container flex w-full flex-col gap-3 p-1 md:gap-4 md:p-4 md:px-6 md:py-4">
         <!-- Loading Overlay -->
         <div v-if="loading && !isSaving" class="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
             <ProgressSpinner />

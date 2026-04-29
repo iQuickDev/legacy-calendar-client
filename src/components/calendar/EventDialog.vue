@@ -53,7 +53,7 @@ const PREDEFINED_COLORS = [
     '#3b82f6', // Blue
     '#8b5cf6', // Violet
     '#d946ef', // Fuchsia
-    '#f43f5e'  // Rose
+    '#f43f5e' // Rose
 ];
 const eventColor = ref(PREDEFINED_COLORS[0]);
 
@@ -205,7 +205,9 @@ const onSave = () => {
                         type="button"
                         class="h-8 w-8 rounded-full border-2 transition-all duration-200 focus:outline-hidden"
                         :class="[
-                            eventColor === color ? 'border-surface-900 dark:border-surface-0 scale-110 shadow-md' : 'border-transparent hover:scale-105 shadow-sm'
+                            eventColor === color
+                                ? 'border-surface-900 dark:border-surface-0 scale-110 shadow-md'
+                                : 'border-transparent shadow-sm hover:scale-105'
                         ]"
                         :style="{ backgroundColor: color }"
                         @click="eventColor = color"

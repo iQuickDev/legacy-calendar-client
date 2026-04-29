@@ -58,7 +58,7 @@ const handleDeleteEvent = async (id: number) => {
     // Delete event using calendar composable or API directly
     try {
         await API.deleteEvent(id);
-        events.value = events.value.filter(e => e.id !== id);
+        events.value = events.value.filter((e) => e.id !== id);
         toast.add({
             severity: 'success',
             summary: 'Event Deleted',
@@ -80,44 +80,54 @@ const handleDeleteEvent = async (id: number) => {
 <template>
     <div class="upcoming-container flex w-full flex-col gap-3 p-4 md:gap-4 md:px-6 md:py-4">
         <!-- Header matches Calendar.vue -->
-        <div class="flex flex-row items-center justify-between gap-2 mb-2">
+        <div class="mb-2 flex flex-row items-center justify-between gap-2">
             <div>
                 <h1 class="text-surface-900 dark:text-surface-0 text-lg font-bold sm:text-2xl md:text-3xl">
                     Upcoming Events
                 </h1>
-                <p class="mt-1 text-xs text-surface-400 sm:text-sm">
-                    Your next 10 events, sorted by start time.
-                </p>
+                <p class="text-surface-400 mt-1 text-xs sm:text-sm">Your next 10 events, sorted by start time.</p>
             </div>
-            
+
             <router-link :to="{ name: 'calendar' }" class="shrink-0">
                 <Button label="Calendar" icon="pi pi-calendar" outlined size="small" class="text-xs! sm:text-sm!" />
             </router-link>
         </div>
 
-        <div v-if="loading" class="flex flex-1 items-center justify-center min-h-[300px]">
+        <div v-if="loading" class="flex min-h-[300px] flex-1 items-center justify-center">
             <ProgressSpinner />
         </div>
 
-        <div v-else-if="error" class="flex flex-1 flex-col items-center justify-center text-center min-h-[300px]">
+        <div v-else-if="error" class="flex min-h-[300px] flex-1 flex-col items-center justify-center text-center">
             <i class="pi pi-exclamation-circle mb-4 text-4xl text-red-500"></i>
-            <h3 class="text-lg font-bold text-surface-0">Failed to load events</h3>
-            <p class="mt-2 text-sm text-surface-400">{{ error }}</p>
-            <Button label="Try Again" icon="pi pi-refresh" outlined size="small" class="mt-4" @click="fetchUpcomingEvents" />
+            <h3 class="text-surface-0 text-lg font-bold">Failed to load events</h3>
+            <p class="text-surface-400 mt-2 text-sm">{{ error }}</p>
+            <Button
+                label="Try Again"
+                icon="pi pi-refresh"
+                outlined
+                size="small"
+                class="mt-4"
+                @click="fetchUpcomingEvents"
+            />
         </div>
 
-        <div v-else-if="events.length === 0" class="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-surface-900/30 text-center min-h-[300px] p-6">
-            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-800">
-                <i class="pi pi-calendar-times text-2xl text-surface-400"></i>
+        <div
+            v-else-if="events.length === 0"
+            class="bg-surface-900/30 flex min-h-[300px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 p-6 text-center"
+        >
+            <div class="bg-surface-800 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                <i class="pi pi-calendar-times text-surface-400 text-2xl"></i>
             </div>
-            <h3 class="text-lg font-bold text-surface-0">No upcoming events</h3>
-            <p class="mt-2 max-w-sm text-sm text-surface-400">You don't have any upcoming events scheduled. Head over to the calendar to create one!</p>
+            <h3 class="text-surface-0 text-lg font-bold">No upcoming events</h3>
+            <p class="text-surface-400 mt-2 max-w-sm text-sm">
+                You don't have any upcoming events scheduled. Head over to the calendar to create one!
+            </p>
             <router-link :to="{ name: 'calendar' }" class="mt-6">
                 <Button label="Go to Calendar" icon="pi pi-calendar-plus" outlined />
             </router-link>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-12">
+        <div v-else class="grid grid-cols-1 gap-4 pb-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <UpcomingEventCard
                 v-for="event in events"
                 :key="event.id"
@@ -128,11 +138,7 @@ const handleDeleteEvent = async (id: number) => {
         </div>
 
         <!-- Event View Dialog -->
-        <EventViewDialog
-            v-model:visible="showViewDialog"
-            :event="selectedEvent"
-            @delete="handleDeleteEvent"
-        />
+        <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent" />
     </div>
 </template>
 
@@ -147,13 +153,13 @@ const handleDeleteEvent = async (id: number) => {
 }
 
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(10px); 
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 </style>

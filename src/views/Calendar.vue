@@ -167,7 +167,7 @@ watch(days, scrollToToday);
                 <div
                     v-for="day in weekDays"
                     :key="day"
-                    class="weekday-header text-surface-500 p-1 md:p-3 text-center text-[10px] md:text-sm font-medium tracking-wider uppercase"
+                    class="weekday-header text-surface-500 p-1 text-center text-[10px] font-medium tracking-wider uppercase md:p-3 md:text-sm"
                 >
                     {{ day }}
                 </div>

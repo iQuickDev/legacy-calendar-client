@@ -24,20 +24,22 @@ const { cardRef, backgroundStyle } = useMagicCard({
 <template>
     <div
         ref="cardRef"
-        class="event-card-wrapper group relative mb-0 md:mb-1 overflow-hidden"
+        class="event-card-wrapper group relative mb-0 overflow-hidden md:mb-1"
         @click.stop="emit('click', event)"
     >
         <Chip
             :label="event.title"
-            class="w-full cursor-pointer transition-all hover:brightness-95 justify-between!"
+            class="w-full cursor-pointer justify-between! transition-all hover:brightness-95"
             :style="event.color ? { borderLeft: `3px solid ${event.color}` } : {}"
             :pt="{
-                root: { class: '!rounded-sm md:!rounded-md shadow-sm border border-white/5 !px-1 !py-0.5 md:!px-2 md:!py-1 min-h-0' },
+                root: {
+                    class: '!rounded-sm md:!rounded-md shadow-sm border border-white/5 !px-1 !py-0.5 md:!px-2 md:!py-1 min-h-0'
+                },
                 label: { class: 'flex-1 truncate font-medium text-[9px] md:text-sm z-10 leading-tight pl-1' }
             }"
         >
             <template #icon>
-                <div class="z-10 ml-auto hidden md:flex shrink-0 items-center gap-1">
+                <div class="z-10 ml-auto hidden shrink-0 items-center gap-1 md:flex">
                     <UserAvatar
                         :profilePicture="event.host?.profilePicture"
                         :username="event.host?.username"

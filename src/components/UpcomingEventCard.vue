@@ -42,7 +42,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
 
 // Get accepted/pending participants
 const activeParticipants = computed(() => {
-    return (props.event.participants || []).filter(p => p.status !== 'DECLINED');
+    return (props.event.participants || []).filter((p) => p.status !== 'DECLINED');
 });
 
 const displayParticipants = computed(() => {
@@ -64,10 +64,10 @@ const extraParticipantsCount = computed(() => {
         <div class="z-10 flex flex-col gap-3">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex flex-col gap-1">
-                    <span class="text-xs font-semibold tracking-wider text-surface-400 uppercase">
+                    <span class="text-surface-400 text-xs font-semibold tracking-wider uppercase">
                         {{ dateDisplay }}
                     </span>
-                    <h3 class="m-0 text-xl font-bold text-surface-0 line-clamp-2">
+                    <h3 class="text-surface-0 m-0 line-clamp-2 text-xl font-bold">
                         {{ event.title }}
                     </h3>
                 </div>
@@ -76,20 +76,28 @@ const extraParticipantsCount = computed(() => {
                 </div>
             </div>
 
-            <p class="m-0 text-sm text-surface-300 line-clamp-3" v-if="event.description">
+            <p class="text-surface-300 m-0 line-clamp-3 text-sm" v-if="event.description">
                 {{ event.description }}
             </p>
 
-            <div v-if="event.location" class="flex items-center gap-2 text-sm text-surface-400 mt-2">
+            <div v-if="event.location" class="text-surface-400 mt-2 flex items-center gap-2 text-sm">
                 <i class="pi pi-map-marker"></i>
                 <span class="truncate">{{ event.location }}</span>
             </div>
-            
-            <div class="flex flex-wrap items-center gap-2 mt-1">
-                <div v-if="event.hasFood" class="flex items-center gap-1 text-xs text-surface-400 border border-white/10 rounded px-2 py-0.5" title="Food available">
+
+            <div class="mt-1 flex flex-wrap items-center gap-2">
+                <div
+                    v-if="event.hasFood"
+                    class="text-surface-400 flex items-center gap-1 rounded border border-white/10 px-2 py-0.5 text-xs"
+                    title="Food available"
+                >
                     <i class="pi pi-shopping-cart text-[10px]"></i> Food
                 </div>
-                <div v-if="event.hasAlcohol || event.hasBeer" class="flex items-center gap-1 text-xs text-surface-400 border border-white/10 rounded px-2 py-0.5" title="Drinks available">
+                <div
+                    v-if="event.hasAlcohol || event.hasBeer"
+                    class="text-surface-400 flex items-center gap-1 rounded border border-white/10 px-2 py-0.5 text-xs"
+                    title="Drinks available"
+                >
                     <i class="pi pi-shop text-[10px]"></i> Drinks
                 </div>
             </div>
@@ -101,45 +109,45 @@ const extraParticipantsCount = computed(() => {
                     <UserAvatar
                         :profilePicture="event.host?.profilePicture"
                         :username="event.host?.username"
-                        class="h-8! w-8! border border-surface-800"
+                        class="border-surface-800 h-8! w-8! border"
                     />
-                    <div class="flex flex-col hidden sm:flex">
-                        <span class="text-xs text-surface-400">Hosted by</span>
-                        <span class="text-sm font-medium text-surface-100">{{ event.host?.username }}</span>
+                    <div class="flex hidden flex-col sm:flex">
+                        <span class="text-surface-400 text-xs">Hosted by</span>
+                        <span class="text-surface-100 text-sm font-medium">{{ event.host?.username }}</span>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
                 <AvatarGroup v-if="activeParticipants.length > 0" class="-space-x-2">
-                    <Avatar 
-                        v-for="p in displayParticipants" 
-                        :key="p.id" 
-                        :image="p.profilePicture" 
+                    <Avatar
+                        v-for="p in displayParticipants"
+                        :key="p.id"
+                        :image="p.profilePicture"
                         :label="!p.profilePicture ? p.username?.charAt(0).toUpperCase() : undefined"
-                        shape="circle" 
-                        class="border border-[#262626] bg-[#0a0a0a] text-surface-200 h-7! w-7! text-xs font-bold"
+                        shape="circle"
+                        class="text-surface-200 h-7! w-7! border border-[#262626] bg-[#0a0a0a] text-xs font-bold"
                         :title="p.username"
                     />
-                    <Avatar 
-                        v-if="extraParticipantsCount > 0" 
-                        :label="`+${extraParticipantsCount}`" 
-                        shape="circle" 
-                        class="border border-[#262626] bg-[#1a1a1a] text-surface-300 h-7! w-7! text-[10px] font-bold"
+                    <Avatar
+                        v-if="extraParticipantsCount > 0"
+                        :label="`+${extraParticipantsCount}`"
+                        shape="circle"
+                        class="text-surface-300 h-7! w-7! border border-[#262626] bg-[#1a1a1a] text-[10px] font-bold"
                     />
                 </AvatarGroup>
-                <div v-else class="flex items-center gap-1 text-surface-400" title="Participants">
+                <div v-else class="text-surface-400 flex items-center gap-1" title="Participants">
                     <i class="pi pi-users text-sm"></i>
                     <span class="text-sm font-semibold">0</span>
                 </div>
-                
+
                 <Button
                     label="View"
                     icon="pi pi-arrow-right"
                     iconPos="right"
                     size="small"
                     outlined
-                    class="p-button-rounded text-xs! hidden sm:flex"
+                    class="p-button-rounded hidden text-xs! sm:flex"
                     @click.stop="emit('view', event)"
                 />
             </div>

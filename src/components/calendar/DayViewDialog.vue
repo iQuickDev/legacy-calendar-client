@@ -48,20 +48,15 @@ const handleViewEvent = (event: Event) => {
         :breakpoints="{ '960px': '75vw', '641px': '100vw' }"
         class="day-view-dialog"
         :pt="{
-            root: { class: 'border-none bg-zinc-950 p-0 overflow-hidden' },
-            header: { class: 'hidden' },
-            content: { class: 'p-0' }
+            header: 'pb-0!'
         }"
     >
         <div v-if="day" class="flex h-full max-h-[80vh] flex-col">
-            <!-- Custom Header -->
-            <div class="relative border-b border-zinc-800 p-6 pb-4">
-                <Button icon="pi pi-times" text rounded class="absolute top-4 right-4 text-zinc-500!" @click="close" />
+            <div class="relative border-b border-zinc-800 px-6 pb-4">
                 <h2 class="mb-1 text-xs font-bold tracking-widest text-zinc-400 uppercase">Day Overview</h2>
                 <h1 class="text-2xl font-black text-white">{{ dateTitle }}</h1>
             </div>
 
-            <!-- Events List -->
             <div class="flex min-h-[200px] flex-1 flex-col gap-4 overflow-y-auto p-4">
                 <div v-if="day.events.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
                     <i class="pi pi-calendar-times mb-4 text-4xl text-zinc-800"></i>
@@ -77,7 +72,6 @@ const handleViewEvent = (event: Event) => {
                 />
             </div>
 
-            <!-- Footer Action -->
             <div class="border-t border-zinc-800 bg-zinc-950/80 p-4 backdrop-blur-md">
                 <Button
                     label="Add New Event"

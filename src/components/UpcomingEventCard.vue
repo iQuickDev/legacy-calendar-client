@@ -85,20 +85,19 @@ const extraParticipantsCount = computed(() => {
             </div>
 
             <div class="flex items-center gap-2">
-                <AvatarGroup v-if="activeParticipants.length > 0" class="-space-x-1.5">
-                    <Avatar
+                <AvatarGroup v-if="activeParticipants.length > 0">
+                    <UserAvatar
                         v-for="p in displayParticipants"
                         :key="p.id"
-                        :image="p.profilePicture"
-                        :label="!p.profilePicture ? p.username?.charAt(0).toUpperCase() : undefined"
-                        shape="circle"
-                        class="text-surface-200 h-6! w-6! border border-[#1a1a1a] bg-[#0a0a0a] text-[9px] font-bold"
+                        :profile-picture="p.profilePicture"
+                        :username="p.username"
+                        class="size-6!"
                     />
                     <Avatar
                         v-if="extraParticipantsCount > 0"
                         :label="`+${extraParticipantsCount}`"
                         shape="circle"
-                        class="text-surface-400 h-6! w-6! border border-[#1a1a1a] bg-[#1a1a1a] text-[8px] font-bold"
+                        class="size-6! text-[10px]!"
                     />
                 </AvatarGroup>
 

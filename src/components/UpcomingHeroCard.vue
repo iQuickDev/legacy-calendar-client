@@ -268,7 +268,7 @@ const duration = computed(() => {
                 <Button
                     :label="primaryAction.label"
                     :icon="primaryAction.icon"
-                    class="hero-button w-full rounded-xl! py-4! text-lg! font-bold! transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                    class="hero-button w-full rounded-xl! py-4! text-lg! font-bold! text-black! transition-all duration-300 hover:scale-[1.02] hover:text-white! active:scale-[0.98]"
                     :severity="primaryAction.color === 'primary' ? 'primary' : 'secondary'"
                     @click="handleAction"
                 />

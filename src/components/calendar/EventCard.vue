@@ -5,7 +5,7 @@ import Chip from 'primevue/chip';
 import type { Event } from '../../types/Event';
 import { useMagicCard } from '../../composables/useMagicCard';
 
-defineProps<{
+const props = defineProps<{
     event: Event;
 }>();
 
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 // @ts-expect-error - used in template
 const { cardRef, backgroundStyle } = useMagicCard({
     gradientSize: 150,
-    gradientColor: '#ffffff',
+    gradientColor: () => props.event.color || '#ffffff',
     gradientOpacity: 0.15
 });
 </script>
@@ -24,15 +24,16 @@ const { cardRef, backgroundStyle } = useMagicCard({
 <template>
     <div
         ref="cardRef"
-        class="event-card-wrapper group relative mb-1 overflow-hidden"
+        class="event-card-wrapper group relative mb-0 md:mb-1 overflow-hidden"
         @click.stop="emit('click', event)"
     >
         <Chip
             :label="event.title"
             class="w-full cursor-pointer transition-all hover:brightness-95 justify-between!"
+            :style="event.color ? { borderLeft: `3px solid ${event.color}` } : {}"
             :pt="{
                 root: { class: '!rounded-sm md:!rounded-md shadow-sm border border-white/5 !px-1 !py-0.5 md:!px-2 md:!py-1 min-h-0' },
-                label: { class: 'flex-1 truncate font-medium text-[9px] md:text-sm z-10 leading-tight' }
+                label: { class: 'flex-1 truncate font-medium text-[9px] md:text-sm z-10 leading-tight pl-1' }
             }"
         >
             <template #icon>

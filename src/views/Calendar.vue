@@ -210,7 +210,7 @@ watch(days, scrollToToday);
 .days-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(60px, 1fr);
+    grid-auto-rows: minmax(80px, 1fr);
     gap: 1px;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.001);

@@ -1,5 +1,6 @@
 export interface CreateEventDto {
     title: string;
+    color?: string;
     description?: string;
     location?: string;
     startTime: string;
@@ -49,6 +50,7 @@ export interface EventParticipant extends EventPersonSummary {
 export interface Event {
     id: number;
     title: string;
+    color?: string;
     description?: string;
     location?: string;
     startTime: string;

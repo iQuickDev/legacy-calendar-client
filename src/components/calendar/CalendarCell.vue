@@ -14,9 +14,7 @@ defineEmits<{
     (e: 'view-event', event: Event): void;
 }>();
 
-const dayName = computed(() => {
-    return props.day.date.toLocaleDateString('en-US', { weekday: 'short' });
-});
+
 
 const spotlightColor = computed(() => (props.day.isToday ? '#064e23' : '#262626'));
 
@@ -31,7 +29,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
 <template>
     <div
         ref="cardRef"
-        class="calendar-cell group relative flex min-h-[60px] md:min-h-0 cursor-pointer flex-col items-stretch gap-1 p-1 md:p-2"
+        class="calendar-cell group relative flex min-h-[80px] md:min-h-0 cursor-pointer flex-col items-stretch gap-1 pt-1 pl-1 pr-0 pb-0 md:p-2"
         :data-today="day.isToday || undefined"
         :class="[
             {
@@ -59,7 +57,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
         </div>
 
         <!-- Events List -->
-        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-1">
+        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-0 md:pr-1 pb-0 md:pb-1">
             <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
         </div>
 

@@ -109,6 +109,28 @@ const scrollToToday = () => {
     });
 };
 
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+
+const handleTouchStart = (e: TouchEvent) => {
+    touchStartX.value = e.changedTouches[0].screenX;
+};
+
+const handleTouchEnd = (e: TouchEvent) => {
+    touchEndX.value = e.changedTouches[0].screenX;
+    handleSwipe();
+};
+
+const handleSwipe = () => {
+    const swipeThreshold = 50;
+    if (touchEndX.value < touchStartX.value - swipeThreshold) {
+        nextMonth();
+    }
+    if (touchEndX.value > touchStartX.value + swipeThreshold) {
+        prevMonth();
+    }
+};
+
 onMounted(scrollToToday);
 watch(days, scrollToToday);
 </script>
@@ -161,7 +183,11 @@ watch(days, scrollToToday);
         </div>
 
         <!-- Calendar Grid -->
-        <div class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden">
+        <div 
+            class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden"
+            @touchstart="handleTouchStart"
+            @touchend="handleTouchEnd"
+        >
             <!-- Weekday Headers -->
             <div class="grid grid-cols-7">
                 <div

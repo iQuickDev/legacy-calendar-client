@@ -37,6 +37,8 @@ const emit = defineEmits<{
 const sessionStore = useSessionStore();
 const { users, fetchUsers } = useUsers();
 
+const userMap = computed(() => new Map(users.value.map((u) => [u.id, u])));
+
 const title = ref('');
 const description = ref('');
 const location = ref('');
@@ -292,13 +294,11 @@ const onSave = () => {
                     <template #chip="slotProps">
                         <div class="flex items-center gap-1 px-1">
                             <UserAvatar
-                                :profilePicture="
-                                    availableParticipants.find((p) => p.id === slotProps.value)?.profilePicture
-                                "
-                                :username="availableParticipants.find((p) => p.id === slotProps.value)?.username"
+                                :profilePicture="userMap.get(slotProps.value)?.profilePicture"
+                                :username="userMap.get(slotProps.value)?.username"
                                 class="h-4! w-4! text-[10px]!"
                             />
-                            <span>{{ availableParticipants.find((p) => p.id === slotProps.value)?.username }}</span>
+                            <span>{{ userMap.get(slotProps.value)?.username }}</span>
                         </div>
                     </template>
                 </MultiSelect>

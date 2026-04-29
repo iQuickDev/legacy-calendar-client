@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { Event, EventFeature, CreateEventDto } from '../../../types/Event';
 import type { User } from '../../../types/User';
 import InputText from 'primevue/inputtext';
@@ -31,6 +31,8 @@ const emit = defineEmits<{
     (e: 'save', dto: CreateEventDto): void;
     (e: 'cancel'): void;
 }>();
+
+const userMap = computed(() => new Map(props.users.map((u) => [u.id, u])));
 
 const title = ref('');
 const description = ref('');
@@ -227,11 +229,11 @@ const onSave = () => {
                         <template #chip="slotProps">
                             <div class="flex items-center gap-1 px-1">
                                 <UserAvatar
-                                    :profilePicture="users.find((p) => p.id === slotProps.value)?.profilePicture"
-                                    :username="users.find((p) => p.id === slotProps.value)?.username"
+                                    :profilePicture="userMap.get(slotProps.value)?.profilePicture"
+                                    :username="userMap.get(slotProps.value)?.username"
                                     class="h-4! w-4! text-[10px]!"
                                 />
-                                <span>{{ users.find((p) => p.id === slotProps.value)?.username }}</span>
+                                <span>{{ userMap.get(slotProps.value)?.username }}</span>
                             </div>
                         </template>
                     </MultiSelect>

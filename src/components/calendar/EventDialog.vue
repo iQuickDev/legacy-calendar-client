@@ -42,6 +42,21 @@ const eventVisibility = ref('open');
 const selectedFeatures = ref<EventFeature[]>([]);
 const featurePrices = ref<Record<EventFeature, number | null>>(createNullFeatureRecord());
 
+const PREDEFINED_COLORS = [
+    '#52525b', // Zinc (Default)
+    '#ef4444', // Red
+    '#f97316', // Orange
+    '#f59e0b', // Amber
+    '#84cc16', // Lime
+    '#22c55e', // Green
+    '#06b6d4', // Cyan
+    '#3b82f6', // Blue
+    '#8b5cf6', // Violet
+    '#d946ef', // Fuchsia
+    '#f43f5e'  // Rose
+];
+const eventColor = ref(PREDEFINED_COLORS[0]);
+
 const startDateOnly = ref<Date | null>(null);
 const startTimeOnly = ref<Date | null>(null);
 
@@ -98,6 +113,7 @@ watch(
             eventVisibility.value = 'open';
             selectedFeatures.value = [];
             featurePrices.value = createNullFeatureRecord();
+            eventColor.value = PREDEFINED_COLORS[0];
 
             startDateOnly.value = new Date(props.initialDate);
             startTimeOnly.value = new Date(props.initialDate);
@@ -137,6 +153,7 @@ const onSave = () => {
         isOpen: eventVisibility.value === 'open',
         isPrivate: eventVisibility.value === 'private',
         ...featureFlagsFromSelection(selectedFeatures.value),
+        color: eventColor.value,
         foodPrice: featurePrices.value.FOOD ?? undefined,
         weedPrice: featurePrices.value.WEED ?? undefined,
         sleepPrice: featurePrices.value.SLEEP ?? undefined,
@@ -177,6 +194,24 @@ const onSave = () => {
                     placeholder="Add a description..."
                     class="rounded-xl!"
                 />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="font-semibold">Event Color</label>
+                <div class="flex flex-wrap gap-2">
+                    <button
+                        v-for="color in PREDEFINED_COLORS"
+                        :key="color"
+                        type="button"
+                        class="h-8 w-8 rounded-full border-2 transition-all duration-200 focus:outline-hidden"
+                        :class="[
+                            eventColor === color ? 'border-surface-900 dark:border-surface-0 scale-110 shadow-md' : 'border-transparent hover:scale-105 shadow-sm'
+                        ]"
+                        :style="{ backgroundColor: color }"
+                        @click="eventColor = color"
+                        aria-label="Select color"
+                    ></button>
+                </div>
             </div>
 
             <div class="flex flex-col gap-2">

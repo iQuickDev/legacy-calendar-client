@@ -14,9 +14,7 @@ defineEmits<{
     (e: 'view-event', event: Event): void;
 }>();
 
-const dayName = computed(() => {
-    return props.day.date.toLocaleDateString('en-US', { weekday: 'short' });
-});
+
 
 const spotlightColor = computed(() => (props.day.isToday ? '#064e23' : '#262626'));
 
@@ -31,29 +29,23 @@ const { cardRef, backgroundStyle } = useMagicCard({
 <template>
     <div
         ref="cardRef"
-        class="calendar-cell group relative flex min-h-[60px] shrink-0 cursor-pointer flex-row items-center gap-3 p-3 md:min-h-0 md:shrink md:flex-col md:items-stretch md:gap-1 md:p-2"
+        class="calendar-cell group relative flex min-h-[80px] md:min-h-0 cursor-pointer flex-col items-stretch gap-1 pt-1 pl-1 pr-0 pb-0 md:p-2"
         :data-today="day.isToday || undefined"
         :class="[
             {
                 'cell-active': day.isCurrentMonth,
                 'cell-inactive': !day.isCurrentMonth,
-                'cell-today': day.isToday,
-                'hidden md:flex': !day.isCurrentMonth
+                'cell-today': day.isToday
             }
         ]"
         @click="$emit('add-event', day.date)"
     >
         <!-- Date Header -->
         <div
-            class="mb-0 flex w-12 shrink-0 flex-col items-center gap-1 md:mb-1 md:w-auto md:flex-row md:justify-between"
+            class="mb-0.5 md:mb-1 flex w-full justify-center md:justify-end"
         >
-            <!-- Mobile Day Name -->
-            <span class="text-surface-500 text-[10px] font-bold uppercase md:hidden">
-                {{ dayName }}
-            </span>
-
             <span
-                class="day-number flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-all duration-300"
+                class="day-number flex h-6 w-6 md:h-7 md:w-7 items-center justify-center rounded-full text-xs md:text-sm font-medium transition-all duration-300"
                 :class="{
                     'today-badge': day.isToday,
                     'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
@@ -65,7 +57,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
         </div>
 
         <!-- Events List -->
-        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-1">
+        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-0 md:pr-1 pb-0 md:pb-1">
             <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
         </div>
 

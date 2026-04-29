@@ -162,12 +162,12 @@ watch(days, scrollToToday);
 
         <!-- Calendar Grid -->
         <div class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden">
-            <!-- Weekday Headers (Hidden on Mobile) -->
-            <div class="hidden grid-cols-7 md:grid">
+            <!-- Weekday Headers -->
+            <div class="grid grid-cols-7">
                 <div
                     v-for="day in weekDays"
                     :key="day"
-                    class="weekday-header text-surface-500 p-3 text-center text-sm font-medium tracking-wider uppercase"
+                    class="weekday-header text-surface-500 p-1 md:p-3 text-center text-[10px] md:text-sm font-medium tracking-wider uppercase"
                 >
                     {{ day }}
                 </div>
@@ -206,45 +206,28 @@ watch(days, scrollToToday);
     position: relative;
 }
 
-/* Days grid - mobile: scrollable list, desktop: fixed grid */
+/* Days grid - uniform grid layout for all sizes */
 .days-grid {
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(80px, 1fr);
     gap: 1px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.001);
+    overflow-y: auto;
     /* Hide scrollbar but keep functionality */
     scrollbar-width: none;
-    /* Firefox */
     -ms-overflow-style: none;
-    /* IE/Edge */
 }
 
 .days-grid::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari, Opera */
 }
 
-/* Desktop: fixed 7-column grid — gap + background = uniform grid lines */
 @media (min-width: 768px) {
     .days-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
         grid-auto-rows: 1fr;
-        gap: 1px;
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.001);
         overflow: hidden;
-    }
-}
-
-/* Mobile borders */
-@media (max-width: 768px) {
-    .calendar-cell {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .calendar-cell:first-child {
-        border-top: none;
     }
 }
 </style>

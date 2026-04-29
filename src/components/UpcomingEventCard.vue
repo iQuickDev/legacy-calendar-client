@@ -29,8 +29,6 @@ const dateDisplay = computed(() => {
     return `${format(startDate.value, 'MMM d, h:mm a')} - ${format(endDate.value, 'MMM d, h:mm a')}`;
 });
 
-const monthShort = computed(() => format(startDate.value, 'MMM'));
-const dayNumber = computed(() => format(startDate.value, 'dd'));
 
 const isPrivate = computed(() => props.event.isPrivate);
 
@@ -39,6 +37,8 @@ const { cardRef, backgroundStyle } = useMagicCard({
     gradientColor: '#ffffff',
     gradientOpacity: 0.1
 });
+
+defineExpose({ cardRef });
 
 // Get accepted/pending participants
 const activeParticipants = computed(() => {

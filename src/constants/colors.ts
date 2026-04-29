@@ -11,4 +11,4 @@ export const PREDEFINED_COLORS = [
     '#d946ef' // Fuchsia
 ];
 
-export const DEFAULT_COLOR = PREDEFINED_COLORS[0];
+export const DEFAULT_COLOR = PREDEFINED_COLORS[0] as string;

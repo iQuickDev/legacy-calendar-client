@@ -6,15 +6,13 @@ import UpcomingEventCard from '../components/UpcomingEventCard.vue';
 import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import API from '../services/API';
 import type { Event } from '../types/Event';
-import { useCalendar } from '../composables/useCalendar';
 
 const toast = useToast();
 const loading = ref(true);
 const events = ref<Event[]>([]);
 const error = ref<string | null>(null);
 
-// Reuse delete logic from calendar composable or define locally
-const { deleteEvent } = useCalendar();
+
 
 const fetchUpcomingEvents = async () => {
     loading.value = true;

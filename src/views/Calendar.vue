@@ -113,11 +113,11 @@ const touchStartX = ref(0);
 const touchEndX = ref(0);
 
 const handleTouchStart = (e: TouchEvent) => {
-    touchStartX.value = e.changedTouches[0].screenX;
+    touchStartX.value = e.changedTouches[0]?.screenX ?? 0;
 };
 
 const handleTouchEnd = (e: TouchEvent) => {
-    touchEndX.value = e.changedTouches[0].screenX;
+    touchEndX.value = e.changedTouches[0]?.screenX ?? 0;
     handleSwipe();
 };
 

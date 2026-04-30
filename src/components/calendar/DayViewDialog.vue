@@ -47,6 +47,7 @@ const handleViewEvent = (event: Event) => {
         :style="{ width: '90vw', maxWidth: '500px' }"
         :breakpoints="{ '960px': '75vw', '641px': '100vw' }"
         class="day-view-dialog"
+        dismissableMask
         :pt="{
             header: 'pb-0!'
         }"

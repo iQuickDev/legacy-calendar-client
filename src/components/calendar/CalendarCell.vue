@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type { CalendarDay } from '../../types/Calendar';
 import type { Event } from '../../types/Event';
 import EventCard from './EventCard.vue';
@@ -9,10 +9,33 @@ const props = defineProps<{
     day: CalendarDay;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
     (e: 'add-event', date: Date): void;
     (e: 'view-event', event: Event): void;
+    (e: 'zoom-day', day: CalendarDay): void;
 }>();
+
+const isMobile = ref(false);
+const checkMobile = () => {
+    isMobile.value = window.innerWidth < 768;
+};
+
+onMounted(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkMobile);
+});
+
+const handleClick = () => {
+    if (isMobile.value && props.day.events.length > 0) {
+        emit('zoom-day', props.day);
+    } else {
+        emit('add-event', props.day.date);
+    }
+};
 
 const spotlightColor = computed(() => (props.day.isToday ? '#064e23' : '#262626'));
 
@@ -27,7 +50,7 @@ const { cardRef, backgroundStyle } = useMagicCard({
 <template>
     <div
         ref="cardRef"
-        class="calendar-cell group relative flex min-h-[80px] cursor-pointer flex-col items-stretch gap-1 pt-1 pr-0 pb-0 pl-1 md:min-h-0 md:p-2"
+        class="calendar-cell group relative flex min-h-[80px] flex-col items-stretch gap-1 pt-1 pr-0 pb-0 pl-1 md:min-h-0 md:p-2"
         :data-today="day.isToday || undefined"
         :class="[
             {
@@ -36,25 +59,36 @@ const { cardRef, backgroundStyle } = useMagicCard({
                 'cell-today': day.isToday
             }
         ]"
-        @click="$emit('add-event', day.date)"
     >
-        <!-- Date Header -->
-        <div class="mb-0.5 flex w-full justify-center md:mb-1 md:justify-end">
-            <span
-                class="day-number flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium transition-all duration-300 md:h-7 md:w-7 md:text-sm"
-                :class="{
-                    'today-badge': day.isToday,
-                    'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
-                    'text-surface-700': !day.isCurrentMonth
-                }"
-            >
-                {{ day.date.getDate() }}
-            </span>
-        </div>
+        <!-- Background Click Area (Z-0) -->
+        <div v-if="day.isCurrentMonth" class="absolute inset-0 z-0 cursor-pointer" @click="handleClick"></div>
 
-        <!-- Events List -->
-        <div class="z-10 flex min-h-0 w-full flex-1 flex-col gap-1 overflow-y-auto pr-0 pb-0 md:pr-1 md:pb-1">
-            <EventCard v-for="event in day.events" :key="event.id" :event="event" @click="$emit('view-event', event)" />
+        <!-- Content Layer (Z-10) - Pointer events disabled so background catches empty clicks -->
+        <div class="pointer-events-none relative z-10 flex h-full flex-col">
+            <!-- Date Header -->
+            <div class="mb-0.5 flex w-full justify-center md:mb-1 md:justify-end">
+                <span
+                    class="day-number flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium transition-all duration-300 md:h-7 md:w-7 md:text-sm"
+                    :class="{
+                        'today-badge': day.isToday,
+                        'text-surface-600 dark:text-surface-400': !day.isToday && day.isCurrentMonth,
+                        'text-surface-700': !day.isCurrentMonth
+                    }"
+                >
+                    {{ day.date.getDate() }}
+                </span>
+            </div>
+
+            <!-- Events List - Re-enable pointer events ONLY for the cards -->
+            <div class="flex flex-1 flex-col gap-1 overflow-y-auto pr-0 pb-0 md:pr-1 md:pb-1">
+                <EventCard
+                    v-for="event in day.events"
+                    :key="event.id"
+                    :event="event"
+                    class="pointer-events-auto"
+                    @click="emit('view-event', event)"
+                />
+            </div>
         </div>
 
         <!-- Magic card spotlight overlay -->

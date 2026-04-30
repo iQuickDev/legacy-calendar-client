@@ -95,9 +95,7 @@ export function useCalendar() {
         }));
 
         return dates.map((date) => {
-            const dayEvents = parsedEvents
-                .filter((e) => isSameDay(e.parsedDate, date))
-                .map((e) => e.event);
+            const dayEvents = parsedEvents.filter((e) => isSameDay(e.parsedDate, date)).map((e) => e.event);
 
             return {
                 date,

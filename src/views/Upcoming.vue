@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import ProgressSpinner from 'primevue/progressspinner';
 import UpcomingEventCard from '../components/UpcomingEventCard.vue';
+import UpcomingHeroCard from '../components/UpcomingHeroCard.vue';
 import EventViewDialog from '../components/calendar/EventViewDialog.vue';
 import API from '../services/API';
 import type { Event } from '../types/Event';
@@ -12,7 +13,8 @@ const loading = ref(true);
 const events = ref<Event[]>([]);
 const error = ref<string | null>(null);
 
-
+// Reuse delete logic from calendar composable or define locally
+// const { deleteEvent } = useCalendar();
 
 const fetchUpcomingEvents = async () => {
     loading.value = true;
@@ -41,6 +43,9 @@ onMounted(() => {
 // Event view dialog state
 const showViewDialog = ref(false);
 const selectedEventId = ref<number | null>(null);
+
+const heroEvent = computed(() => (events.value.length > 0 ? events.value[0] : null));
+const otherEvents = computed(() => (events.value.length > 1 ? events.value.slice(1) : []));
 
 const selectedEvent = computed(() => {
     if (selectedEventId.value === null) return null;
@@ -76,63 +81,77 @@ const handleDeleteEvent = async (id: number) => {
 </script>
 
 <template>
-    <div class="upcoming-container flex w-full flex-col gap-3 p-4 md:gap-4 md:px-6 md:py-4">
-        <!-- Header matches Calendar.vue -->
-        <div class="mb-2 flex flex-row items-center justify-between gap-2">
+    <div class="upcoming-container flex w-full flex-col gap-6 p-4 md:gap-8 md:px-8 md:py-6">
+        <!-- Header -->
+        <div class="flex flex-row items-end justify-between gap-2">
             <div>
-                <h1 class="text-surface-900 dark:text-surface-0 text-lg font-bold sm:text-2xl md:text-3xl">
-                    Upcoming Events
+                <h1
+                    class="text-surface-900 dark:text-surface-0 text-2xl font-black tracking-tight sm:text-3xl md:text-4xl"
+                >
+                    Upcoming
                 </h1>
-                <p class="text-surface-400 mt-1 text-xs sm:text-sm">Your next 10 events, sorted by start time.</p>
+                <p class="text-surface-400 mt-1 text-sm font-medium">Your schedule for the near future.</p>
             </div>
 
             <router-link :to="{ name: 'calendar' }" class="shrink-0">
-                <Button label="Calendar" icon="pi pi-calendar" outlined size="small" class="text-xs! sm:text-sm!" />
+                <Button label="View Calendar" icon="pi pi-calendar" text size="small" class="font-bold!" />
             </router-link>
         </div>
 
-        <div v-if="loading" class="flex min-h-[300px] flex-1 items-center justify-center">
+        <div v-if="loading" class="flex min-h-[400px] flex-1 items-center justify-center">
             <ProgressSpinner />
         </div>
 
-        <div v-else-if="error" class="flex min-h-[300px] flex-1 flex-col items-center justify-center text-center">
-            <i class="pi pi-exclamation-circle mb-4 text-4xl text-red-500"></i>
-            <h3 class="text-surface-0 text-lg font-bold">Failed to load events</h3>
-            <p class="text-surface-400 mt-2 text-sm">{{ error }}</p>
-            <Button
-                label="Try Again"
-                icon="pi pi-refresh"
-                outlined
-                size="small"
-                class="mt-4"
-                @click="fetchUpcomingEvents"
-            />
+        <div v-else-if="error" class="flex min-h-[400px] flex-1 flex-col items-center justify-center text-center">
+            <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-500/10 text-red-500">
+                <i class="pi pi-exclamation-triangle text-3xl"></i>
+            </div>
+            <h3 class="text-surface-0 text-xl font-bold">Something went wrong</h3>
+            <p class="text-surface-400 mt-2 max-w-xs text-sm">{{ error }}</p>
+            <Button label="Reload Events" icon="pi pi-refresh" class="mt-6 rounded-xl!" @click="fetchUpcomingEvents" />
         </div>
 
         <div
             v-else-if="events.length === 0"
-            class="bg-surface-900/30 flex min-h-[300px] flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 p-6 text-center"
+            class="flex min-h-[500px] flex-1 flex-col items-center justify-center p-6 text-center"
         >
-            <div class="bg-surface-800 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-                <i class="pi pi-calendar-times text-surface-400 text-2xl"></i>
+            <div class="relative mb-8">
+                <div class="bg-primary-500/10 absolute inset-0 animate-pulse rounded-full blur-3xl"></div>
+                <div
+                    class="bg-surface-900/50 relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/5 backdrop-blur-sm"
+                >
+                    <i class="pi pi-calendar-plus text-surface-400 text-4xl"></i>
+                </div>
             </div>
-            <h3 class="text-surface-0 text-lg font-bold">No upcoming events</h3>
-            <p class="text-surface-400 mt-2 max-w-sm text-sm">
-                You don't have any upcoming events scheduled. Head over to the calendar to create one!
+            <h3 class="text-surface-0 text-2xl font-bold">Quiet days ahead</h3>
+            <p class="text-surface-400 mt-3 max-w-sm text-base leading-relaxed">
+                You're all caught up! No upcoming events found. Why not plan something new?
             </p>
-            <router-link :to="{ name: 'calendar' }" class="mt-6">
-                <Button label="Go to Calendar" icon="pi pi-calendar-plus" outlined />
+            <router-link :to="{ name: 'calendar' }" class="mt-8">
+                <Button label="Schedule an Event" icon="pi pi-plus" class="rounded-xl! px-8! py-3!" />
             </router-link>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-4 pb-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <UpcomingEventCard
-                v-for="event in events"
-                :key="event.id"
-                :event="event"
-                class="fade-in"
-                @view="openViewEvent"
-            />
+        <div v-else class="flex flex-col gap-8 pb-20">
+            <!-- Hero Section -->
+            <section v-if="heroEvent" class="hero-section">
+                <h3 class="text-surface-400 mb-4 text-xs font-bold tracking-widest uppercase">Next Up</h3>
+                <UpcomingHeroCard :event="heroEvent" @view="openViewEvent" />
+            </section>
+
+            <!-- Grid Section -->
+            <section v-if="otherEvents.length > 0" class="other-events-section">
+                <h3 class="text-surface-400 mb-4 text-xs font-bold tracking-widest uppercase">Coming Later</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <UpcomingEventCard
+                        v-for="event in otherEvents"
+                        :key="event.id"
+                        :event="event"
+                        class="fade-in"
+                        @view="openViewEvent"
+                    />
+                </div>
+            </section>
         </div>
 
         <!-- Event View Dialog -->

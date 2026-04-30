@@ -8,6 +8,8 @@ import Button from 'primevue/button';
 import ProgressSpinner from 'primevue/progressspinner';
 import EventDialog from '../components/calendar/EventDialog.vue';
 import EventViewDialog from '../components/calendar/EventViewDialog.vue';
+import DayViewDialog from '../components/calendar/DayViewDialog.vue';
+import type { CalendarDay } from '../types/Calendar';
 import type { Event, CreateEventDto } from '../types/Event';
 
 const toast = useToast();
@@ -95,6 +97,15 @@ const handleDeleteEvent = async (id: number) => {
             life: 4000
         });
     }
+};
+
+// Day View state
+const showDayViewDialog = ref(false);
+const selectedDay = ref<CalendarDay | null>(null);
+
+const handleZoomDay = (day: CalendarDay) => {
+    selectedDay.value = day;
+    showDayViewDialog.value = true;
 };
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -191,7 +202,7 @@ watch(days, scrollToToday);
         </div>
 
         <!-- Calendar Grid -->
-        <div 
+        <div
             class="calendar-grid flex flex-1 flex-col overflow-hidden md:overflow-hidden"
             @touchstart="handleTouchStart"
             @touchend="handleTouchEnd"
@@ -215,6 +226,7 @@ watch(days, scrollToToday);
                     :day="day"
                     @add-event="openAddEvent"
                     @view-event="openViewEvent"
+                    @zoom-day="handleZoomDay"
                 />
             </div>
         </div>
@@ -229,6 +241,14 @@ watch(days, scrollToToday);
 
         <!-- Event View Dialog -->
         <EventViewDialog v-model:visible="showViewDialog" :event="selectedEvent" @delete="handleDeleteEvent" />
+
+        <!-- Day View Dialog -->
+        <DayViewDialog
+            v-model:visible="showDayViewDialog"
+            :day="selectedDay"
+            @add-event="openAddEvent"
+            @view-event="openViewEvent"
+        />
     </div>
 </template>
 

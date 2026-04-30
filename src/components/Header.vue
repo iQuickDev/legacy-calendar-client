@@ -6,8 +6,10 @@ import Menubar from 'primevue/menubar';
 import Menu from 'primevue/menu';
 import { useSessionStore } from '../stores/session';
 import { router } from '../router/router';
+import { useRoute } from 'vue-router';
 
 const sessionStore = useSessionStore();
+const route = useRoute();
 
 const isAuthenticated = computed(() => sessionStore.isAuthenticated);
 const currentUser = computed(() => sessionStore.currentUser);
@@ -21,6 +23,7 @@ const items = ref([
     {
         label: 'Calendar',
         icon: 'pi pi-calendar',
+        route: 'calendar',
         command: () => {
             router.push({ name: 'calendar' });
         }
@@ -28,6 +31,7 @@ const items = ref([
     {
         label: 'Upcoming',
         icon: 'pi pi-list',
+        route: 'upcoming',
         command: () => {
             router.push({ name: 'upcoming' });
         }
@@ -74,7 +78,12 @@ const profileMenuItems = computed(() => [
             </router-link>
         </template>
         <template #item="{ item, props, hasSubmenu, root }">
-            <a v-ripple class="flex items-center" v-bind="props.action">
+            <a
+                v-ripple
+                class="flex items-center transition-colors"
+                v-bind="props.action"
+                :class="[route.name === item.route ? 'font-medium text-zinc-100!' : 'text-zinc-600!']"
+            >
                 <span>{{ item.label }}</span>
                 <Badge v-if="item.badge" :class="{ 'ml-auto': !root, 'ml-2': root }" :value="item.badge" />
                 <span
